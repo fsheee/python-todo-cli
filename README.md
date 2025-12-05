@@ -32,6 +32,27 @@ uv run python src/main.py
 6. Exit
 ```
 
+## Testing
+
+Run all tests:
+```bash
+uv run pytest
+```
+
+Run tests with verbose output:
+```bash
+uv run pytest -v
+```
+
+### Test Coverage
+
+| File | Tests | Coverage |
+|------|-------|----------|
+| `tests/test_task.py` | 4 | Task dataclass |
+| `tests/test_task_service.py` | 22 | CRUD operations |
+| `tests/test_commands.py` | 8 | ID parsing/validation |
+| **Total** | **34** | All passing |
+
 ## Limitations (Phase I)
 
 - No persistence - all tasks are lost when the application exits
