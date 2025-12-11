@@ -9,7 +9,7 @@
 
 ## Overview
 
-This specification defines user authentication for the multi-user todo web application using Better Auth with JWT-based authentication. The system supports email/password registration and OAuth providers.
+This specification defines user authentication for the multi-user todo web application using Better Auth with JWT-based authentication. The system supports email/password registration.
 
 ---
 
@@ -53,20 +53,7 @@ This specification defines user authentication for the multi-user todo web appli
 
 ---
 
-### US-004: OAuth Sign In (Google)
-**As a** user
-**I want to** sign in with my Google account
-**So that** I can access the app without creating a new password
-
-**Details:**
-- Redirects to Google OAuth consent screen
-- Creates new account if email doesn't exist
-- Links to existing account if email matches
-- Issues JWT token on successful authentication
-
----
-
-### US-005: Persistent Session
+### US-004: Persistent Session
 **As a** signed-in user
 **I want to** remain signed in across browser sessions
 **So that** I don't have to sign in every time I visit
@@ -78,7 +65,7 @@ This specification defines user authentication for the multi-user todo web appli
 
 ---
 
-### US-006: Password Reset
+### US-005: Password Reset
 **As a** user who forgot my password
 **I want to** reset my password via email
 **So that** I can regain access to my account
@@ -120,14 +107,6 @@ This specification defines user authentication for the multi-user todo web appli
 - [ ] Subsequent requests with old token return 401
 - [ ] Client-side token is cleared
 
-### OAuth Sign In
-- [ ] Redirects to provider consent screen
-- [ ] Callback creates account if new user
-- [ ] Callback links to existing account if email matches
-- [ ] Returns JWT token on successful auth
-- [ ] Provider tokens stored in accounts table
-- [ ] Handles OAuth errors gracefully
-
 ### Session Management
 - [ ] JWT token validated on each API request
 - [ ] Expired tokens return 401 with "Token expired"
@@ -155,7 +134,7 @@ This specification defines user authentication for the multi-user todo web appli
 | Email with leading/trailing spaces | Trimmed before validation |
 | Password exactly 8 characters | Accepted if meets all criteria |
 | Unicode characters in password | Accepted |
-| Email already registered via OAuth | 409 Conflict with message to sign in via OAuth |
+| Email already registered | 409 Conflict with message to sign in |
 | Concurrent registration same email | First succeeds, second gets 409 |
 
 ### Authentication Edge Cases
@@ -166,14 +145,6 @@ This specification defines user authentication for the multi-user todo web appli
 | Valid credentials after lockout expires | Success, counter reset |
 | Token theft/replay attack | Mitigated by short expiration + refresh |
 | Clock skew (client vs server) | 5-minute tolerance on token validation |
-
-### OAuth Edge Cases
-| Case | Expected Behavior |
-|------|-------------------|
-| User denies OAuth consent | Redirect to sign-in with error message |
-| OAuth provider unavailable | Show error, suggest email/password |
-| Email from OAuth differs from registered | Create new account (no auto-link) |
-| OAuth account unlinked then re-linked | New account entry created |
 
 ### Session Edge Cases
 | Case | Expected Behavior |
@@ -297,26 +268,6 @@ Refresh JWT token.
 
 ---
 
-### GET /api/auth/oauth/google
-
-Initiate Google OAuth flow.
-
-**Response: 302 Redirect** to Google consent screen
-
----
-
-### GET /api/auth/oauth/google/callback
-
-Handle Google OAuth callback.
-
-**Query Parameters:**
-- `code`: Authorization code from Google
-- `state`: CSRF state token
-
-**Response: 302 Redirect** to dashboard with token in cookie
-
----
-
 ### POST /api/auth/forgot-password
 
 Request password reset email.
@@ -410,7 +361,6 @@ X-XSS-Protection: 1; mode=block
 ### Tables Used
 - `users` - User accounts
 - `sessions` - Active sessions
-- `accounts` - OAuth provider links
 
 ### Indexes Required
 - `idx_users_email` - Fast email lookup for login
@@ -427,7 +377,6 @@ X-XSS-Protection: 1; mode=block
 - "Sign In" button with loading state
 - "Forgot password?" link
 - "Sign up" link for new users
-- Google OAuth button
 - Error messages displayed inline
 
 ### Sign Up Page (`/signup`)
@@ -437,7 +386,6 @@ X-XSS-Protection: 1; mode=block
 - Password confirmation field
 - "Create Account" button with loading state
 - "Already have an account?" link
-- Google OAuth button
 - Terms of service checkbox
 
 ### Password Reset Pages
@@ -466,7 +414,6 @@ X-XSS-Protection: 1; mode=block
 - [ ] Registration creates user and returns token
 - [ ] Login with valid credentials returns token
 - [ ] Login with invalid credentials returns 401
-- [ ] OAuth flow creates/links account correctly
 - [ ] Session validation accepts valid tokens
 - [ ] Session validation rejects invalid tokens
 - [ ] Password reset flow works end-to-end
@@ -475,7 +422,6 @@ X-XSS-Protection: 1; mode=block
 ### E2E Tests
 - [ ] User can register via sign-up form
 - [ ] User can sign in via sign-in form
-- [ ] User can sign in via Google OAuth
 - [ ] User can sign out and is redirected
 - [ ] User can reset forgotten password
 - [ ] Protected pages redirect to sign in

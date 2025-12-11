@@ -419,7 +419,6 @@ interface SignInFormProps {
 - Remember me checkbox
 - Submit button
 - Forgot password link
-- OAuth buttons
 
 ---
 
@@ -442,28 +441,6 @@ interface SignUpFormProps {
 - Confirm password input
 - Terms checkbox
 - Submit button
-- OAuth buttons
-
----
-
-### OAuthButton
-
-Social sign-in button.
-
-```typescript
-interface OAuthButtonProps {
-  provider: 'google' | 'github';
-  onClick: () => void;
-  loading?: boolean;
-}
-```
-
-**Layout:**
-```
-┌─────────────────────────────────────────────────┐
-│  [G]  Continue with Google                      │
-└─────────────────────────────────────────────────┘
-```
 
 ---
 

@@ -72,3 +72,60 @@ class ErrorResponse(BaseModel):
 
     detail: str
     errors: list[ErrorDetail] | None = None
+
+
+# Auth Schemas
+class RegisterInput(BaseModel):
+    """Schema for user registration."""
+
+    email: str = Field(..., max_length=255)
+    password: str = Field(..., min_length=8, max_length=128)
+    name: str = Field(..., min_length=1, max_length=255)
+
+    @field_validator("email")
+    @classmethod
+    def email_valid(cls, v: str) -> str:
+        """Validate and normalize email."""
+        v = v.strip().lower()
+        if "@" not in v or "." not in v.split("@")[-1]:
+            raise ValueError("Invalid email format")
+        return v
+
+    @field_validator("name")
+    @classmethod
+    def name_not_blank(cls, v: str) -> str:
+        """Validate name is not blank."""
+        stripped = v.strip()
+        if not stripped:
+            raise ValueError("Name cannot be blank")
+        return stripped
+
+
+class LoginInput(BaseModel):
+    """Schema for user login."""
+
+    email: str = Field(..., max_length=255)
+    password: str = Field(..., min_length=1)
+
+    @field_validator("email")
+    @classmethod
+    def email_normalize(cls, v: str) -> str:
+        """Normalize email to lowercase."""
+        return v.strip().lower()
+
+
+class UserResponse(BaseModel):
+    """Schema for user in response."""
+
+    id: UUID
+    email: str
+    name: str | None
+
+    model_config = {"from_attributes": True}
+
+
+class AuthResponse(BaseModel):
+    """Schema for auth response with token."""
+
+    user: UserResponse
+    token: str

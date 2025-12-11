@@ -1,23 +1,22 @@
 # Agent Specification: Prompt Logger Agent
 
 > **Agent ID:** PROMPT-LOGGER-001
-> **Version:** 1.0
+> **Version:** 1.1
 > **Status:** Draft
-> **Last Updated:** 2025-12-10
+> **Last Updated:** 2025-12-11
 
 ---
 
 ## Overview
 
-The Prompt Logger Agent automatically records all user instructions and prompts to a history file for audit trails, context reuse, and collaboration across sessions.
+The Prompt Logger Agent is a **Claude Code development tool** that records user instructions during development sessions. This is NOT a runtime backend agent - it operates within Claude Code IDE integration.
 
 ---
 
 ## Purpose
 
-- **Audit Trail:** Track all instructions given during development
+- **Audit Trail:** Track instructions given during development
 - **Context Reuse:** Reference past prompts in future sessions
-- **Collaboration:** Share prompt history with team members
 - **Documentation:** Auto-generate development history
 
 ---
@@ -139,9 +138,7 @@ Each logged prompt follows this structure:
 - Non-blocking (doesn't delay responses)
 - Silent operation (no user confirmation needed)
 
-### With Other Agents
-- Todo Agent can reference prompt history
-- Plan Agent can use history for context
+**Note:** This is a development-time tool only. It does not integrate with runtime backend agents.
 
 ---
 
@@ -174,7 +171,6 @@ Each logged prompt follows this structure:
 
 ## Related Specifications
 
-- `/specs/agents/todo-agent.md` - Task management agent
 - `/.claude/prompt-history.md` - Output file
 
 ---
@@ -184,3 +180,4 @@ Each logged prompt follows this structure:
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2025-12-10 | Claude | Initial specification |
+| 1.1 | 2025-12-11 | Claude | Clarified as dev tool, not runtime agent |

@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from db import create_db_and_tables
 from routes.tasks import router as tasks_router
+from routes.auth import router as auth_router
 
 
 @asynccontextmanager
@@ -38,6 +39,7 @@ app.add_middleware(
 )
 
 # Include routers
+app.include_router(auth_router)
 app.include_router(tasks_router)
 
 

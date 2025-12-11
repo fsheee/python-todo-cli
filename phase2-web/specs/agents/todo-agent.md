@@ -15,11 +15,7 @@ The Todo Agent is the primary orchestration agent for task management operations
 
 ## Purpose
 
-Enable intelligent, conversational task management that can be invoked via:
-- REST API endpoints
-- Future chatbot interface
-- Future voice assistant integration
-- Automated workflows
+Enable task management operations invoked via REST API endpoints. The agent orchestrates CRUD operations and delegates to specialized skills.
 
 ---
 
@@ -283,32 +279,6 @@ interface TodoAgentOutput {
 
 ---
 
-## Conversation Examples
-
-### Natural Language (Future Chatbot)
-
-```
-User: Add a task to buy groceries
-Agent: I've created a task "Buy groceries". Would you like to add a description?
-
-User: Show my tasks
-Agent: You have 3 tasks:
-  1. ☐ Buy groceries
-  2. ☐ Finish report
-  3. ☑ Call mom
-
-User: Mark the first one as done
-Agent: Done! "Buy groceries" is now complete.
-
-User: Delete the report task
-Agent: Are you sure you want to delete "Finish report"? This cannot be undone.
-
-User: Yes
-Agent: "Finish report" has been deleted.
-```
-
----
-
 ## Integration Points
 
 ### REST API Integration
@@ -360,11 +330,6 @@ The agent emits events for extensibility:
 - [ ] Update task workflow end-to-end
 - [ ] Delete task workflow end-to-end
 - [ ] Toggle completion workflow end-to-end
-
-### Conversation Tests (Future)
-- [ ] Natural language task creation
-- [ ] Ambiguous input clarification
-- [ ] Multi-turn task management dialogue
 
 ---
 

@@ -6,6 +6,7 @@ description = "Multi-user Todo API backend"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "bcrypt>=5.0.0",
     "fastapi>=0.124.0",
     "httpx>=0.28.1",
     "psycopg2-binary>=2.9.11",
