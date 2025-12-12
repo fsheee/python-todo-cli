@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npx next build",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "env": {
+    "NEXT_PRIVATE_USE_WEBPACK": "1"
+  }
+}

@@ -1,10 +1,8 @@
 import type { NextConfig } from "next";
-import path from "path";
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: path.join(__dirname),
-  },
+  // Disable Turbopack for production builds (use Webpack)
+  // This fixes path alias resolution in monorepo deployments
 };
 
 export default nextConfig;
