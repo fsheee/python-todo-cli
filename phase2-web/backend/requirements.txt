@@ -1,10 +1,13 @@
-fastapi
-uvicorn
-sqlmodel
-pyjwt
-bcrypt
-python-dotenv
-httpx
-sqlalchemy
-pydantic
-pg8000
+# Vercel-compatible requirements - pinned versions
+# Use older FastAPI/Pydantic that don't require pydantic-core binary
+fastapi==0.103.2
+pydantic==1.10.13
+uvicorn==0.23.2
+sqlmodel==0.0.8
+sqlalchemy==2.0.21
+pyjwt==2.8.0
+bcrypt==4.0.1
+python-dotenv==1.0.0
+httpx==0.25.0
+starlette==0.27.0
+pg8000==1.30.3
