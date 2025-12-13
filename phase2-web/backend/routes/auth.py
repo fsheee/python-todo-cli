@@ -11,8 +11,8 @@ import os
 from datetime import datetime, timezone, timedelta
 from uuid import UUID
 
-import bcrypt
 import jwt
+from passlib.hash import pbkdf2_sha256
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlmodel import Session, select
@@ -33,13 +33,13 @@ security = HTTPBearer(auto_error=False)
 
 
 def hash_password(password: str) -> str:
-    """Hash a password using bcrypt."""
-    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    """Hash a password using PBKDF2-SHA256."""
+    return pbkdf2_sha256.hash(password)
 
 
 def verify_password(password: str, hashed: str) -> bool:
     """Verify a password against its hash."""
-    return bcrypt.checkpw(password.encode(), hashed.encode())
+    return pbkdf2_sha256.verify(password, hashed)
 
 
 def create_token(user: User) -> str:
