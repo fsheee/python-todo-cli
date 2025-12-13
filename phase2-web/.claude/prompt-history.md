@@ -137,3 +137,61 @@ Add pytest dependencies and create comprehensive test suite for Task CRUD API.
 **Test Results:** 27 passed
 
 ---
+
+## Session: 2025-12-14
+
+### PHR-011: Deploy Backend to Vercel
+**Timestamp:** 2025-12-14T16:00:00Z
+**Type:** Deployment
+
+Deploy FastAPI backend to Vercel serverless.
+
+**Tasks Completed:**
+1. Created `vercel.json` for Python serverless configuration
+2. Generated `requirements.txt` from `pyproject.toml` using `uv pip compile`
+3. Updated CORS in `main.py` to allow Vercel frontend domains
+4. Created `api/index.py` entry point (Vercel preferred pattern)
+5. Fixed binary dependency issues:
+   - Replaced `psycopg2-binary` with `pg8000` (pure Python PostgreSQL driver)
+   - Updated `db.py` to convert DATABASE_URL for pg8000 driver
+
+**Output:**
+- Backend deployed: `https://python-todo-cli-bakend.vercel.app`
+- Files created/modified:
+  - `backend/vercel.json`
+  - `backend/requirements.txt`
+  - `backend/api/index.py`
+  - `backend/db.py` (pg8000 driver support)
+  - `backend/main.py` (CORS update)
+
+---
+
+### PHR-012: Configure Frontend-Backend Integration
+**Timestamp:** 2025-12-14T17:00:00Z
+**Type:** Configuration
+
+Connect Vercel frontend to Vercel backend.
+
+**Environment Variables Required:**
+- Frontend: `NEXT_PUBLIC_API_URL=https://python-todo-cli-bakend.vercel.app`
+- Backend: `DATABASE_URL` (Neon PostgreSQL connection string)
+- Backend: `BETTER_AUTH_SECRET` (JWT secret, 32+ chars)
+
+**Frontend URL:** `https://python-todo-cli-d9n6.vercel.app`
+
+---
+
+### PHR-013: Debug Vercel Serverless Crash
+**Timestamp:** 2025-12-14T19:00:00Z
+**Type:** Debugging
+
+Investigating FUNCTION_INVOCATION_FAILED errors on backend.
+
+**Possible Causes:**
+- Missing environment variables (DATABASE_URL, BETTER_AUTH_SECRET)
+- Database connection timeout
+- Cold start issues on free tier
+
+**Status:** In Progress - Awaiting Vercel logs from user
+
+---

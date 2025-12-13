@@ -181,3 +181,24 @@ Each logged prompt follows this structure:
 |---------|------|--------|---------|
 | 1.0 | 2025-12-10 | Claude | Initial specification |
 | 1.1 | 2025-12-11 | Claude | Clarified as dev tool, not runtime agent |
+| 1.2 | 2025-12-14 | Claude | Added deployment session logs |
+
+---
+
+## Session Logs Reference
+
+### Session: 2025-12-14 - Vercel Deployment
+
+**PHR-011:** Deploy Backend to Vercel
+- Created `vercel.json`, `requirements.txt`, `api/index.py`
+- Fixed binary dependencies (pg8000 instead of psycopg2-binary)
+- Updated CORS for Vercel domains
+
+**PHR-012:** Configure Frontend-Backend Integration
+- Set `NEXT_PUBLIC_API_URL` environment variable
+- Frontend: `https://python-todo-cli-d9n6.vercel.app`
+- Backend: `https://python-todo-cli-bakend.vercel.app`
+
+**PHR-013:** Debug Vercel Serverless Crash
+- Investigating FUNCTION_INVOCATION_FAILED errors
+- Checking environment variables and database connection

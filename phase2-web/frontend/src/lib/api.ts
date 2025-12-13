@@ -16,14 +16,17 @@ class ApiClient {
   private token: string | null = null;
 
   setToken(token: string | null) {
+    console.log('[API] setToken called:', token ? `${token.substring(0, 20)}...` : 'null');
     this.token = token;
     if (token) {
       if (typeof window !== 'undefined') {
         localStorage.setItem('auth_token', token);
+        console.log('[API] Token stored in localStorage');
       }
     } else {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('auth_token');
+        console.log('[API] Token removed from localStorage');
       }
     }
   }
@@ -31,10 +34,13 @@ class ApiClient {
   getToken(): string | null {
     if (typeof window !== 'undefined') {
       const storedToken = localStorage.getItem('auth_token');
+      console.log('[API] getToken - localStorage:', storedToken ? `${storedToken.substring(0, 20)}...` : 'null');
+      console.log('[API] getToken - this.token:', this.token ? `${this.token.substring(0, 20)}...` : 'null');
       if (storedToken) {
         this.token = storedToken;
       }
     }
+    console.log('[API] getToken returning:', this.token ? `${this.token.substring(0, 20)}...` : 'null');
     return this.token;
   }
 
@@ -43,11 +49,14 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     const token = this.getToken();
+    console.log('[API] request to:', endpoint);
+    console.log('[API] request - token present:', !!token);
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
       ...(token && { Authorization: `Bearer ${token}` }),
       ...options.headers,
     };
+    console.log('[API] request - Authorization header:', (headers as Record<string, string>)['Authorization'] ? 'present' : 'missing');
 
     const response = await fetch(`${API_BASE}${endpoint}`, {
       ...options,
