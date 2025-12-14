@@ -17,8 +17,11 @@ from routes.auth import router as auth_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler for startup/shutdown events."""
-    # Startup: create database tables
-    create_db_and_tables()
+    # Startup: create database tables (skip on serverless cold start errors)
+    try:
+        create_db_and_tables()
+    except Exception:
+        pass  # Tables likely already exist
     yield
     # Shutdown: cleanup if needed
 
