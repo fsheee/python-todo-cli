@@ -57,7 +57,9 @@ uv run uvicorn main:app --reload --port 8000
 
 All task endpoints require `Authorization: Bearer <token>` header.
 
-| Method | Endpoint | Description |
+| Method | Endpoint | Description |cla
+
+
 |--------|----------|-------------|
 | POST | `/api/{user_id}/tasks` | Create task |
 | GET | `/api/{user_id}/tasks` | List tasks |
