@@ -1,99 +1,73 @@
-# AGENTS.md — Phase 3
+# AGENTS.md — Phase 3 Agent Definitions
 
-## Overview
-This document defines all agents used in Phase 3 of the project, their responsibilities, and how they interact with each other. Agents are autonomous units capable of performing tasks, communicating with other agents, and using subagents or skills when necessary.
+This file defines all agents, subagents, and skills used in Phase 3 of the hackathon-todo project.  
+It complements CLAUDE.md by providing a clear reference for Phase 3 AI orchestration.
 
----
+## Agents Overview
 
-## 1. Primary Agents
+| User Intent                     | MCP Tool Called         | Output                            |
+|---------------------------------|------------------------ |------------------------------------|
+| Add a new todo                  | create_todo_tool        | Success message, updated todo list |
+| Update existing todo            | update_todo_tool       | Updated todo details                |
+| Delete a todo                   | delete_todo_tool       | Deletion confirmation               |
+| List todos                      | list_todos_tool        | Current todos for user              | 
 
-### 1.1 Claude Agent
-- **Purpose:** Acts as the main reasoning and decision-making agent.
-- **Responsibilities:**
-  - Interpret high-level tasks.
-  - Delegate sub-tasks to relevant subagents.
-  - Maintain the state of ongoing tasks.
-- **Subagents:** Task Parser, Spec Executor
-- **Skills:** Language understanding, task decomposition
+## Agent Types
 
-### 1.2 BetterAuth Agent
-- **Purpose:** Handles authentication and authorization.
-- **Responsibilities:**
-  - Issue, verify, and refresh JWT tokens.
-  - Validate user credentials.
-  - Ensure access control across services.
-- **Subagents:** Token Validator
-- **Skills:** JWT management, encryption, user validation
+### 1. Agents
 
-### 1.3 GPT Integration Agent
-- **Purpose:** Handles all interactions with GPT models.
-- **Responsibilities:**
-  - Send prompts and receive responses from GPT models.
-  - Select the appropriate GPT model per task.
-- **Subagents:** Model Selector, Prompt Formatter
-- **Skills:** Prompt engineering, model orchestration
+- **Interpret user intent** and decide which action to take  
+- Stateless and deterministic  
+- Do **not** authenticate users or access database directly  
+- Only call **MCP tools** to execute actions
 
----
+### 2. Subagents
 
-## 2. Subagents
+- Used for clarification when user input is ambiguous  
+- Never modify data  
+- Always return questions or recommendations to the main agent
 
-### 2.1 Task Parser
-- **Purpose:** Breaks down complex tasks into manageable subtasks.
-- **Responsibilities:**
-  - Analyze input instructions.
-  - Generate sub-tasks for execution by other agents.
-- **Skills:** NLP, task decomposition
+### 3. Skills
 
-### 2.2 Spec Executor
-- **Purpose:** Executes tasks according to project specifications.
-- **Responsibilities:**
-  - Reads project specs.
-  - Ensures outputs comply with defined rules.
-- **Skills:** Specification enforcement, code generation
+- Reusable behaviors used by agents  
+- Describe what can be done, not how  
+- Defined under `/specs/agents/skills/`  
+- Examples:
+  - `parse_todo_intent`: parse user prompt into actionable task
+  - `summarize_conversation`: provide a summary of conversation history
+  - `validate_input`: ensure input is suitable for MCP execution
 
-### 2.3 Token Validator
-- **Purpose:** Validates JWTs and user sessions.
-- **Responsibilities:**
-  - Verify token authenticity.
-  - Match user ID from token with requested resources.
-- **Skills:** Security, authentication
+## MCP Tool Interaction
 
-### 2.4 Model Selector
-- **Purpose:** Chooses the most suitable GPT model for the task.
-- **Responsibilities:**
-  - Compare models based on task type.
-  - Route prompts to correct GPT instance.
-- **Skills:** Model management, task classification
+All agents rely on **MCP tools** for execution. MCP tools:
 
-### 2.5 Prompt Formatter
-- **Purpose:** Prepares prompts for GPT models.
-- **Responsibilities:**
-  - Convert tasks or questions into optimized prompt formats.
-  - Ensure prompts follow best practices for model accuracy.
-- **Skills:** Prompt engineering, text processing
+- Wrap existing Phase 2 backend logic (CRUD, auth, database access)  
+- Receive verified `user_id` from backend context  
+- Are stateless and single-purpose  
+- Never receive `user_id` from user or agent input  
 
----
+**Todo-Agent → MCP Tools Example:**
 
-## 3. Agent Communication
+| User Intent                     | MCP Tool Called         | Output |
+|---------------------------------|------------------------|--------|
+| Add a new todo                  | create_todo_tool       | Success message, updated todo list |
+| Update existing todo             | update_todo_tool       | Updated todo details |
+| Delete a todo                    | delete_todo_tool       | Deletion confirmation |
+| List todos                       | list_todos_tool        | Current todos for user |
 
-- Agents communicate asynchronously via internal messages or event queues.
-- Subagents report progress and results back to their parent agent.
-- Agents use a shared **Source of Truth** for task tracking and state management.
+## Conversation Context
 
----
+- Agents always receive **read-only conversation history**  
+- History is **per user, per conversation**  
+- Runtime memory is **never stored in `.claude/`**  
 
-## 4. Source of Truth
+## Best Practices
 
-- **Location:** `/project/source_truth.md` or central database.
-- **Purpose:** Keeps track of:
-  - Active tasks
-  - Completed tasks
-  - Agent states
-  - Execution logs
+- Always use MCP tools for all actions  
+- Never store secrets or credentials  
+- Stateless: do not retain any runtime data  
+- Ask clarifying questions if intent is ambiguous  
+- Reuse skills wherever possible to avoid duplication  
 
----
+## Folder Structure Reference
 
-## 5. Notes
-- All agents must be modular and replaceable.
-- New agents or subagents can be added following the same structure.
-- Skills are reusable and can be shared between multiple agents.
