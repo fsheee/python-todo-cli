@@ -211,3 +211,4 @@ General → history/prompts/general/
 
 - Phase 3: Added AI conversational interface, agents, MCP tools, and spec-driven automation.  
 - Full reuse of Phase 2 backend logic and Better Auth.
+

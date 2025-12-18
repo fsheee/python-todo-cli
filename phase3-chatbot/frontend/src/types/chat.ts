@@ -8,17 +8,6 @@ export interface ChatMessage {
   timestamp?: string;
 }
 
-export interface ChatRequest {
-  message: string;
-  session_id: string;
-}
-
-export interface ChatResponse {
-  response: string;
-  session_id: string;
-  timestamp: string;
-}
-
 export interface User {
   id: number;
   email: string;

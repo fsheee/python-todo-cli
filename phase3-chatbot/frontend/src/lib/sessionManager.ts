@@ -1,13 +1,11 @@
 /**
- * Session management utilities
+ * Session management utilities for Next.js
  *
  * Spec Reference: specs/ui/chatkit-integration.md - Session Management
- * Task: 5.5
  */
 
 /**
- * Generate a unique session ID for the chat
- * Format: sess_{timestamp}_{random}
+ * Generate a unique session ID
  */
 export function generateSessionId(): string {
   const timestamp = Date.now();
@@ -19,11 +17,10 @@ export function generateSessionId(): string {
  * Get or create session ID from localStorage
  */
 export function getSessionId(): string {
-  const stored = localStorage.getItem('chat_session_id');
+  if (typeof window === 'undefined') return '';
 
-  if (stored) {
-    return stored;
-  }
+  const stored = localStorage.getItem('chat_session_id');
+  if (stored) return stored;
 
   const newSessionId = generateSessionId();
   localStorage.setItem('chat_session_id', newSessionId);
@@ -34,6 +31,8 @@ export function getSessionId(): string {
  * Start a new chat session
  */
 export function startNewSession(): string {
+  if (typeof window === 'undefined') return '';
+
   const newSessionId = generateSessionId();
   localStorage.setItem('chat_session_id', newSessionId);
   return newSessionId;
@@ -43,5 +42,7 @@ export function startNewSession(): string {
  * Clear current session
  */
 export function clearSession(): void {
-  localStorage.removeItem('chat_session_id');
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('chat_session_id');
+  }
 }

@@ -1,15 +1,14 @@
 /**
- * API client for chat endpoints
+ * API client for chat endpoints using MCP tools
  *
  * Spec Reference: specs/ui/chatkit-integration.md - API Client
- * Tasks: 5.6, 5.7, 5.8
+ * Updated to use Next.js and call MCP tools directly via backend
  */
 
 import axios, { AxiosInstance } from 'axios';
-import { useAuthStore } from '../stores/authStore';
-import { ChatMessage, ChatRequest, ChatResponse } from '../types/chat';
+import { useAuthStore } from '@/stores/authStore';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
 
 /**
  * Create axios instance with auth interceptor
@@ -26,9 +25,11 @@ export function createApiClient(): AxiosInstance {
   // Add auth token to requests
   client.interceptors.request.use(
     (config) => {
-      const token = useAuthStore.getState().token;
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      if (typeof window !== 'undefined') {
+        const token = useAuthStore.getState().token;
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
       }
       return config;
     },
@@ -39,8 +40,9 @@ export function createApiClient(): AxiosInstance {
   client.interceptors.response.use(
     (response) => response,
     (error) => {
-      if (error.response?.status === 401) {
+      if (error.response?.status === 401 && typeof window !== 'undefined') {
         useAuthStore.getState().logout();
+        window.location.href = '/login';
       }
       return Promise.reject(error);
     }
@@ -52,13 +54,22 @@ export function createApiClient(): AxiosInstance {
 const apiClient = createApiClient();
 
 /**
+ * Chat message type
+ */
+export interface ChatMessage {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp?: string;
+}
+
+/**
  * Send a chat message
  */
 export async function sendChatMessage(
   message: string,
   sessionId: string
-): Promise<ChatResponse> {
-  const response = await apiClient.post<ChatResponse>('/chat', {
+): Promise<{ response: string; session_id: string; timestamp: string }> {
+  const response = await apiClient.post('/chat', {
     message,
     session_id: sessionId,
   });
@@ -67,17 +78,22 @@ export async function sendChatMessage(
 }
 
 /**
- * Load chat history for a session (optional endpoint)
+ * Load chat history
  */
 export async function loadChatHistory(sessionId: string): Promise<ChatMessage[]> {
   try {
-    const response = await apiClient.get<{ messages: ChatMessage[] }>(
-      `/chat/history/${sessionId}`
-    );
-    return response.data.messages;
+    const response = await apiClient.get(`/chat/history/${sessionId}`);
+    return response.data.messages || [];
   } catch (error) {
-    // History endpoint is optional, return empty on error
     console.warn('Could not load chat history:', error);
     return [];
   }
+}
+
+/**
+ * Login with Better Auth
+ */
+export async function login(email: string, password: string) {
+  const response = await apiClient.post('/auth/login', { email, password });
+  return response.data;
 }

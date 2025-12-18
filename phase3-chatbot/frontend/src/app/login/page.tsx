@@ -1,24 +1,21 @@
 /**
- * Login page component
- *
- * Spec Reference: specs/ui/chatkit-integration.md - Login Page
- * Task: 5.9
+ * Login page for Next.js
  */
 
+'use client';
+
 import React, { useState } from 'react';
-import axios from 'axios';
-import { useAuthStore } from '../stores/authStore';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/stores/authStore';
+import { login } from '@/lib/apiClient';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001';
-
-const LoginPage: React.FC = () => {
+export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login } = useAuthStore();
-  const navigate = useNavigate();
+  const { login: storeLogin } = useAuthStore();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,22 +23,12 @@ const LoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Call Better Auth login endpoint from Phase 2
-      const response = await axios.post(`${API_URL}/auth/login`, {
-        email,
-        password,
-      });
-
-      const { access_token, user } = response.data;
-
-      // Save to auth store
-      login(access_token, user);
-
-      // Navigate to chat
-      navigate('/chat');
+      const data = await login(email, password);
+      storeLogin(data.access_token, data.user);
+      router.push('/chat');
     } catch (err: any) {
       console.error('Login failed:', err);
-      setError(err.response?.data?.detail || 'Login failed. Please try again.');
+      setError(err.response?.data?.detail || 'Login failed');
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +67,7 @@ const LoginPage: React.FC = () => {
             />
           </div>
 
-          {error && <div className="error-message">{error}</div>}
+          {error && <div className="error">{error}</div>}
 
           <button type="submit" disabled={isLoading} className="btn-primary">
             {isLoading ? 'Signing in...' : 'Sign In'}
@@ -89,6 +76,4 @@ const LoginPage: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default LoginPage;
+}
