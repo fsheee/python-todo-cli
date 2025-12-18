@@ -69,20 +69,31 @@ Spec-Kit configuration: `/.spec-kit/config.yaml`
 
 - Any code change not traceable to a spec is invalid.
 
-🤖 Agents, Subagents, and Skills
+🤖 Phase 3 Agent Architecture
 
-**Agents:**  
-- Interpret user intent  
-- Decide which action to take  
-- Stateless and deterministic  
+**Phase 3 uses a simplified architecture with:**
 
-**Subagents:**  
-- Ask clarifying questions when intent is ambiguous  
-- Never modify data  
+**1 Agent (Todo Assistant):**
+- Interprets user intent using OpenAI Agents SDK
+- Decides which MCP tool to call
+- Generates conversational responses
+- Handles clarifying questions directly (no subagents needed)
+- Stateless - context loaded from database per request
 
-**Skills:**  
-- Reusable behaviors used by agents  
-- Stateless, read-only, no direct database access  
+**5 MCP Tools (Execution Layer):**
+- `create_todo` - Create new todos
+- `list_todos` - Retrieve todos with filters
+- `update_todo` - Modify existing todos
+- `delete_todo` - Remove todos
+- `search_todos` - Search todos by keyword
+
+**Not Used in Phase 3:**
+- ❌ Subagents - Main agent handles all clarifications
+- ❌ Skills - Logic contained in agent prompts and MCP tools
+- ❌ Multiple agents - Single agent is sufficient for todo management
+
+**Architecture:** User → Frontend → Backend → **1 Agent** → **5 MCP Tools** → Phase 2 Backend → Database  
+
 
 🔧 MCP Tools (Execution Layer)
 
