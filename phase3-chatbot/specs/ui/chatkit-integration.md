@@ -2,7 +2,7 @@
 
 ## 🎯 Overview
 
-This document specifies the frontend implementation using OpenAI ChatKit for the conversational todo management interface. ChatKit provides the chat UI components while integrating with our FastAPI backend.
+This document specifies the frontend implementation using Next.js 14 + OpenAI ChatKit for the conversational todo management interface. Next.js provides the React framework with App Router, while ChatKit provides the chat UI components, all integrating with our FastAPI backend.
 
 ---
 
@@ -12,11 +12,11 @@ This document specifies the frontend implementation using OpenAI ChatKit for the
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                  React Application                       │
-│                                                          │
+│              Next.js 14 Application                      │
+│                    (App Router)                          │
 │  ┌────────────────────────────────────────────────┐    │
-│  │          App Component                         │    │
-│  │  - Authentication State                        │    │
+│  │          Root Layout                           │    │
+│  │  - Authentication State (Zustand)              │    │
 │  │  - Session Management                          │    │
 │  │  - Route Handling                              │    │
 │  └──────────────────┬─────────────────────────────┘    │
@@ -60,23 +60,24 @@ This document specifies the frontend implementation using OpenAI ChatKit for the
 
 ```json
 {
-  "name": "todo-chatbot-ui",
+  "name": "todo-chatbot-nextjs",
   "version": "1.0.0",
+  "private": true,
   "dependencies": {
+    "next": "^14.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "@openai/chatkit": "^1.0.0",
-    "axios": "^1.6.0",
-    "react-router-dom": "^6.20.0",
-    "zustand": "^4.4.7",
-    "@radix-ui/react-toast": "^1.1.5"
+    "axios": "^1.6.2",
+    "zustand": "^4.4.7"
   },
   "devDependencies": {
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "typescript": "^5.3.0",
-    "vite": "^5.0.0",
-    "@vitejs/plugin-react": "^4.2.0"
+    "@types/node": "^20.10.6",
+    "@types/react": "^18.2.46",
+    "@types/react-dom": "^18.2.18",
+    "typescript": "^5.3.3",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.0.4"
   }
 }
 ```
@@ -84,6 +85,8 @@ This document specifies the frontend implementation using OpenAI ChatKit for the
 ### Installation
 
 ```bash
+npx create-next-app@latest frontend --typescript
+cd frontend
 npm install @openai/chatkit axios zustand
 ```
 
@@ -1018,37 +1021,18 @@ VITE_ENABLE_ANALYTICS=true
 
 ### Build Configuration
 
-**File:** `vite.config.ts`
+**File:** `next.config.js`
 
-```typescript
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+```javascript
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001',
+  },
+}
 
-export default defineConfig({
-  plugins: [react()],
-  build: {
-    outDir: 'dist',
-    sourcemap: true,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          chatkit: ['@openai/chatkit'],
-        },
-      },
-    },
-  },
-  server: {
-    port: 3000,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-      },
-    },
-  },
-});
+module.exports = nextConfig
 ```
 
 ### Build Commands
@@ -1060,11 +1044,8 @@ npm run dev
 # Production build
 npm run build
 
-# Preview production build
-npm run preview
-
-# Type check
-npm run type-check
+# Start production server
+npm start
 
 # Lint
 npm run lint

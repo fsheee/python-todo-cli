@@ -115,10 +115,11 @@ npm run dev
 
 Expected output:
 ```
-VITE v5.0.8  ready in 500 ms
+  ▲ Next.js 14.0.4
+  - Local:        http://localhost:3000
+  - Network:      http://192.168.x.x:3000
 
-➜  Local:   http://localhost:3000/
-➜  Network: use --host to expose
+ ✓ Ready in 2.1s
 ```
 
 Access: http://localhost:3000
@@ -217,26 +218,30 @@ railway up
 
 Set environment variables in Railway dashboard.
 
-### Frontend Deployment (Vercel/Netlify)
+### Frontend Deployment (Vercel - Optimized for Next.js)
 
-#### Vercel
+#### Vercel (Recommended - Zero Config)
 
 ```bash
 cd frontend
-npm run build
 
-# Deploy
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy (auto-detects Next.js)
 vercel --prod
 ```
 
-#### Netlify
+**Note:** Next.js on Vercel requires zero configuration. Just connect your GitHub repo and Vercel auto-deploys.
+
+#### Alternative: Netlify
 
 ```bash
 cd frontend
 npm run build
 
 # Deploy
-netlify deploy --prod --dir=dist
+netlify deploy --prod --dir=.next
 ```
 
 ### Database Migration (Production)

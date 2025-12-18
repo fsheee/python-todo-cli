@@ -422,7 +422,7 @@ Neon PostgreSQL Database
 ## 🔧 Technical Details
 
 ### Technology Stack:
-- **Frontend:** React 18 + TypeScript + Vite + OpenAI ChatKit
+- **Frontend:** Next.js 14 + TypeScript + OpenAI ChatKit
 - **Backend:** Python 3.13 + FastAPI + SQLModel
 - **AI:** OpenAI Agents SDK (GPT-4 Turbo)
 - **MCP:** Official MCP SDK

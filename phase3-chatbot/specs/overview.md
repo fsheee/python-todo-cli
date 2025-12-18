@@ -53,7 +53,7 @@ Use the Agentic Dev Stack workflow:
 
 | Component | Technology | Purpose |
 |-----------|-----------|---------|
-| **Frontend** | OpenAI ChatKit | Chat UI component |
+| **Frontend** | Next.js 14 + OpenAI ChatKit | React framework with Chat UI |
 | **Backend** | Python FastAPI | REST API server |
 | **AI Framework** | OpenAI Agents SDK | Natural language understanding & intent detection |
 | **MCP Server** | Official MCP SDK | Tool execution layer |
@@ -68,7 +68,7 @@ Use the Agentic Dev Stack workflow:
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │                        User Interface                        │
-│                     OpenAI ChatKit (React)                   │
+│                Next.js 14 + OpenAI ChatKit                   │
 └───────────────────────────┬──────────────────────────────────┘
                             │ HTTP/WebSocket
                             ▼

@@ -11,7 +11,7 @@ Phase 3 extends the Phase 2 web application by adding an AI-powered conversation
 ## 🏗 Architecture
 
 ```
-User → Frontend (React + ChatKit)
+User → Frontend (Next.js 14 + ChatKit)
     → Backend (FastAPI + /chat endpoint)
         → AI Agent (OpenAI Agents SDK)
             → MCP Server (5 tools)
@@ -51,7 +51,7 @@ User → Frontend (React + ChatKit)
 
 | Component | Technology |
 |-----------|-----------|
-| **Frontend** | React 18 + TypeScript + Vite + OpenAI ChatKit |
+| **Frontend** | Next.js 14 + TypeScript + OpenAI ChatKit |
 | **Backend** | Python 3.13 + FastAPI + SQLModel |
 | **AI Framework** | OpenAI Agents SDK (GPT-4 Turbo) |
 | **MCP Server** | Official MCP SDK |
