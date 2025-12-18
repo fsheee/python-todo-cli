@@ -70,4 +70,10 @@ All agents rely on **MCP tools** for execution. MCP tools:
 - Reuse skills wherever possible to avoid duplication  
 
 ## Folder Structure Reference
-
+specs/
+├─ agents/
+│ └─ todo-agent.md
+├─ agents/skills/
+│ ├─ parse_todo_intent.md
+│ ├─ summarize_conversation.md
+│ └─ validate_input.md

@@ -33,19 +33,23 @@ Phase 3 adds an **AI Agent + MCP tool layer** on top of the Phase 2 backend.
 📚 Spec-Driven Structure
 
 All behavior is defined in `/specs/`:
-specs/
-├─ overview.md
-├─ features/
-│ └─ chatbot.md
-├─ agents/
-│ └─ todo-agent.md
-├─ agents/skills/
-├─ api/
-│ └─ mcp-tools.md
-├─ database/
-│ └─ conversations.md
-├─ ui/
 
+```
+specs/
+├─ overview.md                      # High-level project architecture
+├─ features/
+│  └─ chatbot.md                   # Conversational interface features
+├─ agents/
+│  └─ todo-agent.md                # AI agent behavior & prompts
+├─ api/
+│  └─ mcp-tools.md                 # MCP tool definitions (5 tools)
+├─ database/
+│  └─ chat-history.md              # Chat history schema & queries
+└─ ui/
+   └─ chatkit-integration.md       # Frontend ChatKit integration
+```
+
+**Status:** All 6 core specifications complete and ready for implementation.
 
 Spec-Kit configuration: `/.spec-kit/config.yaml`
 
