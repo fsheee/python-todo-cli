@@ -7,15 +7,13 @@ Tasks: 4.1-4.7
 
 import logging
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, HTTPException, status, Request, Depends
 from fastapi.security import HTTPAuthorizationCredentials
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas import ChatRequest, ChatResponse
 from app.middleware.auth import verify_jwt_token, security
-from app.queries import load_chat_history, save_message
 from app.agents import process_chat_message
-from app.database import get_db
+from app.storage import get_storage
 
 logger = logging.getLogger(__name__)
 
@@ -27,17 +25,16 @@ async def chat_endpoint(
     request: Request,
     chat_request: ChatRequest,
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    session: AsyncSession = Depends(get_db),
 ):
     """
     Process user chat message and return AI assistant response
 
     This endpoint:
     1. Validates JWT token and extracts user_id
-    2. Loads recent chat history from database
-    3. Saves user message to database
+    2. Loads recent chat history from file storage
+    3. Saves user message to file storage
     4. Processes message through AI agent (with MCP tools)
-    5. Saves assistant response to database
+    5. Saves assistant response to file storage
     6. Returns response to user
 
     Spec Reference: specs/PLAN.md - Chat Flow
@@ -49,6 +46,9 @@ async def chat_endpoint(
         logger.error(f"Authentication failed: {e.detail}")
         raise
 
+    # Get file-based storage
+    storage = get_storage()
+
     # Task 4.8: Log incoming request
     logger.info(
         f"Chat request - user_id: {user_id}, "
@@ -57,21 +57,19 @@ async def chat_endpoint(
     )
 
     try:
-        # Task 4.3: Load chat history
-        history = await load_chat_history(
-            session=session,
+        # Task 4.3: Load chat history from file storage
+        history = storage.load_chat_history(
             user_id=user_id,
             session_id=chat_request.session_id,
             limit=20
         )
         formatted_history = [
-            {"role": msg.role, "content": msg.content}
+            {"role": msg.get("role", "unknown"), "content": msg.get("content", "")}
             for msg in history
         ]
 
-        # Task 4.4: Save user message
-        await save_message(
-            session=session,
+        # Task 4.4: Save user message to file storage
+        storage.save_message(
             user_id=user_id,
             session_id=chat_request.session_id,
             role="user",
@@ -90,9 +88,8 @@ async def chat_endpoint(
             history=formatted_history
         )
 
-        # Task 4.6: Save assistant response
-        await save_message(
-            session=session,
+        # Task 4.6: Save assistant response to file storage
+        storage.save_message(
             user_id=user_id,
             session_id=chat_request.session_id,
             role="assistant",

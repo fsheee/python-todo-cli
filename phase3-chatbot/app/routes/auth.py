@@ -10,7 +10,7 @@ import logging
 import httpx
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ class SignupRequest(BaseModel):
     """Signup request model"""
     email: EmailStr
     password: str
-    name: Optional[str] = None
+    name: str  # Required - will default to email prefix if not provided
 
 
 class AuthResponse(BaseModel):
