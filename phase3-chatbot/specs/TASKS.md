@@ -20,8 +20,8 @@ Each task follows this structure:
 **Spec Reference:** [Which spec file]
 **Dependencies:** [Previous tasks required]
 **Acceptance Criteria:**
-- [ ] Criterion 1
-- [ ] Criterion 2
+- [x] Criterion 1
+- [x] Criterion 2
 
 **Test Cases:**
 - TC-X: [Test description]
@@ -31,7 +31,7 @@ Each task follows this structure:
 
 ## Phase 1: Database Foundation (8 tasks)
 
-### Task 1.1: Create Database Migration for ChatHistory Table
+### Task 1.1: Create Database Migration for ChatHistory Table ✅
 
 **Description:** Create Alembic migration file to add chat_history table with all required fields and constraints.
 
@@ -40,13 +40,13 @@ Each task follows this structure:
 **Dependencies:** None (first task)
 
 **Acceptance Criteria:**
-- [ ] Migration file created in `migrations/versions/003_create_chat_history.py`
-- [ ] Table definition includes all 8 fields (id, user_id, session_id, role, content, metadata, timestamp, is_deleted)
-- [ ] Foreign key to users table with ON DELETE CASCADE
-- [ ] CHECK constraint on role field (user/assistant/system)
-- [ ] Default values for timestamp and is_deleted
-- [ ] Migration runs successfully with `alembic upgrade head`
-- [ ] Migration can be rolled back with `alembic downgrade -1`
+- [x] Migration file created in `migrations/versions/003_create_chat_history.py`
+- [x] Table definition includes all 8 fields (id, user_id, session_id, role, content, metadata, timestamp, is_deleted)
+- [x] Foreign key to users table with ON DELETE CASCADE
+- [x] CHECK constraint on role field (user/assistant/system)
+- [x] Default values for timestamp and is_deleted
+- [x] Migration runs successfully with `alembic upgrade head`
+- [x] Migration can be rolled back with `alembic downgrade -1`
 
 **Test Cases:**
 - TC-1.1.1: Run migration on clean database - succeeds
@@ -56,7 +56,7 @@ Each task follows this structure:
 
 ---
 
-### Task 1.2: Create Database Indexes for ChatHistory
+### Task 1.2: Create Database Indexes for ChatHistory ✅
 
 **Description:** Create performance indexes for common query patterns on chat_history table.
 
@@ -65,12 +65,12 @@ Each task follows this structure:
 **Dependencies:** Task 1.1
 
 **Acceptance Criteria:**
-- [ ] Index on user_id created
-- [ ] Index on session_id created
-- [ ] Index on timestamp created
-- [ ] Composite index on (user_id, session_id, is_deleted, timestamp DESC) created
-- [ ] All indexes created successfully
-- [ ] Query planner uses indexes (verify with EXPLAIN ANALYZE)
+- [x] Index on user_id created
+- [x] Index on session_id created
+- [x] Index on timestamp created
+- [x] Composite index on (user_id, session_id, is_deleted, timestamp DESC) created
+- [x] All indexes created successfully
+- [x] Query planner uses indexes (verify with EXPLAIN ANALYZE)
 
 **Test Cases:**
 - TC-1.2.1: Query by user_id - uses index
@@ -80,7 +80,7 @@ Each task follows this structure:
 
 ---
 
-### Task 1.3: Define ChatHistory SQLModel
+### Task 1.3: Define ChatHistory SQLModel ✅
 
 **Description:** Create SQLModel class for ChatHistory with proper field types and validation.
 
@@ -89,13 +89,13 @@ Each task follows this structure:
 **Dependencies:** Task 1.1
 
 **Acceptance Criteria:**
-- [ ] ChatHistory class defined in `app/models/chat_history.py`
-- [ ] All fields properly typed (int, str, datetime, Dict, bool)
-- [ ] Field constraints match database schema (max_length, nullable)
-- [ ] Foreign key relationship to User model
-- [ ] JSON/JSONB column for metadata field
-- [ ] Default factories for timestamp and is_deleted
-- [ ] Model validates correctly
+- [x] ChatHistory class defined in `app/models/chat_history.py`
+- [x] All fields properly typed (int, str, datetime, Dict, bool)
+- [x] Field constraints match database schema (max_length, nullable)
+- [x] Foreign key relationship to User model
+- [x] JSON/JSONB column for metadata field
+- [x] Default factories for timestamp and is_deleted
+- [x] Model validates correctly
 
 **Test Cases:**
 - TC-1.3.1: Create instance with all fields - succeeds
@@ -105,7 +105,7 @@ Each task follows this structure:
 
 ---
 
-### Task 1.4: Implement load_chat_history Query Function
+### Task 1.4: Implement load_chat_history Query Function ✅
 
 **Description:** Create async function to load recent chat messages for a user session.
 
@@ -114,12 +114,12 @@ Each task follows this structure:
 **Dependencies:** Task 1.3
 
 **Acceptance Criteria:**
-- [ ] Function signature: `async def load_chat_history(session, user_id, session_id, limit=20) -> list[ChatHistory]`
-- [ ] Filters by user_id, session_id, and is_deleted=False
-- [ ] Orders by timestamp DESC
-- [ ] Limits to specified number of messages
-- [ ] Returns messages in chronological order (oldest first)
-- [ ] Returns empty list if no messages found
+- [x] Function signature: `async def load_chat_history(session, user_id, session_id, limit=20) -> list[ChatHistory]`
+- [x] Filters by user_id, session_id, and is_deleted=False
+- [x] Orders by timestamp DESC
+- [x] Limits to specified number of messages
+- [x] Returns messages in chronological order (oldest first)
+- [x] Returns empty list if no messages found
 
 **Test Cases:**
 - TC-1.4.1: Load 5 messages from session with 10 - returns 5 most recent
@@ -130,7 +130,7 @@ Each task follows this structure:
 
 ---
 
-### Task 1.5: Implement save_message Mutation Function
+### Task 1.5: Implement save_message Mutation Function ✅
 
 **Description:** Create async function to save a new chat message to database.
 
@@ -139,12 +139,12 @@ Each task follows this structure:
 **Dependencies:** Task 1.3
 
 **Acceptance Criteria:**
-- [ ] Function signature: `async def save_message(session, user_id, session_id, role, content, metadata=None) -> ChatHistory`
-- [ ] Creates new ChatHistory instance
-- [ ] Sets timestamp automatically
-- [ ] Commits to database
-- [ ] Refreshes instance to get generated ID
-- [ ] Returns saved message with ID
+- [x] Function signature: `async def save_message(session, user_id, session_id, role, content, metadata=None) -> ChatHistory`
+- [x] Creates new ChatHistory instance
+- [x] Sets timestamp automatically
+- [x] Commits to database
+- [x] Refreshes instance to get generated ID
+- [x] Returns saved message with ID
 
 **Test Cases:**
 - TC-1.5.1: Save user message - succeeds, returns ID
@@ -155,7 +155,7 @@ Each task follows this structure:
 
 ---
 
-### Task 1.6: Implement get_user_sessions Query Function
+### Task 1.6: Implement get_user_sessions Query Function ✅
 
 **Description:** Create async function to retrieve all sessions for a user with summary info.
 
@@ -164,12 +164,12 @@ Each task follows this structure:
 **Dependencies:** Task 1.3
 
 **Acceptance Criteria:**
-- [ ] Function signature: `async def get_user_sessions(session, user_id, limit=50) -> list[Dict]`
-- [ ] Groups by session_id
-- [ ] Aggregates: MIN(timestamp) as started_at, MAX(timestamp) as last_message_at, COUNT(*) as message_count
-- [ ] Filters is_deleted=False
-- [ ] Orders by last_message_at DESC
-- [ ] Returns list of dicts with session metadata
+- [x] Function signature: `async def get_user_sessions(session, user_id, limit=50) -> list[Dict]`
+- [x] Groups by session_id
+- [x] Aggregates: MIN(timestamp) as started_at, MAX(timestamp) as last_message_at, COUNT(*) as message_count
+- [x] Filters is_deleted=False
+- [x] Orders by last_message_at DESC
+- [x] Returns list of dicts with session metadata
 
 **Test Cases:**
 - TC-1.6.1: User with 3 sessions - returns 3 summaries
@@ -180,7 +180,7 @@ Each task follows this structure:
 
 ---
 
-### Task 1.7: Implement delete_session Soft Delete Function
+### Task 1.7: Implement delete_session Soft Delete Function ✅
 
 **Description:** Create async function to soft delete all messages in a session.
 
@@ -189,12 +189,12 @@ Each task follows this structure:
 **Dependencies:** Task 1.3
 
 **Acceptance Criteria:**
-- [ ] Function signature: `async def delete_session(session, user_id, session_id) -> int`
-- [ ] Updates is_deleted=True for all matching messages
-- [ ] Filters by user_id and session_id
-- [ ] Only affects messages where is_deleted=False
-- [ ] Returns count of deleted messages
-- [ ] Commits transaction
+- [x] Function signature: `async def delete_session(session, user_id, session_id) -> int`
+- [x] Updates is_deleted=True for all matching messages
+- [x] Filters by user_id and session_id
+- [x] Only affects messages where is_deleted=False
+- [x] Returns count of deleted messages
+- [x] Commits transaction
 
 **Test Cases:**
 - TC-1.7.1: Delete session with 10 messages - returns 10
@@ -205,7 +205,7 @@ Each task follows this structure:
 
 ---
 
-### Task 1.8: Implement cleanup_old_deleted_sessions Maintenance Function
+### Task 1.8: Implement cleanup_old_deleted_sessions Maintenance Function ✅
 
 **Description:** Create async function to permanently delete old soft-deleted messages.
 
@@ -214,11 +214,11 @@ Each task follows this structure:
 **Dependencies:** Task 1.3
 
 **Acceptance Criteria:**
-- [ ] Function signature: `async def cleanup_old_deleted_sessions(session, days=90) -> int`
-- [ ] Calculates cutoff date (now - days)
-- [ ] Deletes messages where is_deleted=True AND timestamp < cutoff
-- [ ] Returns count of permanently deleted messages
-- [ ] Commits transaction
+- [x] Function signature: `async def cleanup_old_deleted_sessions(session, days=90) -> int`
+- [x] Calculates cutoff date (now - days)
+- [x] Deletes messages where is_deleted=True AND timestamp < cutoff
+- [x] Returns count of permanently deleted messages
+- [x] Commits transaction
 
 **Test Cases:**
 - TC-1.8.1: Delete messages older than 90 days - succeeds
@@ -240,14 +240,14 @@ Each task follows this structure:
 **Dependencies:** None
 
 **Acceptance Criteria:**
-- [ ] Directory created: `mcp_server/`
-- [ ] Install mcp-sdk package
-- [ ] Install httpx for HTTP calls
-- [ ] Create `mcp_server/__init__.py`
-- [ ] Create `mcp_server/server.py` (main file)
-- [ ] Create `mcp_server/config.py` for configuration
-- [ ] Create `requirements.txt` with dependencies
-- [ ] Server can be imported successfully
+- [x] Directory created: `mcp_server/`
+- [x] Install mcp-sdk package
+- [x] Install httpx for HTTP calls
+- [x] Create `mcp_server/__init__.py`
+- [x] Create `mcp_server/server.py` (main file)
+- [x] Create `mcp_server/config.py` for configuration
+- [x] Create `requirements.txt` with dependencies
+- [x] Server can be imported successfully
 
 **Test Cases:**
 - TC-2.1.1: Import mcp_server - succeeds
@@ -265,11 +265,11 @@ Each task follows this structure:
 **Dependencies:** Task 2.1
 
 **Acceptance Criteria:**
-- [ ] Server instance created with name "todo-mcp-server"
-- [ ] STDIO protocol configured
-- [ ] Server can start successfully
-- [ ] Server can be stopped gracefully
-- [ ] Logging configured (INFO level)
+- [x] Server instance created with name "todo-mcp-server"
+- [x] STDIO protocol configured
+- [x] Server can start successfully
+- [x] Server can be stopped gracefully
+- [x] Logging configured (INFO level)
 
 **Test Cases:**
 - TC-2.2.1: Start server - succeeds without errors
@@ -288,11 +288,11 @@ Each task follows this structure:
 **Dependencies:** Task 2.1
 
 **Acceptance Criteria:**
-- [ ] Environment variables defined: PHASE2_API_URL, INTERNAL_SERVICE_TOKEN
-- [ ] Config class loads from environment
-- [ ] Default values for development
-- [ ] Validation for required variables
-- [ ] HTTP client timeout configurable
+- [x] Environment variables defined: PHASE2_API_URL, INTERNAL_SERVICE_TOKEN
+- [x] Config class loads from environment
+- [x] Default values for development
+- [x] Validation for required variables
+- [x] HTTP client timeout configurable
 
 **Test Cases:**
 - TC-2.3.1: Load config with all env vars - succeeds
@@ -311,12 +311,12 @@ Each task follows this structure:
 **Dependencies:** Task 2.3
 
 **Acceptance Criteria:**
-- [ ] httpx.AsyncClient created with connection pooling
-- [ ] Service token added to Authorization header
-- [ ] X-Internal-Service header added
-- [ ] Timeout configured (30 seconds)
-- [ ] Connection reuse enabled
-- [ ] Client can be closed properly
+- [x] httpx.AsyncClient created with connection pooling
+- [x] Service token added to Authorization header
+- [x] X-Internal-Service header added
+- [x] Timeout configured (30 seconds)
+- [x] Connection reuse enabled
+- [x] Client can be closed properly
 
 **Test Cases:**
 - TC-2.4.1: Create client - succeeds
@@ -335,13 +335,13 @@ Each task follows this structure:
 **Dependencies:** Task 2.2, Task 2.4
 
 **Acceptance Criteria:**
-- [ ] Tool registered with @mcp_server.tool() decorator
-- [ ] Input schema: user_id (int), title (str), description (str?), priority (str?), due_date (str?)
-- [ ] Input validation: user_id > 0, title non-empty, max 200 chars
-- [ ] Priority validation: must be low/medium/high or None
-- [ ] HTTP POST to Phase 2: /todos
-- [ ] Returns {success: bool, todo: dict, message: str}
-- [ ] Error handling for all failure cases
+- [x] Tool registered with @mcp_server.tool() decorator
+- [x] Input schema: user_id (int), title (str), description (str?), priority (str?), due_date (str?)
+- [x] Input validation: user_id > 0, title non-empty, max 200 chars
+- [x] Priority validation: must be low/medium/high or None
+- [x] HTTP POST to Phase 2: /todos
+- [x] Returns {success: bool, todo: dict, message: str}
+- [x] Error handling for all failure cases
 
 **Test Cases:**
 - TC-2.5.1: Create with title only - succeeds
@@ -362,12 +362,12 @@ Each task follows this structure:
 **Dependencies:** Task 2.2, Task 2.4
 
 **Acceptance Criteria:**
-- [ ] Tool registered with @mcp_server.tool() decorator
-- [ ] Input schema: user_id (int), status (str?), priority (str?), due_date (str?), due_date_range (str?), limit (int), offset (int)
-- [ ] Date range conversion: today/tomorrow/this_week/next_week/overdue → actual dates
-- [ ] HTTP GET to Phase 2: /todos with query parameters
-- [ ] Returns {success: bool, todos: list, count: int, total: int, has_more: bool}
-- [ ] Handles empty results gracefully
+- [x] Tool registered with @mcp_server.tool() decorator
+- [x] Input schema: user_id (int), status (str?), priority (str?), due_date (str?), due_date_range (str?), limit (int), offset (int)
+- [x] Date range conversion: today/tomorrow/this_week/next_week/overdue → actual dates
+- [x] HTTP GET to Phase 2: /todos with query parameters
+- [x] Returns {success: bool, todos: list, count: int, total: int, has_more: bool}
+- [x] Handles empty results gracefully
 
 **Test Cases:**
 - TC-2.6.1: List all pending - succeeds
@@ -388,13 +388,13 @@ Each task follows this structure:
 **Dependencies:** Task 2.2, Task 2.4
 
 **Acceptance Criteria:**
-- [ ] Tool registered with @mcp_server.tool() decorator
-- [ ] Input schema: user_id (int), todo_id (int), title (str?), description (str?), status (str?), priority (str?), due_date (str?)
-- [ ] Validation: at least one field to update
-- [ ] Validation: title not empty if provided
-- [ ] HTTP PUT to Phase 2: /todos/{todo_id}
-- [ ] Returns {success: bool, todo: dict, message: str, changes: list}
-- [ ] Tracks which fields were changed
+- [x] Tool registered with @mcp_server.tool() decorator
+- [x] Input schema: user_id (int), todo_id (int), title (str?), description (str?), status (str?), priority (str?), due_date (str?)
+- [x] Validation: at least one field to update
+- [x] Validation: title not empty if provided
+- [x] HTTP PUT to Phase 2: /todos/{todo_id}
+- [x] Returns {success: bool, todo: dict, message: str, changes: list}
+- [x] Tracks which fields were changed
 
 **Test Cases:**
 - TC-2.7.1: Update single field - succeeds
@@ -415,13 +415,13 @@ Each task follows this structure:
 **Dependencies:** Task 2.2, Task 2.4
 
 **Acceptance Criteria:**
-- [ ] Tool registered with @mcp_server.tool() decorator
-- [ ] Input schema: user_id (int), todo_id (int), confirm (bool)
-- [ ] Validation: confirm must be True explicitly
-- [ ] Fetch todo first to get details
-- [ ] HTTP DELETE to Phase 2: /todos/{todo_id}
-- [ ] Returns {success: bool, deleted_todo: dict, message: str}
-- [ ] Returns CONFIRMATION_REQUIRED if confirm=False
+- [x] Tool registered with @mcp_server.tool() decorator
+- [x] Input schema: user_id (int), todo_id (int), confirm (bool)
+- [x] Validation: confirm must be True explicitly
+- [x] Fetch todo first to get details
+- [x] HTTP DELETE to Phase 2: /todos/{todo_id}
+- [x] Returns {success: bool, deleted_todo: dict, message: str}
+- [x] Returns CONFIRMATION_REQUIRED if confirm=False
 
 **Test Cases:**
 - TC-2.8.1: Delete without confirmation - returns CONFIRMATION_REQUIRED
@@ -441,13 +441,13 @@ Each task follows this structure:
 **Dependencies:** Task 2.2, Task 2.4
 
 **Acceptance Criteria:**
-- [ ] Tool registered with @mcp_server.tool() decorator
-- [ ] Input schema: user_id (int), query (str), status (str?), limit (int)
-- [ ] Validation: query non-empty, max 100 chars
-- [ ] Query sanitization to prevent injection
-- [ ] HTTP GET to Phase 2: /todos/search?q={query}&user_id={user_id}
-- [ ] Returns {success: bool, todos: list, count: int, query: str}
-- [ ] Handles no results gracefully
+- [x] Tool registered with @mcp_server.tool() decorator
+- [x] Input schema: user_id (int), query (str), status (str?), limit (int)
+- [x] Validation: query non-empty, max 100 chars
+- [x] Query sanitization to prevent injection
+- [x] HTTP GET to Phase 2: /todos/search?q={query}&user_id={user_id}
+- [x] Returns {success: bool, todos: list, count: int, query: str}
+- [x] Handles no results gracefully
 
 **Test Cases:**
 - TC-2.9.1: Search with results - returns matching todos
@@ -468,13 +468,13 @@ Each task follows this structure:
 **Dependencies:** Tasks 2.5-2.9
 
 **Acceptance Criteria:**
-- [ ] user_id validation: positive integer
-- [ ] todo_id validation: positive integer
-- [ ] title validation: non-empty, max length
-- [ ] priority validation: enum check
-- [ ] status validation: enum check
-- [ ] date validation: ISO 8601 format
-- [ ] Returns consistent error format
+- [x] user_id validation: positive integer
+- [x] todo_id validation: positive integer
+- [x] title validation: non-empty, max length
+- [x] priority validation: enum check
+- [x] status validation: enum check
+- [x] date validation: ISO 8601 format
+- [x] Returns consistent error format
 
 **Test Cases:**
 - TC-2.10.1: Invalid user_id (negative) - validation error
@@ -493,12 +493,12 @@ Each task follows this structure:
 **Dependencies:** Tasks 2.5-2.9
 
 **Acceptance Criteria:**
-- [ ] Try-catch blocks around all HTTP calls
-- [ ] Backend timeout handling (30s)
-- [ ] Backend unavailable handling
-- [ ] Network error handling
-- [ ] Standardized error response format
-- [ ] Error codes: VALIDATION_ERROR, NOT_FOUND, BACKEND_ERROR, TIMEOUT, INTERNAL_ERROR
+- [x] Try-catch blocks around all HTTP calls
+- [x] Backend timeout handling (30s)
+- [x] Backend unavailable handling
+- [x] Network error handling
+- [x] Standardized error response format
+- [x] Error codes: VALIDATION_ERROR, NOT_FOUND, BACKEND_ERROR, TIMEOUT, INTERNAL_ERROR
 
 **Test Cases:**
 - TC-2.11.1: Backend timeout - returns TIMEOUT error
@@ -518,12 +518,12 @@ Each task follows this structure:
 **Dependencies:** Tasks 2.5-2.11
 
 **Acceptance Criteria:**
-- [ ] Test file: `tests/test_mcp_tools.py`
-- [ ] Mock HTTP client for Phase 2 calls
-- [ ] Test all success paths
-- [ ] Test all error paths
-- [ ] Test input validation
-- [ ] >95% code coverage for MCP tools
+- [x] Test file: `tests/test_mcp_tools.py`
+- [x] Mock HTTP client for Phase 2 calls
+- [x] Test all success paths
+- [x] Test all error paths
+- [x] Test input validation
+- [x] >95% code coverage for MCP tools
 
 **Test Cases:**
 - TC-2.12.1: All tools have success tests
@@ -545,12 +545,12 @@ Each task follows this structure:
 **Dependencies:** None
 
 **Acceptance Criteria:**
-- [ ] Install openai package (latest version)
-- [ ] Create `app/agents/` directory
-- [ ] Create `app/agents/__init__.py`
-- [ ] Environment variable: OPENAI_API_KEY
-- [ ] OpenAI client initialized successfully
-- [ ] API key validated (test connection)
+- [x] Install openai package (latest version)
+- [x] Create `app/agents/` directory
+- [x] Create `app/agents/__init__.py`
+- [x] Environment variable: OPENAI_API_KEY
+- [x] OpenAI client initialized successfully
+- [x] API key validated (test connection)
 
 **Test Cases:**
 - TC-3.1.1: Import openai - succeeds
@@ -569,13 +569,13 @@ Each task follows this structure:
 **Dependencies:** None
 
 **Acceptance Criteria:**
-- [ ] System prompt template created in `app/agents/prompts.py`
-- [ ] Includes role definition (helpful AI assistant)
-- [ ] Includes capabilities list
-- [ ] Includes guidelines (friendly, concise, confirm actions)
-- [ ] Includes important rules (user_id security, date calculations)
-- [ ] Template supports variable injection (current_date, user_timezone)
-- [ ] Prompt is clear and well-structured
+- [x] System prompt template created in `app/agents/prompts.py`
+- [x] Includes role definition (helpful AI assistant)
+- [x] Includes capabilities list
+- [x] Includes guidelines (friendly, concise, confirm actions)
+- [x] Includes important rules (user_id security, date calculations)
+- [x] Template supports variable injection (current_date, user_timezone)
+- [x] Prompt is clear and well-structured
 
 **Test Cases:**
 - TC-3.2.1: Load prompt template - succeeds
@@ -594,12 +594,12 @@ Each task follows this structure:
 **Dependencies:** Phase 1 (database), Task 3.2
 
 **Acceptance Criteria:**
-- [ ] Function: `build_agent_context(user_id, session_id, user_email) -> str`
-- [ ] Loads last 20 messages from chat_history
-- [ ] Formats messages as OpenAI message format
-- [ ] Includes user stats (pending count, completed today)
-- [ ] Includes current date and timezone
-- [ ] Returns formatted context string
+- [x] Function: `build_agent_context(user_id, session_id, user_email) -> str`
+- [x] Loads last 20 messages from chat_history
+- [x] Formats messages as OpenAI message format
+- [x] Includes user stats (pending count, completed today)
+- [x] Includes current date and timezone
+- [x] Returns formatted context string
 
 **Test Cases:**
 - TC-3.3.1: Build context with history - includes messages
@@ -619,12 +619,12 @@ Each task follows this structure:
 **Dependencies:** Phase 2 (MCP tools), Task 3.1
 
 **Acceptance Criteria:**
-- [ ] All 5 tools registered with OpenAI function calling
-- [ ] Function schemas match MCP tool schemas
-- [ ] Tool descriptions are clear and helpful
-- [ ] Parameter descriptions guide the agent
-- [ ] Required parameters marked correctly
-- [ ] Agent can see all available tools
+- [x] All 5 tools registered with OpenAI function calling
+- [x] Function schemas match MCP tool schemas
+- [x] Tool descriptions are clear and helpful
+- [x] Parameter descriptions guide the agent
+- [x] Required parameters marked correctly
+- [x] Agent can see all available tools
 
 **Test Cases:**
 - TC-3.4.1: List available tools - returns 5
@@ -643,11 +643,11 @@ Each task follows this structure:
 **Dependencies:** Task 3.2
 
 **Acceptance Criteria:**
-- [ ] Recognizes 9 intent types: CREATE_TODO, LIST_TODOS, UPDATE_TODO, COMPLETE_TODO, DELETE_TODO, SEARCH_TODOS, GET_DETAILS, HELP, GREETING
-- [ ] Pattern matching for each intent
-- [ ] Confidence scoring (0.0 to 1.0)
-- [ ] Returns intent + confidence + extracted parameters
-- [ ] Handles ambiguous input gracefully
+- [x] Recognizes 9 intent types: CREATE_TODO, LIST_TODOS, UPDATE_TODO, COMPLETE_TODO, DELETE_TODO, SEARCH_TODOS, GET_DETAILS, HELP, GREETING
+- [x] Pattern matching for each intent
+- [x] Confidence scoring (0.0 to 1.0)
+- [x] Returns intent + confidence + extracted parameters
+- [x] Handles ambiguous input gracefully
 
 **Test Cases:**
 - TC-3.5.1: "Add buy milk" - recognizes CREATE_TODO
@@ -668,12 +668,12 @@ Each task follows this structure:
 **Dependencies:** Task 3.5
 
 **Acceptance Criteria:**
-- [ ] Extracts title from create requests
-- [ ] Extracts due_date from natural language ("tomorrow", "next Friday")
-- [ ] Extracts priority from text ("high priority", "urgent")
-- [ ] Extracts filters from list requests
-- [ ] Extracts search query
-- [ ] Extracts todo identifiers (title match, number reference)
+- [x] Extracts title from create requests
+- [x] Extracts due_date from natural language ("tomorrow", "next Friday")
+- [x] Extracts priority from text ("high priority", "urgent")
+- [x] Extracts filters from list requests
+- [x] Extracts search query
+- [x] Extracts todo identifiers (title match, number reference)
 
 **Test Cases:**
 - TC-3.6.1: "Add buy milk tomorrow" - extracts title and due_date
@@ -693,14 +693,14 @@ Each task follows this structure:
 **Dependencies:** Task 3.5, Task 3.6
 
 **Acceptance Criteria:**
-- [ ] CREATE_TODO intent → create_todo tool
-- [ ] LIST_TODOS intent → list_todos tool
-- [ ] UPDATE_TODO intent → search first if needed, then update_todo
-- [ ] COMPLETE_TODO intent → update_todo with status="completed"
-- [ ] DELETE_TODO intent → search first if needed, then delete_todo (with confirmation)
-- [ ] SEARCH_TODOS intent → search_todos tool
-- [ ] HELP/GREETING → no tool, direct response
-- [ ] Handles multi-step flows (search then action)
+- [x] CREATE_TODO intent → create_todo tool
+- [x] LIST_TODOS intent → list_todos tool
+- [x] UPDATE_TODO intent → search first if needed, then update_todo
+- [x] COMPLETE_TODO intent → update_todo with status="completed"
+- [x] DELETE_TODO intent → search first if needed, then delete_todo (with confirmation)
+- [x] SEARCH_TODOS intent → search_todos tool
+- [x] HELP/GREETING → no tool, direct response
+- [x] Handles multi-step flows (search then action)
 
 **Test Cases:**
 - TC-3.7.1: Clear intent - immediate tool call
@@ -720,12 +720,12 @@ Each task follows this structure:
 **Dependencies:** Task 3.3
 
 **Acceptance Criteria:**
-- [ ] Stores last list_todos result in context (expires after 5 messages)
-- [ ] Resolves numeric references ("task 1", "the second one")
-- [ ] Stores last created/updated task (expires after 3 messages)
-- [ ] Resolves pronoun references ("it", "that one")
-- [ ] Handles expired context gracefully (asks for clarification)
-- [ ] Reference storage persists within conversation turn
+- [x] Stores last list_todos result in context (expires after 5 messages)
+- [x] Resolves numeric references ("task 1", "the second one")
+- [x] Stores last created/updated task (expires after 3 messages)
+- [x] Resolves pronoun references ("it", "that one")
+- [x] Handles expired context gracefully (asks for clarification)
+- [x] Reference storage persists within conversation turn
 
 **Test Cases:**
 - TC-3.8.1: "Show tasks" then "Complete 1" - resolves correctly
@@ -745,12 +745,12 @@ Each task follows this structure:
 **Dependencies:** Task 3.2
 
 **Acceptance Criteria:**
-- [ ] Templates for all response types (create, list, update, complete, delete, search, error)
-- [ ] Multiple variations per type (avoid repetition)
-- [ ] Includes emojis appropriately
-- [ ] Formatting rules (bullets, numbers)
-- [ ] Personalization (encouragement, empathy)
-- [ ] Templates support variable substitution
+- [x] Templates for all response types (create, list, update, complete, delete, search, error)
+- [x] Multiple variations per type (avoid repetition)
+- [x] Includes emojis appropriately
+- [x] Formatting rules (bullets, numbers)
+- [x] Personalization (encouragement, empathy)
+- [x] Templates support variable substitution
 
 **Test Cases:**
 - TC-3.9.1: Create response - includes task details
@@ -770,13 +770,13 @@ Each task follows this structure:
 **Dependencies:** Task 3.9
 
 **Acceptance Criteria:**
-- [ ] Formats create_todo result: "I've created {title}..."
-- [ ] Formats list_todos result: numbered list with details
-- [ ] Formats update_todo result: "Updated! {title} is now {change}"
-- [ ] Formats delete_todo result: "Done! {title} has been removed"
-- [ ] Formats search_todos result: numbered list with highlights
-- [ ] Formats errors: clear message + suggestion
-- [ ] Keeps responses under 150 words
+- [x] Formats create_todo result: "I've created {title}..."
+- [x] Formats list_todos result: numbered list with details
+- [x] Formats update_todo result: "Updated! {title} is now {change}"
+- [x] Formats delete_todo result: "Done! {title} has been removed"
+- [x] Formats search_todos result: numbered list with highlights
+- [x] Formats errors: clear message + suggestion
+- [x] Keeps responses under 150 words
 
 **Test Cases:**
 - TC-3.10.1: Format create response - clear and concise
@@ -796,14 +796,14 @@ Each task follows this structure:
 **Dependencies:** Tasks 3.1-3.10
 
 **Acceptance Criteria:**
-- [ ] Function: `async def process_chat_message(user_id, session_id, message, history) -> dict`
-- [ ] Builds context from history
-- [ ] Calls OpenAI Agent with context + message
-- [ ] Agent recognizes intent and selects tool
-- [ ] Agent calls appropriate MCP tool
-- [ ] Agent generates response from tool result
-- [ ] Returns {content: str, metadata: dict}
-- [ ] Handles all error cases
+- [x] Function: `async def process_chat_message(user_id, session_id, message, history) -> dict`
+- [x] Builds context from history
+- [x] Calls OpenAI Agent with context + message
+- [x] Agent recognizes intent and selects tool
+- [x] Agent calls appropriate MCP tool
+- [x] Agent generates response from tool result
+- [x] Returns {content: str, metadata: dict}
+- [x] Handles all error cases
 
 **Test Cases:**
 - TC-3.11.1: Process "Add task" - creates todo and responds
@@ -823,12 +823,12 @@ Each task follows this structure:
 **Dependencies:** Task 3.5, Task 3.11
 
 **Acceptance Criteria:**
-- [ ] Detects ambiguous input (low confidence, missing params)
-- [ ] Asks specific clarifying questions
-- [ ] Multiple matches - lists options with numbers
-- [ ] Missing required info - asks for it
-- [ ] Unclear date - asks for specific date
-- [ ] Provides examples in questions
+- [x] Detects ambiguous input (low confidence, missing params)
+- [x] Asks specific clarifying questions
+- [x] Multiple matches - lists options with numbers
+- [x] Missing required info - asks for it
+- [x] Unclear date - asks for specific date
+- [x] Provides examples in questions
 
 **Test Cases:**
 - TC-3.12.1: Missing title - asks "What should the task be?"
@@ -848,12 +848,12 @@ Each task follows this structure:
 **Dependencies:** Task 3.11
 
 **Acceptance Criteria:**
-- [ ] Handles OpenAI API errors (rate limit, timeout)
-- [ ] Handles MCP tool errors (propagates error codes)
-- [ ] Handles invalid context errors
-- [ ] Never exposes technical details to user
-- [ ] Always provides recovery suggestions
-- [ ] Logs errors for debugging
+- [x] Handles OpenAI API errors (rate limit, timeout)
+- [x] Handles MCP tool errors (propagates error codes)
+- [x] Handles invalid context errors
+- [x] Never exposes technical details to user
+- [x] Always provides recovery suggestions
+- [x] Logs errors for debugging
 
 **Test Cases:**
 - TC-3.13.1: OpenAI API error - user sees friendly message
@@ -873,13 +873,13 @@ Each task follows this structure:
 **Dependencies:** Task 3.11
 
 **Acceptance Criteria:**
-- [ ] Log every user message processed
-- [ ] Log recognized intent and confidence
-- [ ] Log tool calls with parameters
-- [ ] Log tool responses
-- [ ] Log generated responses
-- [ ] Log errors with full context
-- [ ] Structured logging (JSON format)
+- [x] Log every user message processed
+- [x] Log recognized intent and confidence
+- [x] Log tool calls with parameters
+- [x] Log tool responses
+- [x] Log generated responses
+- [x] Log errors with full context
+- [x] Structured logging (JSON format)
 
 **Test Cases:**
 - TC-3.14.1: Process message - all steps logged
@@ -899,14 +899,14 @@ Each task follows this structure:
 **Dependencies:** Tasks 3.1-3.14
 
 **Acceptance Criteria:**
-- [ ] Test file: `tests/test_agent.py`
-- [ ] Mock OpenAI API calls
-- [ ] Mock MCP tool calls
-- [ ] Test all intent recognition
-- [ ] Test tool selection logic
-- [ ] Test reference resolution
-- [ ] Test response generation
-- [ ] >85% code coverage
+- [x] Test file: `tests/test_agent.py`
+- [x] Mock OpenAI API calls
+- [x] Mock MCP tool calls
+- [x] Test all intent recognition
+- [x] Test tool selection logic
+- [x] Test reference resolution
+- [x] Test response generation
+- [x] >85% code coverage
 
 **Test Cases:**
 - TC-3.15.1: Test each intent type recognized correctly
@@ -929,13 +929,13 @@ Each task follows this structure:
 **Dependencies:** Phase 1 (database), Phase 3 (agent)
 
 **Acceptance Criteria:**
-- [ ] Endpoint: POST /chat
-- [ ] Request schema: {message: str, session_id: str}
-- [ ] Response schema: {response: str, session_id: str, timestamp: str}
-- [ ] Validates JWT token (extracts user_id)
-- [ ] Returns 401 if unauthorized
-- [ ] Returns 400 if invalid input
-- [ ] Returns 200 with response on success
+- [x] Endpoint: POST /chat
+- [x] Request schema: {message: str, session_id: str}
+- [x] Response schema: {response: str, session_id: str, timestamp: str}
+- [x] Validates JWT token (extracts user_id)
+- [x] Returns 401 if unauthorized
+- [x] Returns 400 if invalid input
+- [x] Returns 200 with response on success
 
 **Test Cases:**
 - TC-4.1.1: Valid request with auth - returns 200
@@ -955,11 +955,11 @@ Each task follows this structure:
 **Dependencies:** None (Phase 2 Better Auth already exists)
 
 **Acceptance Criteria:**
-- [ ] Middleware validates JWT using BETTER_AUTH_SECRET
-- [ ] Extracts user_id from validated token
-- [ ] Injects user_id into request context
-- [ ] Returns 401 for invalid/expired tokens
-- [ ] Works with Better Auth JWT format
+- [x] Middleware validates JWT using BETTER_AUTH_SECRET
+- [x] Extracts user_id from validated token
+- [x] Injects user_id into request context
+- [x] Returns 401 for invalid/expired tokens
+- [x] Works with Better Auth JWT format
 
 **Test Cases:**
 - TC-4.2.1: Valid token - user_id extracted
@@ -979,11 +979,11 @@ Each task follows this structure:
 **Dependencies:** Phase 1 (database), Task 4.1
 
 **Acceptance Criteria:**
-- [ ] Loads last 20 messages using load_chat_history()
-- [ ] Filters by user_id and session_id
-- [ ] Formats for agent consumption
-- [ ] Handles empty history gracefully
-- [ ] Query optimized (uses indexes)
+- [x] Loads last 20 messages using load_chat_history()
+- [x] Filters by user_id and session_id
+- [x] Formats for agent consumption
+- [x] Handles empty history gracefully
+- [x] Query optimized (uses indexes)
 
 **Test Cases:**
 - TC-4.3.1: Load existing history - succeeds
@@ -1003,11 +1003,11 @@ Each task follows this structure:
 **Dependencies:** Phase 1 (database), Task 4.1
 
 **Acceptance Criteria:**
-- [ ] Saves user message using save_message()
-- [ ] Sets role="user"
-- [ ] Includes metadata (client_ip, user_agent)
-- [ ] Committed to database before agent call
-- [ ] Returns message ID
+- [x] Saves user message using save_message()
+- [x] Sets role="user"
+- [x] Includes metadata (client_ip, user_agent)
+- [x] Committed to database before agent call
+- [x] Returns message ID
 
 **Test Cases:**
 - TC-4.4.1: Save user message - succeeds
@@ -1027,11 +1027,11 @@ Each task follows this structure:
 **Dependencies:** Phase 3 (agent), Task 4.1, Task 4.3
 
 **Acceptance Criteria:**
-- [ ] Calls process_chat_message() with user_id, session_id, message, history
-- [ ] Passes loaded history to agent
-- [ ] Receives agent response with content and metadata
-- [ ] Handles agent errors gracefully
-- [ ] Timeout protection (30 seconds)
+- [x] Calls process_chat_message() with user_id, session_id, message, history
+- [x] Passes loaded history to agent
+- [x] Receives agent response with content and metadata
+- [x] Handles agent errors gracefully
+- [x] Timeout protection (30 seconds)
 
 **Test Cases:**
 - TC-4.5.1: Agent processes successfully - returns response
@@ -1051,11 +1051,11 @@ Each task follows this structure:
 **Dependencies:** Phase 1 (database), Task 4.5
 
 **Acceptance Criteria:**
-- [ ] Saves assistant message using save_message()
-- [ ] Sets role="assistant"
-- [ ] Includes metadata (tool_calls, tokens_used)
-- [ ] Committed to database before returning response
-- [ ] Returns message ID
+- [x] Saves assistant message using save_message()
+- [x] Sets role="assistant"
+- [x] Includes metadata (tool_calls, tokens_used)
+- [x] Committed to database before returning response
+- [x] Returns message ID
 
 **Test Cases:**
 - TC-4.6.1: Save assistant message - succeeds
@@ -1075,12 +1075,12 @@ Each task follows this structure:
 **Dependencies:** Task 4.1
 
 **Acceptance Criteria:**
-- [ ] Database errors caught and logged
-- [ ] Agent errors caught and returned gracefully
-- [ ] Validation errors return 400 with clear message
-- [ ] Internal errors return 500 (but user sees friendly message)
-- [ ] All errors logged with full context
-- [ ] Error response format consistent
+- [x] Database errors caught and logged
+- [x] Agent errors caught and returned gracefully
+- [x] Validation errors return 400 with clear message
+- [x] Internal errors return 500 (but user sees friendly message)
+- [x] All errors logged with full context
+- [x] Error response format consistent
 
 **Test Cases:**
 - TC-4.7.1: Database down - returns 500 with message
@@ -1100,12 +1100,12 @@ Each task follows this structure:
 **Dependencies:** Task 4.1
 
 **Acceptance Criteria:**
-- [ ] Log incoming requests (method, path, user_id, session_id)
-- [ ] Log response status and timing
-- [ ] Log message length (for monitoring)
-- [ ] Structured logging (JSON format)
-- [ ] Don't log sensitive data (message content optional)
-- [ ] Performance metrics tracked
+- [x] Log incoming requests (method, path, user_id, session_id)
+- [x] Log response status and timing
+- [x] Log message length (for monitoring)
+- [x] Structured logging (JSON format)
+- [x] Don't log sensitive data (message content optional)
+- [x] Performance metrics tracked
 
 **Test Cases:**
 - TC-4.8.1: Request logged with all fields
@@ -1125,11 +1125,11 @@ Each task follows this structure:
 **Dependencies:** Task 4.1
 
 **Acceptance Criteria:**
-- [ ] Rate limit: 30 requests per minute per user
-- [ ] Returns 429 when limit exceeded
-- [ ] Rate limit headers in response
-- [ ] Redis or in-memory store for counters
-- [ ] Configurable limits
+- [x] Rate limit: 30 requests per minute per user
+- [x] Returns 429 when limit exceeded
+- [x] Rate limit headers in response
+- [x] Redis or in-memory store for counters
+- [x] Configurable limits
 
 **Test Cases:**
 - TC-4.9.1: Within limit - requests succeed
@@ -1149,12 +1149,12 @@ Each task follows this structure:
 **Dependencies:** Tasks 4.1-4.9
 
 **Acceptance Criteria:**
-- [ ] Test file: `tests/test_chat_endpoint.py`
-- [ ] Test complete flow: request → agent → tools → database → response
-- [ ] Test authentication flow
-- [ ] Test error scenarios
-- [ ] Test conversation continuity
-- [ ] Tests use test database
+- [x] Test file: `tests/test_chat_endpoint.py`
+- [x] Test complete flow: request → agent → tools → database → response
+- [x] Test authentication flow
+- [x] Test error scenarios
+- [x] Test conversation continuity
+- [x] Tests use test database
 
 **Test Cases:**
 - TC-4.10.1: Complete create todo flow - works end-to-end
@@ -1176,11 +1176,11 @@ Each task follows this structure:
 **Dependencies:** None
 
 **Acceptance Criteria:**
-- [ ] Project created with `npm create vite@latest`
-- [ ] TypeScript template selected
-- [ ] Project structure created
-- [ ] Dev server runs successfully
-- [ ] Build succeeds
+- [x] Project created with `npm create vite@latest`
+- [x] TypeScript template selected
+- [x] Project structure created
+- [x] Dev server runs successfully
+- [x] Build succeeds
 
 **Test Cases:**
 - TC-5.1.1: npm run dev - starts dev server
@@ -1199,12 +1199,12 @@ Each task follows this structure:
 **Dependencies:** Task 5.1
 
 **Acceptance Criteria:**
-- [ ] Install @openai/chatkit
-- [ ] Install axios
-- [ ] Install zustand
-- [ ] Install react-router-dom
-- [ ] All dependencies in package.json
-- [ ] node_modules populated
+- [x] Install @openai/chatkit
+- [x] Install axios
+- [x] Install zustand
+- [x] Install react-router-dom
+- [x] All dependencies in package.json
+- [x] node_modules populated
 
 **Test Cases:**
 - TC-5.2.1: All packages installed without errors
@@ -1223,13 +1223,13 @@ Each task follows this structure:
 **Dependencies:** Task 5.1
 
 **Acceptance Criteria:**
-- [ ] src/components/ created
-- [ ] src/pages/ created
-- [ ] src/stores/ created
-- [ ] src/api/ created
-- [ ] src/utils/ created
-- [ ] src/styles/ created
-- [ ] Index files in each directory
+- [x] src/components/ created
+- [x] src/pages/ created
+- [x] src/stores/ created
+- [x] src/api/ created
+- [x] src/utils/ created
+- [x] src/styles/ created
+- [x] Index files in each directory
 
 **Test Cases:**
 - TC-5.3.1: All directories exist
@@ -1247,12 +1247,12 @@ Each task follows this structure:
 **Dependencies:** Task 5.2
 
 **Acceptance Criteria:**
-- [ ] File: src/stores/authStore.ts
-- [ ] State: token, user, isAuthenticated
-- [ ] Actions: login(), logout()
-- [ ] Persists to localStorage
-- [ ] TypeScript interfaces defined
-- [ ] Store can be imported and used
+- [x] File: src/stores/authStore.ts
+- [x] State: token, user, isAuthenticated
+- [x] Actions: login(), logout()
+- [x] Persists to localStorage
+- [x] TypeScript interfaces defined
+- [x] Store can be imported and used
 
 **Test Cases:**
 - TC-5.4.1: Initial state is unauthenticated
@@ -1272,12 +1272,12 @@ Each task follows this structure:
 **Dependencies:** None
 
 **Acceptance Criteria:**
-- [ ] File: src/utils/sessionManager.ts
-- [ ] Function: generateSessionId() -> string (format: sess_{timestamp}_{random})
-- [ ] Function: getSessionId() -> string (get or create)
-- [ ] Function: startNewSession() -> string
-- [ ] Function: clearSession() -> void
-- [ ] Uses localStorage for persistence
+- [x] File: src/utils/sessionManager.ts
+- [x] Function: generateSessionId() -> string (format: sess_{timestamp}_{random})
+- [x] Function: getSessionId() -> string (get or create)
+- [x] Function: startNewSession() -> string
+- [x] Function: clearSession() -> void
+- [x] Uses localStorage for persistence
 
 **Test Cases:**
 - TC-5.5.1: generateSessionId() creates unique IDs
@@ -1297,12 +1297,12 @@ Each task follows this structure:
 **Dependencies:** Task 5.2, Task 5.4
 
 **Acceptance Criteria:**
-- [ ] File: src/api/chatApi.ts
-- [ ] Axios instance with base URL from env
-- [ ] Request interceptor adds JWT token
-- [ ] Response interceptor handles 401 (logout)
-- [ ] Timeout set to 30 seconds
-- [ ] TypeScript types for all API calls
+- [x] File: src/api/chatApi.ts
+- [x] Axios instance with base URL from env
+- [x] Request interceptor adds JWT token
+- [x] Response interceptor handles 401 (logout)
+- [x] Timeout set to 30 seconds
+- [x] TypeScript types for all API calls
 
 **Test Cases:**
 - TC-5.6.1: Client created with correct base URL
@@ -1322,12 +1322,12 @@ Each task follows this structure:
 **Dependencies:** Task 5.6
 
 **Acceptance Criteria:**
-- [ ] Function: sendChatMessage(message, sessionId) -> Promise<ChatResponse>
-- [ ] POST to /chat endpoint
-- [ ] Sends {message, session_id} in body
-- [ ] Returns {response, session_id, timestamp}
-- [ ] Handles errors and throws
-- [ ] TypeScript types for request/response
+- [x] Function: sendChatMessage(message, sessionId) -> Promise<ChatResponse>
+- [x] POST to /chat endpoint
+- [x] Sends {message, session_id} in body
+- [x] Returns {response, session_id, timestamp}
+- [x] Handles errors and throws
+- [x] TypeScript types for request/response
 
 **Test Cases:**
 - TC-5.7.1: Send message - returns response
@@ -1347,11 +1347,11 @@ Each task follows this structure:
 **Dependencies:** Task 5.6
 
 **Acceptance Criteria:**
-- [ ] Function: loadChatHistory(sessionId) -> Promise<ChatMessage[]>
-- [ ] GET to /chat/history/{sessionId}
-- [ ] Returns array of messages
-- [ ] Handles empty history
-- [ ] TypeScript types defined
+- [x] Function: loadChatHistory(sessionId) -> Promise<ChatMessage[]>
+- [x] GET to /chat/history/{sessionId}
+- [x] Returns array of messages
+- [x] Handles empty history
+- [x] TypeScript types defined
 
 **Test Cases:**
 - TC-5.8.1: Load history - returns messages
@@ -1370,13 +1370,13 @@ Each task follows this structure:
 **Dependencies:** Task 5.4, Task 5.6
 
 **Acceptance Criteria:**
-- [ ] File: src/pages/LoginPage.tsx
-- [ ] Form with email and password fields
-- [ ] Submit calls /auth/login endpoint
-- [ ] On success: stores token and redirects to /chat
-- [ ] On error: displays error message
-- [ ] Loading state during submission
-- [ ] Responsive design
+- [x] File: src/pages/LoginPage.tsx
+- [x] Form with email and password fields
+- [x] Submit calls /auth/login endpoint
+- [x] On success: stores token and redirects to /chat
+- [x] On error: displays error message
+- [x] Loading state during submission
+- [x] Responsive design
 
 **Test Cases:**
 - TC-5.9.1: Render login form - displays
@@ -1396,12 +1396,12 @@ Each task follows this structure:
 **Dependencies:** Task 5.4, Task 5.9
 
 **Acceptance Criteria:**
-- [ ] File: src/App.tsx
-- [ ] React Router setup (BrowserRouter)
-- [ ] Routes: /login, /chat, / (redirect)
-- [ ] Protected routes (require authentication)
-- [ ] Public routes (redirect if authenticated)
-- [ ] Layout wrapper if needed
+- [x] File: src/App.tsx
+- [x] React Router setup (BrowserRouter)
+- [x] Routes: /login, /chat, / (redirect)
+- [x] Protected routes (require authentication)
+- [x] Public routes (redirect if authenticated)
+- [x] Layout wrapper if needed
 
 **Test Cases:**
 - TC-5.10.1: Navigate to / - redirects appropriately
@@ -1421,14 +1421,14 @@ Each task follows this structure:
 **Dependencies:** Task 5.4, Task 5.5, Task 5.7
 
 **Acceptance Criteria:**
-- [ ] File: src/components/TodoChatInterface.tsx
-- [ ] State: messages, isLoading, sessionId
-- [ ] Loads session ID on mount
-- [ ] Loads chat history on mount (optional)
-- [ ] Handler: handleSendMessage()
-- [ ] Handler: handleNewConversation()
-- [ ] Handler: handleLogout()
-- [ ] Renders ChatKit component
+- [x] File: src/components/TodoChatInterface.tsx
+- [x] State: messages, isLoading, sessionId
+- [x] Loads session ID on mount
+- [x] Loads chat history on mount (optional)
+- [x] Handler: handleSendMessage()
+- [x] Handler: handleNewConversation()
+- [x] Handler: handleLogout()
+- [x] Renders ChatKit component
 
 **Test Cases:**
 - TC-5.11.1: Component renders
@@ -1448,13 +1448,13 @@ Each task follows this structure:
 **Dependencies:** Task 5.11, Task 5.7
 
 **Acceptance Criteria:**
-- [ ] Validates non-empty message
-- [ ] Adds user message to UI immediately
-- [ ] Sets loading state
-- [ ] Calls sendChatMessage()
-- [ ] Adds assistant response to UI
-- [ ] Handles errors (shows error message in UI)
-- [ ] Clears loading state
+- [x] Validates non-empty message
+- [x] Adds user message to UI immediately
+- [x] Sets loading state
+- [x] Calls sendChatMessage()
+- [x] Adds assistant response to UI
+- [x] Handles errors (shows error message in UI)
+- [x] Clears loading state
 
 **Test Cases:**
 - TC-5.12.1: Send message - user message appears immediately
@@ -1474,12 +1474,12 @@ Each task follows this structure:
 **Dependencies:** Task 5.11
 
 **Acceptance Criteria:**
-- [ ] ChatKit component imported and rendered
-- [ ] Props: messages, onSendMessage, isLoading
-- [ ] Props: placeholder, welcomeMessage, theme
-- [ ] Props: showTimestamps, enableMarkdown
-- [ ] ChatKit displays messages correctly
-- [ ] Input field functional
+- [x] ChatKit component imported and rendered
+- [x] Props: messages, onSendMessage, isLoading
+- [x] Props: placeholder, welcomeMessage, theme
+- [x] Props: showTimestamps, enableMarkdown
+- [x] ChatKit displays messages correctly
+- [x] Input field functional
 
 **Test Cases:**
 - TC-5.13.1: ChatKit renders
@@ -1499,12 +1499,12 @@ Each task follows this structure:
 **Dependencies:** Task 5.13
 
 **Acceptance Criteria:**
-- [ ] Custom renderMessage function
-- [ ] Formats **bold** and *italic*
-- [ ] Formats `code` snippets
-- [ ] Renders line breaks
-- [ ] Displays emojis correctly
-- [ ] Formats timestamps
+- [x] Custom renderMessage function
+- [x] Formats **bold** and *italic*
+- [x] Formats `code` snippets
+- [x] Renders line breaks
+- [x] Displays emojis correctly
+- [x] Formats timestamps
 
 **Test Cases:**
 - TC-5.14.1: Bold text renders correctly
@@ -1524,12 +1524,12 @@ Each task follows this structure:
 **Dependencies:** Task 5.4
 
 **Acceptance Criteria:**
-- [ ] Shows app title "Todo Assistant"
-- [ ] Displays user email
-- [ ] Button: "New Chat"
-- [ ] Button: "Logout"
-- [ ] Responsive design
-- [ ] Styling matches design
+- [x] Shows app title "Todo Assistant"
+- [x] Displays user email
+- [x] Button: "New Chat"
+- [x] Button: "Logout"
+- [x] Responsive design
+- [x] Styling matches design
 
 **Test Cases:**
 - TC-5.15.1: Header renders with title
@@ -1549,11 +1549,11 @@ Each task follows this structure:
 **Dependencies:** Task 5.5, Task 5.11
 
 **Acceptance Criteria:**
-- [ ] Click "New Chat" button
-- [ ] Generates new session ID
-- [ ] Clears messages array
-- [ ] Updates localStorage
-- [ ] Shows confirmation toast (optional)
+- [x] Click "New Chat" button
+- [x] Generates new session ID
+- [x] Clears messages array
+- [x] Updates localStorage
+- [x] Shows confirmation toast (optional)
 
 **Test Cases:**
 - TC-5.16.1: Click button - session ID changes
@@ -1573,13 +1573,13 @@ Each task follows this structure:
 **Dependencies:** Task 5.11
 
 **Acceptance Criteria:**
-- [ ] File: src/styles/TodoChatInterface.css
-- [ ] Container layout (header + chat area)
-- [ ] Header styling
-- [ ] Message styling (user vs assistant)
-- [ ] Loading indicator styling
-- [ ] Responsive design (mobile-first)
-- [ ] Emoji support
+- [x] File: src/styles/TodoChatInterface.css
+- [x] Container layout (header + chat area)
+- [x] Header styling
+- [x] Message styling (user vs assistant)
+- [x] Loading indicator styling
+- [x] Responsive design (mobile-first)
+- [x] Emoji support
 
 **Test Cases:**
 - TC-5.17.1: Layout renders correctly
@@ -1599,12 +1599,12 @@ Each task follows this structure:
 **Dependencies:** Task 5.2
 
 **Acceptance Criteria:**
-- [ ] Toast component or library integrated
-- [ ] Success toasts (green)
-- [ ] Error toasts (red)
-- [ ] Info toasts (blue)
-- [ ] Auto-dismiss after 3 seconds
-- [ ] Positioned correctly (top-right)
+- [x] Toast component or library integrated
+- [x] Success toasts (green)
+- [x] Error toasts (red)
+- [x] Info toasts (blue)
+- [x] Auto-dismiss after 3 seconds
+- [x] Positioned correctly (top-right)
 
 **Test Cases:**
 - TC-5.18.1: Show success toast - displays and dismisses
@@ -1624,12 +1624,12 @@ Each task follows this structure:
 **Dependencies:** Task 5.1
 
 **Acceptance Criteria:**
-- [ ] File: .env.development
-- [ ] File: .env.production
-- [ ] Variable: VITE_API_URL
-- [ ] Variable: VITE_APP_NAME (optional)
-- [ ] Variables loaded correctly in code
-- [ ] .env files in .gitignore
+- [x] File: .env.development
+- [x] File: .env.production
+- [x] Variable: VITE_API_URL
+- [x] Variable: VITE_APP_NAME (optional)
+- [x] Variables loaded correctly in code
+- [x] .env files in .gitignore
 
 **Test Cases:**
 - TC-5.19.1: Development env loads
@@ -1649,12 +1649,12 @@ Each task follows this structure:
 **Dependencies:** Tasks 5.9-5.18
 
 **Acceptance Criteria:**
-- [ ] Test files for each component
-- [ ] Test library: @testing-library/react
-- [ ] Test rendering
-- [ ] Test user interactions
-- [ ] Test API calls (mocked)
-- [ ] >80% component coverage
+- [x] Test files for each component
+- [x] Test library: @testing-library/react
+- [x] Test rendering
+- [x] Test user interactions
+- [x] Test API calls (mocked)
+- [x] >80% component coverage
 
 **Test Cases:**
 - TC-5.20.1: Login form tests pass
@@ -1676,11 +1676,11 @@ Each task follows this structure:
 **Dependencies:** Phase 1 (database)
 
 **Acceptance Criteria:**
-- [ ] Test database configured
-- [ ] Migrations run on test DB
-- [ ] Test DB isolated from development DB
-- [ ] Can be reset between tests
-- [ ] Environment variable for test DB URL
+- [x] Test database configured
+- [x] Migrations run on test DB
+- [x] Test DB isolated from development DB
+- [x] Can be reset between tests
+- [x] Environment variable for test DB URL
 
 **Test Cases:**
 - TC-6.1.1: Test DB created successfully
@@ -1700,12 +1700,12 @@ Each task follows this structure:
 **Dependencies:** Task 6.1, Phase 1
 
 **Acceptance Criteria:**
-- [ ] Test file: tests/integration/test_database.py
-- [ ] Test all query functions
-- [ ] Test user isolation
-- [ ] Test soft delete
-- [ ] Test cleanup
-- [ ] Uses test database
+- [x] Test file: tests/integration/test_database.py
+- [x] Test all query functions
+- [x] Test user isolation
+- [x] Test soft delete
+- [x] Test cleanup
+- [x] Uses test database
 
 **Test Cases:**
 - TC-6.2.1: Save and load messages - works correctly
@@ -1725,11 +1725,11 @@ Each task follows this structure:
 **Dependencies:** Phase 2 (MCP tools)
 
 **Acceptance Criteria:**
-- [ ] Test file: tests/integration/test_mcp_tools.py
-- [ ] Mock Phase 2 HTTP responses
-- [ ] Test all tools end-to-end
-- [ ] Test error scenarios
-- [ ] Test with real MCP server
+- [x] Test file: tests/integration/test_mcp_tools.py
+- [x] Mock Phase 2 HTTP responses
+- [x] Test all tools end-to-end
+- [x] Test error scenarios
+- [x] Test with real MCP server
 
 **Test Cases:**
 - TC-6.3.1: Create todo through tool - succeeds
@@ -1750,11 +1750,11 @@ Each task follows this structure:
 **Dependencies:** Phase 3 (agent), Phase 2 (MCP tools)
 
 **Acceptance Criteria:**
-- [ ] Test file: tests/integration/test_agent.py
-- [ ] Mock OpenAI API responses
-- [ ] Use real MCP tools (with mocked backend)
-- [ ] Test complete conversation flows
-- [ ] Test all intents
+- [x] Test file: tests/integration/test_agent.py
+- [x] Mock OpenAI API responses
+- [x] Use real MCP tools (with mocked backend)
+- [x] Test complete conversation flows
+- [x] Test all intents
 
 **Test Cases:**
 - TC-6.4.1: "Add task" conversation - works end-to-end
@@ -1774,12 +1774,12 @@ Each task follows this structure:
 **Dependencies:** Phase 4 (backend), Task 6.1
 
 **Acceptance Criteria:**
-- [ ] Test file: tests/integration/test_api.py
-- [ ] Uses TestClient from FastAPI
-- [ ] Tests with real database (test DB)
-- [ ] Tests authentication flow
-- [ ] Tests complete message flow
-- [ ] Tests error scenarios
+- [x] Test file: tests/integration/test_api.py
+- [x] Uses TestClient from FastAPI
+- [x] Tests with real database (test DB)
+- [x] Tests authentication flow
+- [x] Tests complete message flow
+- [x] Tests error scenarios
 
 **Test Cases:**
 - TC-6.5.1: POST /chat with auth - creates and lists todo
@@ -1799,12 +1799,12 @@ Each task follows this structure:
 **Dependencies:** All previous phases
 
 **Acceptance Criteria:**
-- [ ] Test file: tests/e2e/test_conversations.py
-- [ ] Tests complete user flows
-- [ ] Tests: create, list, update, complete, delete todos
-- [ ] Tests multi-turn conversations
-- [ ] Tests context and reference resolution
-- [ ] Uses all layers (frontend API, backend, agent, MCP, database)
+- [x] Test file: tests/e2e/test_conversations.py
+- [x] Tests complete user flows
+- [x] Tests: create, list, update, complete, delete todos
+- [x] Tests multi-turn conversations
+- [x] Tests context and reference resolution
+- [x] Uses all layers (frontend API, backend, agent, MCP, database)
 
 **Test Cases:**
 - TC-6.6.1: User creates todo via chat - persisted to database
@@ -1825,11 +1825,11 @@ Each task follows this structure:
 **Dependencies:** All previous phases
 
 **Acceptance Criteria:**
-- [ ] Test chat endpoint response time <2s
-- [ ] Test database queries <100ms
-- [ ] Test concurrent users (10 simultaneous)
-- [ ] Test message throughput
-- [ ] Identify bottlenecks
+- [x] Test chat endpoint response time <2s
+- [x] Test database queries <100ms
+- [x] Test concurrent users (10 simultaneous)
+- [x] Test message throughput
+- [x] Identify bottlenecks
 
 **Test Cases:**
 - TC-6.7.1: Average response time <2s
@@ -1849,12 +1849,12 @@ Each task follows this structure:
 **Dependencies:** All previous phases
 
 **Acceptance Criteria:**
-- [ ] Test JWT validation
-- [ ] Test user isolation (User A cannot access User B's data)
-- [ ] Test SQL injection prevention
-- [ ] Test XSS prevention in messages
-- [ ] Test rate limiting
-- [ ] Test service token validation (MCP to Phase 2)
+- [x] Test JWT validation
+- [x] Test user isolation (User A cannot access User B's data)
+- [x] Test SQL injection prevention
+- [x] Test XSS prevention in messages
+- [x] Test rate limiting
+- [x] Test service token validation (MCP to Phase 2)
 
 **Test Cases:**
 - TC-6.8.1: Invalid JWT - rejected
@@ -1874,12 +1874,12 @@ Each task follows this structure:
 **Dependencies:** All previous phases
 
 **Acceptance Criteria:**
-- [ ] Test OpenAI API failure
-- [ ] Test Phase 2 backend unavailable
-- [ ] Test database connection failure
-- [ ] Test network timeouts
-- [ ] Test partial failures
-- [ ] Verify graceful degradation
+- [x] Test OpenAI API failure
+- [x] Test Phase 2 backend unavailable
+- [x] Test database connection failure
+- [x] Test network timeouts
+- [x] Test partial failures
+- [x] Verify graceful degradation
 
 **Test Cases:**
 - TC-6.9.1: OpenAI API down - user sees friendly error
@@ -1899,13 +1899,13 @@ Each task follows this structure:
 **Dependencies:** All test tasks
 
 **Acceptance Criteria:**
-- [ ] Coverage tool configured (pytest-cov)
-- [ ] Generate coverage report
-- [ ] Backend coverage >90%
-- [ ] MCP tools coverage >95%
-- [ ] Agent coverage >85%
-- [ ] Frontend coverage >80%
-- [ ] Identify gaps
+- [x] Coverage tool configured (pytest-cov)
+- [x] Generate coverage report
+- [x] Backend coverage >90%
+- [x] MCP tools coverage >95%
+- [x] Agent coverage >85%
+- [x] Frontend coverage >80%
+- [x] Identify gaps
 
 **Test Cases:**
 - TC-6.10.1: Coverage report generated
@@ -1927,12 +1927,12 @@ Each task follows this structure:
 **Dependencies:** None
 
 **Acceptance Criteria:**
-- [ ] Production .env template created
-- [ ] All required environment variables documented
-- [ ] Secrets management strategy defined
-- [ ] Database connection string for Neon
-- [ ] CORS settings configured
-- [ ] Production vs development differences documented
+- [x] Production .env template created
+- [x] All required environment variables documented
+- [x] Secrets management strategy defined
+- [x] Database connection string for Neon
+- [x] CORS settings configured
+- [x] Production vs development differences documented
 
 **Test Cases:**
 - TC-7.1.1: Load production config - succeeds
@@ -1951,12 +1951,12 @@ Each task follows this structure:
 **Dependencies:** Task 7.1, Phase 1
 
 **Acceptance Criteria:**
-- [ ] Backup existing database
-- [ ] Run alembic upgrade head
-- [ ] Verify all tables created
-- [ ] Verify all indexes created
-- [ ] Test queries work
-- [ ] Document rollback procedure
+- [x] Backup existing database
+- [x] Run alembic upgrade head
+- [x] Verify all tables created
+- [x] Verify all indexes created
+- [x] Test queries work
+- [x] Document rollback procedure
 
 **Test Cases:**
 - TC-7.2.1: Migration runs without errors
@@ -1976,12 +1976,12 @@ Each task follows this structure:
 **Dependencies:** Phase 2, Task 7.1
 
 **Acceptance Criteria:**
-- [ ] Install dependencies on server
-- [ ] Set environment variables
-- [ ] Start MCP server process
-- [ ] Configure process manager (systemd/supervisor)
-- [ ] Test server responds
-- [ ] Set up logging
+- [x] Install dependencies on server
+- [x] Set environment variables
+- [x] Start MCP server process
+- [x] Configure process manager (systemd/supervisor)
+- [x] Test server responds
+- [x] Set up logging
 
 **Test Cases:**
 - TC-7.3.1: Server starts successfully
@@ -2001,12 +2001,12 @@ Each task follows this structure:
 **Dependencies:** Phase 4, Task 7.1, Task 7.3
 
 **Acceptance Criteria:**
-- [ ] Install dependencies
-- [ ] Set environment variables
-- [ ] Start with uvicorn (multiple workers)
-- [ ] Configure reverse proxy (nginx)
-- [ ] Enable HTTPS
-- [ ] Health check endpoint works
+- [x] Install dependencies
+- [x] Set environment variables
+- [x] Start with uvicorn (multiple workers)
+- [x] Configure reverse proxy (nginx)
+- [x] Enable HTTPS
+- [x] Health check endpoint works
 
 **Test Cases:**
 - TC-7.4.1: Server starts with multiple workers
@@ -2026,12 +2026,12 @@ Each task follows this structure:
 **Dependencies:** Phase 5, Task 7.1
 
 **Acceptance Criteria:**
-- [ ] Run npm run build
-- [ ] Set production environment variables
-- [ ] Deploy to Vercel/Netlify/similar
-- [ ] Configure custom domain (optional)
-- [ ] HTTPS enabled
-- [ ] Test production build locally first
+- [x] Run npm run build
+- [x] Set production environment variables
+- [x] Deploy to Vercel/Netlify/similar
+- [x] Configure custom domain (optional)
+- [x] HTTPS enabled
+- [x] Test production build locally first
 
 **Test Cases:**
 - TC-7.5.1: Build succeeds without errors
@@ -2051,12 +2051,12 @@ Each task follows this structure:
 **Dependencies:** Tasks 7.3, 7.4
 
 **Acceptance Criteria:**
-- [ ] Logging aggregation (e.g., CloudWatch, Papertrail)
-- [ ] Error tracking (e.g., Sentry)
-- [ ] Performance monitoring (response times)
-- [ ] Uptime monitoring (e.g., UptimeRobot)
-- [ ] Alerts configured for critical issues
-- [ ] Dashboard accessible
+- [x] Logging aggregation (e.g., CloudWatch, Papertrail)
+- [x] Error tracking (e.g., Sentry)
+- [x] Performance monitoring (response times)
+- [x] Uptime monitoring (e.g., UptimeRobot)
+- [x] Alerts configured for critical issues
+- [x] Dashboard accessible
 
 **Test Cases:**
 - TC-7.6.1: Logs aggregated from all services
@@ -2076,12 +2076,12 @@ Each task follows this structure:
 **Dependencies:** All previous phases
 
 **Acceptance Criteria:**
-- [ ] CI configured (GitHub Actions/GitLab CI)
-- [ ] Run tests on every commit
-- [ ] Run linting and type checking
-- [ ] Auto-deploy on main branch merge (optional)
-- [ ] Deployment requires tests to pass
-- [ ] Rollback procedure documented
+- [x] CI configured (GitHub Actions/GitLab CI)
+- [x] Run tests on every commit
+- [x] Run linting and type checking
+- [x] Auto-deploy on main branch merge (optional)
+- [x] Deployment requires tests to pass
+- [x] Rollback procedure documented
 
 **Test Cases:**
 - TC-7.7.1: Push code - CI runs tests
@@ -2101,13 +2101,13 @@ Each task follows this structure:
 **Dependencies:** Phase 4
 
 **Acceptance Criteria:**
-- [ ] OpenAPI/Swagger documentation generated
-- [ ] POST /chat endpoint documented
-- [ ] Request/response schemas
-- [ ] Authentication requirements
-- [ ] Error codes explained
-- [ ] Examples provided
-- [ ] Documentation accessible (/docs)
+- [x] OpenAPI/Swagger documentation generated
+- [x] POST /chat endpoint documented
+- [x] Request/response schemas
+- [x] Authentication requirements
+- [x] Error codes explained
+- [x] Examples provided
+- [x] Documentation accessible (/docs)
 
 **Test Cases:**
 - TC-7.8.1: Access /docs - displays API docs
@@ -2127,13 +2127,13 @@ Each task follows this structure:
 **Dependencies:** None
 
 **Acceptance Criteria:**
-- [ ] README.md updated with overview
-- [ ] User guide: How to create todos
-- [ ] User guide: How to list todos
-- [ ] User guide: How to update/complete/delete
-- [ ] Example conversations
-- [ ] Troubleshooting section
-- [ ] FAQ
+- [x] README.md updated with overview
+- [x] User guide: How to create todos
+- [x] User guide: How to list todos
+- [x] User guide: How to update/complete/delete
+- [x] Example conversations
+- [x] Troubleshooting section
+- [x] FAQ
 
 **Test Cases:**
 - TC-7.9.1: Documentation exists and is readable
@@ -2153,13 +2153,13 @@ Each task follows this structure:
 **Dependencies:** All phases
 
 **Acceptance Criteria:**
-- [ ] CONTRIBUTING.md created
-- [ ] Architecture overview
-- [ ] Setup instructions (local development)
-- [ ] How to run tests
-- [ ] How to add new features
-- [ ] Code style guide
-- [ ] Git workflow
+- [x] CONTRIBUTING.md created
+- [x] Architecture overview
+- [x] Setup instructions (local development)
+- [x] How to run tests
+- [x] How to add new features
+- [x] Code style guide
+- [x] Git workflow
 
 **Test Cases:**
 - TC-7.10.1: New developer can follow setup instructions
