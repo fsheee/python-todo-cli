@@ -9,6 +9,7 @@ Tasks: 3.1-3.15
 """
 
 import os
+import json
 import logging
 from typing import Dict, List, Optional
 from datetime import datetime
@@ -264,7 +265,16 @@ async def process_chat_message(
             # Execute each tool call
             for tool_call in assistant_message.tool_calls:
                 tool_name = tool_call.function.name
-                tool_args = eval(tool_call.function.arguments)  # Parse JSON args
+                try:
+                    tool_args = json.loads(tool_call.function.arguments)
+                except json.JSONDecodeError as e:
+                    logger.error(f"Failed to parse tool arguments for {tool_name}: {e}")
+                    tool_calls_made.append({
+                        "tool": tool_name,
+                        "arguments": tool_call.function.arguments,
+                        "result": {"success": False, "error": f"Invalid JSON arguments: {e}"}
+                    })
+                    continue
 
                 logger.info(f"Calling tool: {tool_name} with args: {tool_args}")
 

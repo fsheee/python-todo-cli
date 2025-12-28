@@ -55,3 +55,8 @@ app.include_router(tasks_router)
 async def health_check():
     """Health check endpoint."""
     return {"status": "healthy"}
+
+@app.get("/", tags=["root"])
+async def root():
+    return {"message": "Backend running on Hugging Face"}
+

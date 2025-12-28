@@ -312,6 +312,7 @@ specs/
 - Implement chat history persistence
 - Add error handling and logging
 
+
 ### Phase 5: Frontend Development
 - Set up OpenAI ChatKit component
 - Connect to backend `/chat` endpoint

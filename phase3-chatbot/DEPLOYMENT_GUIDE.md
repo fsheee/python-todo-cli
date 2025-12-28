@@ -28,10 +28,11 @@ OPENAI_API_KEY=sk-your-key-here
 
 # Phase 2 Backend
 PHASE2_API_URL=http://localhost:8000
-INTERNAL_SERVICE_TOKEN=your-service-token
+INTERNAL_SERVICE_TOKEN=
 
 # Database (Neon)
 DATABASE_URL=postgresql+asyncpg://user:pass@host/db
+
 
 # Better Auth (from Phase 2)
 BETTER_AUTH_SECRET=your-secret-here

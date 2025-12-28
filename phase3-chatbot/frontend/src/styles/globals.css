@@ -1694,6 +1694,14 @@ body {
   border-radius: 4px;
 }
 
+/* Input Hint (for password requirements, etc.) */
+.input-hint {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+  margin-left: 0.5rem;
+}
+
 /* Sign Up Link (optional) */
 .signup-prompt {
   color: #6b7280;

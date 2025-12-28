@@ -15,18 +15,11 @@ from app.schemas import ChatRequest, ChatResponse
 from app.middleware.auth import verify_jwt_token, security
 from app.queries import load_chat_history, save_message
 from app.agents import process_chat_message
+from app.database import get_db
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/chat", tags=["chat"])
-
-
-# Placeholder for database session dependency
-# This should be imported from Phase 2 or implemented separately
-async def get_session():
-    """Placeholder for database session dependency"""
-    # TODO: Import from Phase 2 database setup
-    pass
 
 
 @router.post("", response_model=ChatResponse, status_code=status.HTTP_200_OK)
@@ -34,7 +27,7 @@ async def chat_endpoint(
     request: Request,
     chat_request: ChatRequest,
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    # session: AsyncSession = Depends(get_session)  # Uncomment when DB setup complete
+    session: AsyncSession = Depends(get_db),
 ):
     """
     Process user chat message and return AI assistant response
@@ -65,34 +58,29 @@ async def chat_endpoint(
 
     try:
         # Task 4.3: Load chat history
-        # TODO: Uncomment when database session is available
-        # history = await load_chat_history(
-        #     session=session,
-        #     user_id=user_id,
-        #     session_id=chat_request.session_id,
-        #     limit=20
-        # )
-        # formatted_history = [
-        #     {"role": msg.role, "content": msg.content}
-        #     for msg in history
-        # ]
-
-        # Temporary: Use empty history
-        formatted_history = []
+        history = await load_chat_history(
+            session=session,
+            user_id=user_id,
+            session_id=chat_request.session_id,
+            limit=20
+        )
+        formatted_history = [
+            {"role": msg.role, "content": msg.content}
+            for msg in history
+        ]
 
         # Task 4.4: Save user message
-        # TODO: Uncomment when database session is available
-        # await save_message(
-        #     session=session,
-        #     user_id=user_id,
-        #     session_id=chat_request.session_id,
-        #     role="user",
-        #     content=chat_request.message,
-        #     metadata={
-        #         "client_ip": request.client.host if request.client else None,
-        #         "user_agent": request.headers.get("user-agent")
-        #     }
-        # )
+        await save_message(
+            session=session,
+            user_id=user_id,
+            session_id=chat_request.session_id,
+            role="user",
+            content=chat_request.message,
+            metadata={
+                "client_ip": request.client.host if request.client else None,
+                "user_agent": request.headers.get("user-agent")
+            }
+        )
 
         # Task 4.5: Process message through agent
         agent_response = await process_chat_message(
@@ -103,15 +91,14 @@ async def chat_endpoint(
         )
 
         # Task 4.6: Save assistant response
-        # TODO: Uncomment when database session is available
-        # await save_message(
-        #     session=session,
-        #     user_id=user_id,
-        #     session_id=chat_request.session_id,
-        #     role="assistant",
-        #     content=agent_response["content"],
-        #     metadata=agent_response.get("metadata", {})
-        # )
+        await save_message(
+            session=session,
+            user_id=user_id,
+            session_id=chat_request.session_id,
+            role="assistant",
+            content=agent_response["content"],
+            metadata=agent_response.get("metadata", {})
+        )
 
         # Task 4.8: Log successful response
         logger.info(

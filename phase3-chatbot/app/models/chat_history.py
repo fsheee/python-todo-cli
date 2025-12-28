@@ -26,8 +26,8 @@ class ChatHistory(SQLModel, table=True):
     role: str = Field(nullable=False, max_length=20)  # "user", "assistant", "system"
     content: str = Field(nullable=False)  # Message text
 
-    # Metadata
-    metadata: Optional[Dict[str, Any]] = Field(
+    # Metadata (renamed to avoid SQLAlchemy reserved name)
+    message_metadata: Optional[Dict[str, Any]] = Field(
         default=None,
         sa_column=Column(JSON)
     )  # Store tool calls, tokens used, etc.
@@ -49,7 +49,7 @@ class ChatHistory(SQLModel, table=True):
                 "session_id": "sess_abc123xyz",
                 "role": "user",
                 "content": "Show me my tasks",
-                "metadata": {
+                "message_metadata": {
                     "client_ip": "192.168.1.1",
                     "user_agent": "Mozilla/5.0..."
                 },

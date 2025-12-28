@@ -36,6 +36,7 @@ export default function LoginPage() {
 
       // Parse error and show specific message
       const message = err.response?.data?.detail || '';
+      const statusCode = err.response?.status;
 
       if (message.toLowerCase().includes('email')) {
         setError('Invalid email address');
@@ -43,8 +44,12 @@ export default function LoginPage() {
         setError('Incorrect password. Please try again.');
       } else if (message.toLowerCase().includes('not found')) {
         setError('Account not found. Please check your email or sign up.');
+      } else if (statusCode === 503 || statusCode === 504) {
+        setError('Authentication service temporarily unavailable. Please try again.');
       } else if (err.code === 'ECONNABORTED' || err.code === 'ERR_NETWORK') {
-        setError('Unable to connect. Please check your internet connection.');
+        setError('Unable to connect to server. Please check your connection and try again.');
+      } else if (statusCode === 404) {
+        setError('Authentication endpoint not found. Please contact support.');
       } else {
         setError('Login failed. Please try again later.');
       }
@@ -161,13 +166,12 @@ export default function LoginPage() {
             Back to Home
           </Link>
 
-          {/* Uncomment if signup is available */}
-          {/* <p className="signup-prompt">
+          <p className="signup-prompt">
             Don't have an account?{' '}
             <Link href="/signup" className="link-signup">
               Sign up free
             </Link>
-          </p> */}
+          </p>
         </div>
       </div>
     </div>
