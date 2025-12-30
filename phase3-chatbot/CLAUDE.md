@@ -45,11 +45,25 @@ specs/
 │  └─ mcp-tools.md                 # MCP tool definitions (5 tools)
 ├─ database/
 │  └─ chat-history.md              # Chat history schema & queries
-└─ ui/
-   └─ chatkit-integration.md       # Frontend ChatKit integration
+├─ ui/
+│  └─ chatkit-integration.md       # Frontend ChatKit integration
+└─ agents/skills/                   # Reusable agent skills (from shared skills)
 ```
 
 **Status:** All 6 core specifications complete and ready for implementation.
+
+**Shared Skills Reference:**
+- `.claude/skills/` — **Shared skills for Phase 2/3 reuse**
+- `.claude/skills/SKILLS.md` - **Shared skills index**
+- `.claude/skills/01-core/task/create-task.md`
+- `.claude/skills/01-core/task/list-tasks.md`
+- `.claude/skills/01-core/task/update-task.md`
+- `.claude/skills/01-core/task/delete-task.md`
+- `.claude/skills/01-core/task/toggle-complete.md`
+- `.claude/skills/02-intelligence/extract-intent.md`
+- `.claude/skills/02-intelligence/parse-date.md`
+- `.claude/skills/03-communication/format-task-list.md`
+- `.claude/skills/03-communication/generate-response.md`
 
 Spec-Kit configuration: `/.spec-kit/config.yaml`
 
@@ -65,6 +79,9 @@ Spec-Kit configuration: `/.spec-kit/config.yaml`
 @specs/features/chatbot.md
 @specs/agents/todo-agent.md
 @specs/api/mcp-tools.md
+@.claude/skills/SKILLS.md
+@.claude/skills/01-core/task/create-task.md
+@.claude/skills/01-core/task/list-tasks.md
 
 
 - Any code change not traceable to a spec is invalid.
@@ -87,9 +104,15 @@ Spec-Kit configuration: `/.spec-kit/config.yaml`
 - `delete_todo` - Remove todos
 - `search_todos` - Search todos by keyword
 
+**Skills Reference (for agent implementation):**
+Skills in `.claude/skills/` provide templates and patterns for:
+- Intent extraction (@.claude/skills/02-intelligence/extract-intent.md)
+- Date parsing (@.claude/skills/02-intelligence/parse-date.md)
+- Task formatting (@.claude/skills/03-communication/format-task-list.md)
+- Response generation (@.claude/skills/03-communication/generate-response.md)
+
 **Not Used in Phase 3:**
 - ❌ Subagents - Main agent handles all clarifications
-- ❌ Skills - Logic contained in agent prompts and MCP tools
 - ❌ Multiple agents - Single agent is sufficient for todo management
 
 **Architecture:** User → Frontend → Backend → **1 Agent** → **5 MCP Tools** → Phase 2 Backend → Database  

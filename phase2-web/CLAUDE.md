@@ -15,6 +15,7 @@ Development is **spec-driven** using Spec-Kit Plus and Claude Code—**NO manual
 - `/specs/ui/` — UI specs (components/pages as needed)
 - `/specs/agents/` — Agent and subagent specs
 - `/specs/agents/skills/` — Reusable agent skill specs
+- `.claude/skills/` — **Shared skills for Phase 2/3 reuse**
 
 _Spec-Kit config file: `/phase2/.spec-kit/config.yaml`_
 
@@ -32,7 +33,8 @@ _Spec-Kit config file: `/phase2/.spec-kit/config.yaml`_
    - `@specs/api/rest-endpoints.md`
    - `@specs/database/schema.md`
    - `@specs/agents/todo-agent.md`
-   - `@specs/agents/skills/create-task.md`
+   - `.claude/skills/SKILLS.md` - **Shared skills index**
+   - `.claude/skills/01-core/task/create-task.md`
 
 ---
 
