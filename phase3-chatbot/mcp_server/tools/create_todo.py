@@ -7,16 +7,18 @@ Spec Reference: specs/api/mcp-tools.md - Tool 1: create_todo
 Task: 2.5
 """
 
-from typing import Optional, Dict
+from typing import Optional, Dict, Union
+import httpx
 from mcp_server.client import get_client
 
 
 async def create_todo(
-    user_id: int,
+    user_id: Union[int, str],  # Accept both int and UUID string
     title: str,
     description: Optional[str] = None,
     priority: Optional[str] = "medium",
-    due_date: Optional[str] = None
+    due_date: Optional[str] = None,
+    jwt_token: Optional[str] = None
 ) -> Dict:
     """
     Create a new todo item
@@ -36,7 +38,9 @@ async def create_todo(
     """
     try:
         # Input validation
-        if not user_id or user_id <= 0:
+        # Convert user_id to string (it's a UUID from JWT)
+        user_id_str = str(user_id)
+        if not user_id_str:
             return {
                 "success": False,
                 "error": "Invalid user_id",
@@ -72,24 +76,20 @@ async def create_todo(
             }
 
         # Prepare request to Phase 2 backend
+        # Phase 2 TaskCreate schema only accepts title and description
         payload = {
-            "user_id": user_id,
-            "title": title.strip(),
-            "status": "pending"
+            "title": title.strip()
         }
 
         if description:
             payload["description"] = description.strip()
 
-        if priority:
-            payload["priority"] = priority
+        # Note: priority and due_date are not supported by Phase 2 backend yet
 
-        if due_date:
-            payload["due_date"] = due_date
-
-        # Call Phase 2 backend
-        client = get_client()
-        response = await client.client.post("/todos", json=payload)
+        # Call Phase 2 backend (using Phase 2's actual endpoint format)
+        # Pass JWT token for authentication
+        client = get_client(jwt_token=jwt_token)
+        response = await client.client.post(f"/api/{user_id_str}/tasks", json=payload)
 
         if response.status_code == 201 or response.status_code == 200:
             todo = response.json()

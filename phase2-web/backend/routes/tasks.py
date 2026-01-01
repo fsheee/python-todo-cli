@@ -16,7 +16,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlmodel import Session, select
 
 from db import get_session
-from models import Task
+from models import Todo
 from schemas import TaskCreate, TaskUpdate, TaskResponse, TaskListResponse
 from auth import AuthenticatedUser, get_verified_user
 
@@ -39,7 +39,7 @@ async def create_task(
     task_data: TaskCreate,
     current_user: AuthenticatedUser = Depends(get_verified_user),
     session: Session = Depends(get_session),
-) -> Task:
+) -> TaskResponse:
     """Create a new task for the authenticated user.
 
     - Title is required (1-255 characters)
@@ -47,7 +47,7 @@ async def create_task(
     - Task defaults to completed=false
     - Server generates id, created_at, updated_at
     """
-    task = Task(
+    task = Todo(
         user_id=current_user.id,
         title=task_data.title,
         description=task_data.description,
@@ -82,9 +82,9 @@ async def list_tasks(
     - Returns empty array if no tasks exist
     """
     statement = (
-        select(Task)
-        .where(Task.user_id == current_user.id)
-        .order_by(Task.created_at.desc())
+        select(Todo)
+        .where(Todo.user_id == current_user.id)
+        .order_by(Todo.created_at.desc())
     )
     tasks = session.exec(statement).all()
 
@@ -106,13 +106,13 @@ async def get_task(
     task_id: UUID,
     current_user: AuthenticatedUser = Depends(get_verified_user),
     session: Session = Depends(get_session),
-) -> Task:
+) -> TaskResponse:
     """Get a specific task by ID.
 
     - Returns 404 if task doesn't exist or belongs to another user
     - No information leakage about other users' tasks
     """
-    task = session.get(Task, task_id)
+    task = session.get(Todo, task_id)
 
     if not task or task.user_id != current_user.id:
         raise HTTPException(
@@ -140,14 +140,14 @@ async def update_task(
     task_data: TaskUpdate,
     current_user: AuthenticatedUser = Depends(get_verified_user),
     session: Session = Depends(get_session),
-) -> Task:
+) -> TaskResponse:
     """Update a task's title and/or description.
 
     - Partial updates allowed (only provided fields are updated)
     - Cannot update id, user_id, created_at, or completed via this endpoint
     - updated_at is automatically refreshed
     """
-    task = session.get(Task, task_id)
+    task = session.get(Todo, task_id)
 
     if not task or task.user_id != current_user.id:
         raise HTTPException(
@@ -195,7 +195,7 @@ async def delete_task(
     - Deletion is permanent (no soft delete)
     - Returns 404 if task doesn't exist or belongs to another user
     """
-    task = session.get(Task, task_id)
+    task = session.get(Todo, task_id)
 
     if not task or task.user_id != current_user.id:
         raise HTTPException(
@@ -224,13 +224,13 @@ async def toggle_task_completion(
     task_id: UUID,
     current_user: AuthenticatedUser = Depends(get_verified_user),
     session: Session = Depends(get_session),
-) -> Task:
+) -> TaskResponse:
     """Toggle task completion status.
 
     - Flips completed from false to true or true to false
     - updated_at is automatically refreshed
     """
-    task = session.get(Task, task_id)
+    task = session.get(Todo, task_id)
 
     if not task or task.user_id != current_user.id:
         raise HTTPException(

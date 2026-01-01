@@ -25,11 +25,25 @@ from app.agents.prompts import (
 
 logger = logging.getLogger(__name__)
 
-# Initialize OpenAI client
-openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Initialize OpenAI client with OpenRouter configuration
+# OpenRouter is OpenAI-compatible, so we can use the same AsyncOpenAI client
+OPEN_ROUTER_API_KEY = os.getenv("OPEN_ROUTER_API_KEY")
+BASE_URL = os.getenv("BASE_URL", "https://openrouter.ai/api/v1")
+
+if OPEN_ROUTER_API_KEY:
+    # Use OpenRouter
+    openai_client = AsyncOpenAI(
+        api_key=OPEN_ROUTER_API_KEY,
+        base_url=BASE_URL
+    )
+    logger.info("Using OpenRouter API for AI requests")
+else:
+    # Fallback to OpenAI (if key is provided)
+    openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    logger.info("Using OpenAI API for AI requests")
 
 # Agent configuration
-AGENT_MODEL = os.getenv("AGENT_MODEL", "gpt-4-turbo")
+AGENT_MODEL = os.getenv("model_name", "mistralai/devstral-2512:free")
 AGENT_TEMPERATURE = float(os.getenv("AGENT_TEMPERATURE", "0.7"))
 AGENT_MAX_TOKENS = int(os.getenv("AGENT_MAX_TOKENS", "500"))
 
@@ -39,6 +53,7 @@ async def process_chat_message(
     session_id: str,
     message: str,
     history: List[Dict],
+    jwt_token: str = "",
     user_email: str = "",
     pending_count: int = 0,
     completed_count: int = 0
@@ -96,6 +111,7 @@ async def process_chat_message(
         # Define available tools (MCP tools as OpenAI functions)
         tools = [
             {
+         
                 "type": "function",
                 "function": {
                     "name": "create_todo",
@@ -279,7 +295,14 @@ async def process_chat_message(
                 logger.info(f"Calling tool: {tool_name} with args: {tool_args}")
 
                 if tool_name in tool_map:
-                    tool_result = await tool_map[tool_name](**tool_args)
+                    # Add JWT token to tool arguments for authentication with Phase 2 backend
+                    # Also override user_id with the correct UUID from JWT token
+                    tool_args_with_auth = {
+                        **tool_args,
+                        "user_id": user_id,  # Use actual UUID user_id from JWT, not AI-generated number
+                        "jwt_token": jwt_token
+                    }
+                    tool_result = await tool_map[tool_name](**tool_args_with_auth)
                     tool_calls_made.append({
                         "tool": tool_name,
                         "arguments": tool_args,
@@ -287,7 +310,45 @@ async def process_chat_message(
                     })
 
         # Get final response content
-        response_content = assistant_message.content or "I've processed your request."
+        # If tools were called, we need to make a second API call with tool results
+        if tool_calls_made:
+            # Add assistant message with tool calls to conversation
+            messages.append({
+                "role": "assistant",
+                "content": assistant_message.content,
+                "tool_calls": [
+                    {
+                        "id": tc.id,
+                        "type": "function",
+                        "function": {
+                            "name": tc.function.name,
+                            "arguments": tc.function.arguments
+                        }
+                    }
+                    for tc in assistant_message.tool_calls
+                ]
+            })
+
+            # Add tool results to conversation
+            for i, tool_call in enumerate(assistant_message.tool_calls):
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "content": json.dumps(tool_calls_made[i]["result"])
+                })
+
+            # Get final response with tool results
+            final_response = await openai_client.chat.completions.create(
+                model=AGENT_MODEL,
+                messages=messages,
+                temperature=AGENT_TEMPERATURE,
+                max_tokens=AGENT_MAX_TOKENS
+            )
+
+            response_content = final_response.choices[0].message.content or "I've completed your request."
+        else:
+            # No tools called, use direct response
+            response_content = assistant_message.content or "I've processed your request."
 
         # Log response
         logger.info(f"Generated response for user {user_id}: {response_content[:50]}...")

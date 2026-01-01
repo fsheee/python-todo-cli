@@ -13,18 +13,15 @@ if not DATABASE_URL:
     DATABASE_URL = "sqlite:///./todo.db"
     engine = create_engine(DATABASE_URL, echo=False, connect_args={"check_same_thread": False})
 else:
-    # Convert postgres:// to postgresql+pg8000:// for pg8000 driver
-    if DATABASE_URL.startswith("postgres://"):
-        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+pg8000://", 1)
-    elif DATABASE_URL.startswith("postgresql://"):
-        DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+pg8000://", 1)
-
-    # Configure pool for Neon serverless
+    # Use psycopg2-binary driver (already installed)
+    # Configure for Neon serverless with connection pool settings
     engine = create_engine(
         DATABASE_URL,
         echo=False,
-        pool_pre_ping=True,  # Verify connections before use
+        pool_pre_ping=True,  # Test connections before use (critical for Neon)
         pool_recycle=300,    # Recycle connections after 5 minutes
+        pool_size=10,        # Connection pool size
+        max_overflow=20      # Allow overflow connections
     )
 
 
