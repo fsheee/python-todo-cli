@@ -81,11 +81,14 @@ async def chat_endpoint(
         )
 
         # Task 4.5: Process message through agent
+        # Pass the JWT token to the agent so it can authenticate with Phase 2 backend
+        jwt_token = credentials.credentials
         agent_response = await process_chat_message(
             user_id=user_id,
             session_id=chat_request.session_id,
             message=chat_request.message,
-            history=formatted_history
+            history=formatted_history,
+            jwt_token=jwt_token
         )
 
         # Task 4.6: Save assistant response to file storage

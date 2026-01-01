@@ -7,7 +7,7 @@ Spec Reference: specs/api/mcp-tools.md - Tool 2: list_todos
 Task: 2.6
 """
 
-from typing import Optional, Dict
+from typing import Optional, Dict, Union
 from datetime import datetime, timedelta
 from mcp_server.client import get_client
 import httpx
@@ -43,13 +43,14 @@ def calculate_date_range(range_type: str) -> Dict:
 
 
 async def list_todos(
-    user_id: int,
+    user_id: Union[int, str],  # Accept both int and UUID string
     status: Optional[str] = "pending",
     priority: Optional[str] = None,
     due_date: Optional[str] = None,
     due_date_range: Optional[str] = None,
     limit: int = 50,
-    offset: int = 0
+    offset: int = 0,
+    jwt_token: Optional[str] = None
 ) -> Dict:
     """
     Retrieve todos for the authenticated user with optional filters
@@ -71,7 +72,9 @@ async def list_todos(
     """
     try:
         # Input validation
-        if not user_id or user_id <= 0:
+        # Convert user_id to string (it's a UUID from JWT)
+        user_id_str = str(user_id)
+        if not user_id_str:
             return {
                 "success": False,
                 "error": "Invalid user_id",
@@ -97,7 +100,6 @@ async def list_todos(
 
         # Build query parameters
         params = {
-            "user_id": user_id,
             "limit": limit,
             "offset": offset
         }
@@ -115,19 +117,21 @@ async def list_todos(
         elif due_date:
             params["due_date"] = due_date
 
-        # Call Phase 2 backend
-        client = get_client()
-        response = await client.client.get("/todos", params=params)
+        # Call Phase 2 backend (using Phase 2's actual endpoint format)
+        # Pass JWT token for authentication
+        client = get_client(jwt_token=jwt_token)
+        response = await client.client.get(f"/api/{user_id_str}/tasks", params=params)
 
         if response.status_code == 200:
             data = response.json()
-            todos = data if isinstance(data, list) else data.get("todos", [])
+            # Phase 2 backend returns {"tasks": [...], "count": N}
+            todos = data if isinstance(data, list) else data.get("tasks", data.get("todos", []))
 
             return {
                 "success": True,
                 "todos": todos,
                 "count": len(todos),
-                "total": data.get("total", len(todos)) if isinstance(data, dict) else len(todos),
+                "total": data.get("total", data.get("count", len(todos))) if isinstance(data, dict) else len(todos),
                 "has_more": len(todos) == limit
             }
         else:
