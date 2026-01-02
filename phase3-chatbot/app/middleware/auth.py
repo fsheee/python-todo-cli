@@ -2,6 +2,7 @@
 JWT authentication middleware for chat endpoint
 
 Spec Reference: specs/overview.md - Authentication Flow
+
 Task: 4.2
 """
 
@@ -89,3 +90,4 @@ async def verify_jwt_token(credentials: HTTPAuthorizationCredentials) -> str:
             detail=f"Authentication failed: {str(e)}",
             headers={"WWW-Authenticate": "Bearer"}
         )
+
