@@ -1,0 +1,53 @@
+# Phase 3 Todo Chatbot Dependencies
+# Updated for Python 3.13 compatibility (2025-12-26)
+
+# FastAPI for backend API (upgraded for Pydantic v2 support)
+fastapi>=0.127.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.6
+
+# Database (upgraded for Pydantic v2 support)
+sqlmodel>=0.0.30
+sqlalchemy[asyncio]>=2.0.25
+alembic>=1.13.1
+asyncpg>=0.29.0
+psycopg2-binary>=2.9.9
+
+# Pydantic v2 (required for Python 3.13 compatibility)
+pydantic>=2.12.5
+pydantic-core>=2.41.5
+
+# OpenAI SDK for agent functionality (upgraded for compatibility)
+openai>=2.14.0
+
+# MCP SDK (Official) - Required for MCP server
+mcp>=0.9.0
+
+# HTTP client
+httpx>=0.26.0
+
+# Environment variables
+python-dotenv>=1.0.0
+
+# Authentication (JWT) - Pure Python, no cryptography
+pyjwt>=2.8.0
+
+# Date/time utilities
+python-dateutil>=2.8.2
+
+# Rate limiting
+slowapi>=0.1.9
+
+# Logging
+structlog>=24.1.0
+
+# Testing
+pytest>=7.4.4
+pytest-asyncio>=0.23.3
+pytest-cov>=4.1.0
+pytest-mock>=3.12.0
+
+# Type hints
+typing-extensions>=4.15.0
+
+
