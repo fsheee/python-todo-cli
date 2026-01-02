@@ -1,0 +1,5 @@
+# Ignore all user data
+users/
+*.json
+*.md
+*.jsonl

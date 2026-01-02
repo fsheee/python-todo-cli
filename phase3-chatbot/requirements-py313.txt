@@ -1,0 +1,58 @@
+# Phase 3 Dependencies - Python 3.13 Compatible
+# This file uses packages with Python 3.13 wheels or pure Python implementations
+
+# ===== WEB FRAMEWORK =====
+# FastAPI with Pydantic V1 (pure Python, no Rust)
+# IMPORTANT: FastAPI 0.109.0 requires Pydantic v2, so we use 0.68.2 for Pydantic v1
+pydantic==1.10.13
+starlette==0.14.2
+fastapi==0.68.2
+uvicorn==0.27.0
+python-multipart==0.0.6
+
+# ===== DATABASE =====
+# Updated for Python 3.13 compatibility
+sqlalchemy>=2.0.36  # Python 3.13 fixes
+sqlmodel==0.0.14
+alembic>=1.14.0  # Python 3.13 compatible
+
+# Alternative: Use SQLite instead of PostgreSQL for development
+# No additional drivers needed - SQLite is built into Python
+
+# ===== AI/OPENAI =====
+openai>=1.10.0
+
+# ===== HTTP CLIENT =====
+httpx>=0.26.0
+
+# ===== UTILITIES =====
+python-dotenv==1.0.0
+python-dateutil==2.8.2
+typing-extensions==4.9.0
+
+# ===== AUTHENTICATION =====
+# JWT without cryptography extras (pure Python)
+pyjwt==2.8.0
+
+# ===== RATE LIMITING =====
+slowapi==0.1.9
+
+# ===== LOGGING =====
+structlog==24.1.0
+
+# ===== TESTING =====
+pytest==7.4.4
+pytest-asyncio==0.23.3
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+
+# ===== NOTES =====
+# PostgreSQL drivers commented out - not available for Python 3.13 yet:
+# - asyncpg (needs compilation)
+# - psycopg2-binary (needs compilation)
+#
+# OPTIONS:
+# 1. Use SQLite for development (built-in, no install needed)
+# 2. Downgrade to Python 3.11 or 3.12 for full PostgreSQL support
+# 3. Wait for official Python 3.13 wheels to be published
+# 4. Use PostgreSQL via HTTP API instead of direct driver

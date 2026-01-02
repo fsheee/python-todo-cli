@@ -1,0 +1,9 @@
+phases:
+  - name: phase1-console
+    features: [task-crud]
+
+  - name: phase2-web
+    features: [task-crud, authentication]
+
+  - name: phase3-chatbot
+    features: [task-crud, authentication, chatbot]

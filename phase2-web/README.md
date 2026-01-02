@@ -1,0 +1,146 @@
+# Phase 2 - Todo Web Application
+
+A full-stack multi-user todo application with FastAPI backend and Next.js frontend.
+
+## Overview
+
+Phase 2 evolves the console-based todo app (Phase 1) into a modern web application with:
+- User authentication (JWT-based)
+- RESTful API backend
+- Responsive web frontend
+- PostgreSQL database
+
+## Architecture
+
+| Directory | Description |
+|-----------|-------------|
+| `backend/` | FastAPI REST API |
+| `backend/main.py` | App entry point |
+| `backend/models.py` | SQLModel database models |
+| `backend/schemas.py` | Pydantic schemas |
+| `backend/routes/` | API route handlers |
+| `backend/db.py` | Database connection |
+| `frontend/` | Next.js web app |
+| `frontend/src/app/` | App Router pages |
+| `frontend/src/components/` | React components |
+| `frontend/src/lib/` | API client & utilities |
+| `specs/` | Feature specifications |
+| `specs/features/` | Feature specs |
+| `specs/api/` | API endpoint specs |
+| `specs/database/` | Schema specs |
+| `specs/ui/` | UI component specs |
+| `specs/agents/` | Agent/skill specs |
+| `adr/` | Architecture Decision Records |
+
+## Tech Stack
+
+### Backend
+- **Python 3.13+**
+- **FastAPI** - Web framework
+- **SQLModel** - ORM (SQLAlchemy + Pydantic)
+- **Neon PostgreSQL** - Database
+- **JWT + bcrypt** - Authentication
+
+### Frontend
+- **Next.js 16+** - React framework (App Router)
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
+- **React Context** - State management
+
+## Quick Start
+
+### Prerequisites
+- Python 3.13+
+- Node.js 18+
+- [uv](https://github.com/astral-sh/uv) package manager
+
+### Backend Setup
+
+```bash
+cd phase2-web/backend
+
+# Install dependencies
+uv venv
+uv sync
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your database URL and secret
+
+# Run server
+uv run uvicorn main:app --reload --port 8000
+```
+
+### Frontend Setup
+
+```bash
+cd phase2-web/frontend
+
+# Install dependencies
+npm install
+
+# Configure environment
+echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local
+
+# Run development server
+npm run dev
+```
+
+Open http://localhost:3000 in your browser.
+
+## API Endpoints
+
+### Authentication
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Create account |
+| POST | `/api/auth/login` | Sign in |
+| POST | `/api/auth/logout` | Sign out |
+| GET | `/api/auth/session` | Get current user |
+
+### Tasks
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/{user_id}/tasks` | List tasks |
+| POST | `/api/{user_id}/tasks` | Create task |
+| GET | `/api/{user_id}/tasks/{id}` | Get task |
+| PUT | `/api/{user_id}/tasks/{id}` | Update task |
+| DELETE | `/api/{user_id}/tasks/{id}` | Delete task |
+| PATCH | `/api/{user_id}/tasks/{id}/complete` | Toggle completion |
+
+## Features
+
+- **User Registration & Login** - Email/password authentication
+- **Task CRUD** - Create, read, update, delete tasks
+- **Task Completion** - Toggle task status
+- **User Isolation** - Users only see their own tasks
+- **Responsive UI** - Mobile and desktop support
+
+## Development Workflow
+
+This project follows **spec-driven development**:
+
+1. Define features in `/specs/features/`
+2. Define API endpoints in `/specs/api/`
+3. Define database schema in `/specs/database/`
+4. Implement based on specifications
+
+See [CLAUDE.md](./CLAUDE.md) for development guidelines.
+
+## Documentation
+
+- [Backend README](./backend/README.md)
+- [Frontend README](./frontend/README.md)
+- [API Specification](./specs/api/rest-endpoints.md)
+- [Database Schema](./specs/database/schema.md)
+- [Authentication Spec](./specs/features/authentication.md)
+- [Task CRUD Spec](./specs/features/task-crud.md)
+
+## Architecture Decisions
+
+All major decisions are documented in [adr/](./adr/):
+- [001 - Tech Stack](./adr/001-tech-stack.md)
+- [002 - Authentication](./adr/002-authentication.md)
+- [003 - API Design](./adr/003-api-design.md)
+- [004 - Removed Google OAuth](./adr/004-removed-google-oauth.md)
+- [005 - Agents Backend Only](./adr/005-agents-backend-only.md)

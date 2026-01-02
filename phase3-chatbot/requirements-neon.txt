@@ -1,0 +1,60 @@
+# Phase 3 Dependencies - Python 3.13 with Neon PostgreSQL
+# This file uses packages compatible with Python 3.13 and Neon Database
+
+# ===== WEB FRAMEWORK =====
+fastapi==0.109.0
+uvicorn==0.27.0
+python-multipart==0.0.6
+
+# ===== PYDANTIC =====
+# Using V1 (pure Python, no Rust)
+pydantic==1.10.13
+
+# ===== DATABASE =====
+# Updated for Python 3.13 compatibility
+sqlalchemy>=2.0.36  # Python 3.13 typing fixes
+sqlmodel==0.0.14
+alembic>=1.14.0  # Python 3.13 compatible
+
+# PostgreSQL Driver for Python 3.13 (choose one):
+# Option 1: psycopg v3 (recommended, has wheels for Python 3.13)
+psycopg[binary]>=3.1.0
+psycopg[pool]>=3.1.0
+
+# Option 2: Pure Python driver (if psycopg fails, uncomment):
+# pg8000>=1.30.0
+
+# ===== AI/OPENAI =====
+openai>=1.10.0
+
+# ===== HTTP CLIENT =====
+httpx>=0.26.0
+
+# ===== UTILITIES =====
+python-dotenv==1.0.0
+python-dateutil==2.8.2
+typing-extensions==4.9.0
+
+# ===== AUTHENTICATION =====
+pyjwt==2.8.0
+
+# ===== RATE LIMITING =====
+slowapi==0.1.9
+
+# ===== LOGGING =====
+structlog==24.1.0
+
+# ===== TESTING =====
+pytest==7.4.4
+pytest-asyncio==0.23.3
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+
+# ===== NOTES =====
+# For Neon PostgreSQL:
+# - psycopg v3 has wheels for Python 3.13
+# - Connection string: postgresql+psycopg://user:pass@host/db
+# - Async connection: postgresql+psycopg_async://user:pass@host/db
+#
+# Get your Neon connection string from:
+# https://console.neon.tech/app/projects/{your-project}/connection
