@@ -25,7 +25,7 @@ class User(SQLModel, table=True):
     )
 
 
-class Task(SQLModel, table=True):
+class Todo(SQLModel, table=True):
     """Task model for user todo items."""
 
     __tablename__ = "tasks"
