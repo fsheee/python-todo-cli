@@ -1,0 +1,17 @@
+# PHR History Directory
+
+This directory stores all Problem-Hypothesis-Review (PHR) documents and their associated prompt history files for Phase IV.
+
+## Naming Conventions
+
+- PHR Documents: `phr-YYYY-MM-DD-[topic].md`
+- Prompt History: `prompt-YYYY-MM-DD-[topic].txt`
+
+## Directory Structure
+
+```
+history/phr/
+├── phr-2025-01-03-[topic].md          # PHR document
+├── prompt-2025-01-03-[topic].txt       # User prompt history
+└── .gitkeep                            # This file
+```

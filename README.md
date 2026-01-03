@@ -155,6 +155,7 @@ npm run dev
 
 ## 🔐 Authentication
 
+
 All phases integrate with **Better Auth**:
 - User registration and login
 - JWT token-based authentication
