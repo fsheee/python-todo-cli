@@ -1,0 +1,32 @@
+# Prompts History Directory
+
+This directory stores all user prompts and interactions for Phase IV.
+
+## Naming Conventions
+
+- Prompt Files: `prompt-YYYY-MM-DD-[topic].txt`
+
+## Usage
+
+When creating a PHR or ADR document, save the corresponding user prompts and AI interactions in this directory with a matching filename.
+
+## File Format
+
+Each prompt file should include:
+- Date and time of the interaction
+- User's original prompt
+- AI's response (optional, for reference)
+- Any follow-up prompts/responses
+
+## Directory Structure
+
+```
+history/
+├── phr/
+│   ├── phr-YYYY-MM-DD-[topic].md          # PHR document
+│   └── TEMPLATE.md
+└── prompts/
+    ├── prompt-YYYY-MM-DD-[topic].txt       # User prompt history
+    └── .gitkeep                            # This file
+```
+select best 

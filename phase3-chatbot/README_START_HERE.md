@@ -50,6 +50,7 @@ That's it! The backend will start without errors. ✨
 ### Step 1: Start Backend
 Double-click: `start_backend.bat`
 
+
 **Expected output:**
 ```
 ========================================
@@ -188,6 +189,8 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Start without reload, with workers
+
+
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8001 --workers 4
 ```
 

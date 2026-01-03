@@ -35,6 +35,14 @@ _Spec-Kit config file: `/phase2/.spec-kit/config.yaml`_
    - `@specs/agents/todo-agent.md`
    - `.claude/skills/SKILLS.md` - **Shared skills index**
    - `.claude/skills/01-core/task/create-task.md`
+   - `.claude/skills/01-core/task/list-tasks.md`
+   - `.claude/skills/01-core/task/update-task.md`
+   - `.claude/skills/01-core/task/delete-task.md`
+   - `.claude/skills/01-core/task/toggle-complete.md`
+   - `.claude/skills/02-intelligence/extract-intent.md`
+   - `.claude/skills/02-intelligence/parse-date.md`
+   - `.claude/skills/03-communication/format-task-list.md`
+   - `.claude/skills/03-communication/generate-response.md`
 
 ---
 
