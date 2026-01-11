@@ -17,7 +17,7 @@ class ChatHistory(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
     # Foreign Keys
-    user_id: int = Field(foreign_key="users.id", index=True, nullable=False)
+    user_id: int = Field(index=True, nullable=False)
 
     # Session Management
     session_id: str = Field(index=True, nullable=False, max_length=100)
@@ -26,10 +26,11 @@ class ChatHistory(SQLModel, table=True):
     role: str = Field(nullable=False, max_length=20)  # "user", "assistant", "system"
     content: str = Field(nullable=False)  # Message text
 
-    # Metadata (renamed to avoid SQLAlchemy reserved name)
-    message_metadata: Optional[Dict[str, Any]] = Field(
+    # Metadata (aliased to avoid shadowing Pydantic/SQLModel attribute)
+    msg_metadata: Optional[Dict[str, Any]] = Field(
         default=None,
-        sa_column=Column(JSON)
+        sa_column=Column("metadata", JSON),
+        alias="metadata"
     )  # Store tool calls, tokens used, etc.
 
     # Timestamps
