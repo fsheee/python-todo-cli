@@ -25,31 +25,33 @@ from app.agents.prompts import (
 
 logger = logging.getLogger(__name__)
 
-# Initialize OpenAI client with OpenRouter configuration
-# OpenRouter is OpenAI-compatible, so we can use the same AsyncOpenAI client
-OPEN_ROUTER_API_KEY = os.getenv("OPEN_ROUTER_API_KEY")
+# Initialize AI client prioritizing OpenRouter
+# We use the AsyncOpenAI client because OpenRouter provides an OpenAI-compatible API
+OPEN_ROUTER_API_KEY = os.getenv("OPEN_ROTER_API_KEY") or os.getenv("OPEN_ROUTER_API_KEY")
 BASE_URL = os.getenv("BASE_URL", "https://openrouter.ai/api/v1")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "fake_key_for_tests")
 
 if OPEN_ROUTER_API_KEY:
-    # Use OpenRouter
+    # Primary: Use OpenRouter
     openai_client = AsyncOpenAI(
         api_key=OPEN_ROUTER_API_KEY,
         base_url=BASE_URL
     )
-    logger.info("Using OpenRouter API for AI requests")
+    logger.info(f"Using OpenRouter API for AI requests (URL: {BASE_URL})")
 else:
-    # Fallback to OpenAI (if key is provided)
-    openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-    logger.info("Using OpenAI API for AI requests")
+    # Fallback: Use direct OpenAI
+    openai_client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+    logger.info("Using OpenAI API for AI requests (Direct)")
 
 # Agent configuration
-AGENT_MODEL = os.getenv("model_name", "mistralai/devstral-2512:free")
+# Default to a free model on OpenRouter if not specified
+AGENT_MODEL = os.getenv("AGENT_MODEL") or os.getenv("model_name") or "xiaomi/mimo-v2-flash:free"
 AGENT_TEMPERATURE = float(os.getenv("AGENT_TEMPERATURE", "0.7"))
 AGENT_MAX_TOKENS = int(os.getenv("AGENT_MAX_TOKENS", "500"))
 
 
 async def process_chat_message(
-    user_id: int,
+    user_id: str,
     session_id: str,
     message: str,
     history: List[Dict],
@@ -109,9 +111,8 @@ async def process_chat_message(
         })
 
         # Define available tools (MCP tools as OpenAI functions)
-        tools = [
+        tools: List[Dict] = [
             {
-         
                 "type": "function",
                 "function": {
                     "name": "create_todo",
@@ -119,10 +120,6 @@ async def process_chat_message(
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "user_id": {
-                                "type": "integer",
-                                "description": "ID of the authenticated user"
-                            },
                             "title": {
                                 "type": "string",
                                 "description": "Title of the todo (required)"
@@ -141,7 +138,7 @@ async def process_chat_message(
                                 "description": "Due date in ISO 8601 format (optional)"
                             }
                         },
-                        "required": ["user_id", "title"]
+                        "required": ["title"]
                     }
                 }
             },
@@ -153,7 +150,6 @@ async def process_chat_message(
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "user_id": {"type": "integer"},
                             "status": {
                                 "type": "string",
                                 "enum": ["pending", "completed", "all"],
@@ -169,8 +165,7 @@ async def process_chat_message(
                                 "enum": ["today", "tomorrow", "this_week", "next_week", "overdue"],
                                 "description": "Filter by relative date range"
                             }
-                        },
-                        "required": ["user_id"]
+                        }
                     }
                 }
             },
@@ -178,12 +173,14 @@ async def process_chat_message(
                 "type": "function",
                 "function": {
                     "name": "update_todo",
-                    "description": "Update an existing todo item",
+                    "description": "Update an existing todo item. Use numeric reference (e.g., 1, 2) from the last list if todo_id is unknown.",
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "user_id": {"type": "integer"},
-                            "todo_id": {"type": "integer"},
+                            "todo_id": {
+                                "type": "string",
+                                "description": "ID of the todo to update (can be UUID or numeric reference like '1')"
+                            },
                             "title": {"type": "string"},
                             "description": {"type": "string"},
                             "status": {
@@ -196,7 +193,7 @@ async def process_chat_message(
                             },
                             "due_date": {"type": "string"}
                         },
-                        "required": ["user_id", "todo_id"]
+                        "required": ["todo_id"]
                     }
                 }
             },
@@ -204,18 +201,20 @@ async def process_chat_message(
                 "type": "function",
                 "function": {
                     "name": "delete_todo",
-                    "description": "Delete a todo item (requires confirmation)",
+                    "description": "Delete a todo item (requires confirmation). Use numeric reference if todo_id is unknown. AGENT MUST CHECK HISTORY FOR CONFIRMATION.",
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "user_id": {"type": "integer"},
-                            "todo_id": {"type": "integer"},
+                            "todo_id": {
+                                "type": "string",
+                                "description": "ID of the todo to delete (can be UUID or numeric reference like '1')"
+                            },
                             "confirm": {
                                 "type": "boolean",
-                                "description": "Must be true to confirm deletion"
+                                "description": "Must be true to confirm deletion. Set to true ONLY if you see user explicitly confirming 'yes' or similar in recent history."
                             }
                         },
-                        "required": ["user_id", "todo_id", "confirm"]
+                        "required": ["todo_id", "confirm"]
                     }
                 }
             },
@@ -227,7 +226,6 @@ async def process_chat_message(
                     "parameters": {
                         "type": "object",
                         "properties": {
-                            "user_id": {"type": "integer"},
                             "query": {
                                 "type": "string",
                                 "description": "Search keyword or phrase"
@@ -237,7 +235,7 @@ async def process_chat_message(
                                 "enum": ["pending", "completed", "all"]
                             }
                         },
-                        "required": ["user_id", "query"]
+                        "required": ["query"]
                     }
                 }
             }
@@ -249,8 +247,8 @@ async def process_chat_message(
         # Call OpenAI with function calling
         response = await openai_client.chat.completions.create(
             model=AGENT_MODEL,
-            messages=messages,
-            tools=tools,
+            messages=messages, # type: ignore
+            tools=tools, # type: ignore
             temperature=AGENT_TEMPERATURE,
             max_tokens=AGENT_MAX_TOKENS
         )
@@ -261,56 +259,101 @@ async def process_chat_message(
         # Check if tool calls were made
         tool_calls_made = []
         if assistant_message.tool_calls:
-            # Import MCP tools
-            from mcp_server.tools import (
-                create_todo,
-                list_todos,
-                update_todo,
-                delete_todo,
-                search_todos
-            )
+            # Import MCP server app to call tools properly through the protocol layer
+            from mcp_server.server import app as mcp_app
+            from mcp.types import CallToolRequest
 
-            tool_map = {
-                "create_todo": create_todo,
-                "list_todos": list_todos,
-                "update_todo": update_todo,
-                "delete_todo": delete_todo,
-                "search_todos": search_todos
-            }
+            # Helper to resolve Numeric References to UUIDs
+            def resolve_todo_id(ref: str) -> str:
+                if not ref: return ref
+                # If it looks like a number, try to find it in previous tool results
+                if str(ref).isdigit():
+                    idx = int(ref) - 1
+                    for msg in reversed(history):
+                        if "metadata" in msg and msg["metadata"] and "tool_calls" in msg["metadata"]:
+                            for tc in msg["metadata"]["tool_calls"]:
+                                if tc["tool"] in ["list_todos", "search_todos"]:
+                                    trades = tc["result"]
+                                    # res_data might be a content block, a list, or direct dict
+                                    res_data = trades
+                                    if isinstance(trades, list) and trades:
+                                        res_data = trades[0]
+
+                                    # Handle MCP TextContent objects or direct dicts
+                                    # Use getattr for robustness
+                                    if hasattr(res_data, "text"):
+                                        try:
+                                            res_data = json.loads(getattr(res_data, "text"))
+                                        except:
+                                            continue
+
+                                    if not isinstance(res_data, dict):
+                                        continue
+
+                                    todos = res_data.get("todos", [])
+                                    if 0 <= idx < len(todos):
+                                        resolved = str(todos[idx].get("id"))
+                                        logger.info(f"Resolved numeric reference {ref} to {resolved}")
+                                        return resolved
+                return str(ref)
 
             # Execute each tool call
             for tool_call in assistant_message.tool_calls:
-                tool_name = tool_call.function.name
+                # Use getattr or check for function attribute for robustness
+                tc_function = getattr(tool_call, "function", None)
+                if not tc_function:
+                    continue
+
+                tool_name = tc_function.name
                 try:
-                    tool_args = json.loads(tool_call.function.arguments)
+                    tool_args = json.loads(tc_function.arguments)
                 except json.JSONDecodeError as e:
                     logger.error(f"Failed to parse tool arguments for {tool_name}: {e}")
                     tool_calls_made.append({
+                        "id": tool_call.id,
                         "tool": tool_name,
-                        "arguments": tool_call.function.arguments,
+                        "arguments": tc_function.arguments,
                         "result": {"success": False, "error": f"Invalid JSON arguments: {e}"}
                     })
                     continue
 
-                logger.info(f"Calling tool: {tool_name} with args: {tool_args}")
+                logger.info(f"Calling MCP SDK tool: {tool_name} with args: {tool_args}")
 
-                if tool_name in tool_map:
-                    # Add JWT token to tool arguments for authentication with Phase 2 backend
-                    # Also override user_id with the correct UUID from JWT token
-                    tool_args_with_auth = {
-                        **tool_args,
-                        "user_id": user_id,  # Use actual UUID user_id from JWT, not AI-generated number
-                        "jwt_token": jwt_token
-                    }
-                    tool_result = await tool_map[tool_name](**tool_args_with_auth)
+                # Resolve numeric references in tool_args
+                if "todo_id" in tool_args:
+                    tool_args["todo_id"] = resolve_todo_id(str(tool_args["todo_id"]))
+
+                # Prepare context for MCP tool call
+                mcp_args = {
+                    **tool_args,
+                    "user_id": user_id,
+                    "jwt_token": jwt_token
+                }
+
+                try:
+                    # Execute via MCP Protocol layer (CallToolRequest)
+                    mcp_request = CallToolRequest(name=tool_name, arguments=mcp_args)
+                    mcp_results = await mcp_app.call_tool(mcp_request)
+
+                    # MCP returns a list of content blocks, we take the result from the first one
+                    tool_result = mcp_results[0] if mcp_results else {"success": False, "error": "No result from tool"}
+
                     tool_calls_made.append({
+                        "id": tool_call.id,
                         "tool": tool_name,
                         "arguments": tool_args,
                         "result": tool_result
                     })
+                except Exception as e:
+                    logger.error(f"MCP tool execution failed: {e}")
+                    tool_calls_made.append({
+                        "id": tool_call.id,
+                        "tool": tool_name,
+                        "arguments": tool_args,
+                        "result": {"success": False, "error": str(e)}
+                    })
 
         # Get final response content
-        # If tools were called, we need to make a second API call with tool results
         if tool_calls_made:
             # Add assistant message with tool calls to conversation
             messages.append({
@@ -318,29 +361,29 @@ async def process_chat_message(
                 "content": assistant_message.content,
                 "tool_calls": [
                     {
-                        "id": tc.id,
+                        "id": tc["id"],
                         "type": "function",
                         "function": {
-                            "name": tc.function.name,
-                            "arguments": tc.function.arguments
+                            "name": tc["tool"],
+                            "arguments": json.dumps(tc["arguments"])
                         }
                     }
-                    for tc in assistant_message.tool_calls
+                    for tc in tool_calls_made
                 ]
             })
 
             # Add tool results to conversation
-            for i, tool_call in enumerate(assistant_message.tool_calls):
+            for tc in tool_calls_made:
                 messages.append({
                     "role": "tool",
-                    "tool_call_id": tool_call.id,
-                    "content": json.dumps(tool_calls_made[i]["result"])
+                    "tool_call_id": tc["id"],
+                    "content": json.dumps(tc["result"])
                 })
 
             # Get final response with tool results
             final_response = await openai_client.chat.completions.create(
                 model=AGENT_MODEL,
-                messages=messages,
+                messages=messages, # type: ignore
                 temperature=AGENT_TEMPERATURE,
                 max_tokens=AGENT_MAX_TOKENS
             )

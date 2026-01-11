@@ -178,7 +178,7 @@ class TestSaveMessage:
             metadata=metadata
         )
 
-        assert message.metadata == metadata
+        assert message.msg_metadata == metadata
 
     @pytest.mark.asyncio
     async def test_timestamp_auto_generated(self, db_session: AsyncSession, test_user_id: int, test_session_id: str):
