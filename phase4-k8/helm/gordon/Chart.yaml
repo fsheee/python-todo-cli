@@ -1,0 +1,19 @@
+apiVersion: v2
+name: todo-chatbot
+description: Helm chart for Todo Chatbot application with AI-powered conversational interface
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+
+maintainers:
+  - name: Todo Chatbot Team
+
+keywords:
+  - todo
+  - chatbot
+  - ai
+  - fastapi
+  - react
+
+sources:
+  - https://github.com/fsheee/hackathon-todo

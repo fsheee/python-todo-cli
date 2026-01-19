@@ -1,0 +1,32 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your Todo Chatbot application has been deployed.
+
+To access your application:
+
+{{- if .Values.ingress.enabled }}
+
+1. Get the application URL:
+   http://{{ .Values.ingress.host }}
+
+2. For Minikube, add to /etc/hosts:
+   echo "$(minikube ip) {{ .Values.ingress.host }}" | sudo tee -a /etc/hosts
+
+{{- else }}
+
+1. Get the frontend service:
+   export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "gordon.name" . }},app.kubernetes.io/instance={{ .Release.Name }},app.kubernetes.io/component=frontend" -o jsonpath="{.items[0].metadata.name}")
+   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:80
+
+2. Visit http://127.0.0.1:8080 to use your application
+
+{{- end }}
+
+To check the status of your deployment:
+  kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/instance={{ .Release.Name }}"
+
+To view logs:
+  Frontend: kubectl logs -f deployment/{{ include "gordon.fullname" . }}-frontend
+  Backend:  kubectl logs -f deployment/{{ include "gordon.fullname" . }}-backend
+
+For more information, see the README.md file.

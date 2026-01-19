@@ -1,0 +1,30 @@
+{{- if .Values.backend.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "gordon.fullname" . }}-backend-config
+  labels:
+    {{- include "gordon.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+data:
+  # API Configuration
+  API_HOST: {{ .Values.backend.env.API_HOST | quote }}
+  API_PORT: {{ .Values.backend.env.API_PORT | quote }}
+
+  # MCP Server Configuration
+  MCP_SERVER_PORT: {{ .Values.backend.env.MCP_SERVER_PORT | quote }}
+
+  # Rate Limiting
+  RATE_LIMIT_REQUESTS: {{ .Values.backend.env.RATE_LIMIT_REQUESTS | quote }}
+  RATE_LIMIT_WINDOW: {{ .Values.backend.env.RATE_LIMIT_WINDOW | quote }}
+
+  # Logging
+  LOG_LEVEL: {{ .Values.backend.env.LOG_LEVEL | quote }}
+
+  # Environment
+  ENVIRONMENT: {{ .Values.backend.env.ENVIRONMENT | quote }}
+
+  # Agent Configuration
+  AGENT_TEMPERATURE: {{ .Values.backend.env.AGENT_TEMPERATURE | quote }}
+  AGENT_MAX_TOKENS: {{ .Values.backend.env.AGENT_MAX_TOKENS | quote }}
+{{- end }}
