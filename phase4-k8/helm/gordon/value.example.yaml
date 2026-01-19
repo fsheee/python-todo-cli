@@ -1,0 +1,195 @@
+# Default values for todo-chatbot Helm chart
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Global image settings
+image:
+  # Leave empty for Minikube local images, or set to your registry
+  registry: ""
+  pullPolicy: IfNotPresent
+
+# Frontend configuration (React app)
+frontend:
+  enabled: true
+  replicaCount: 1
+
+  image:
+    repository: todo-chatbot-frontend
+    tag: latest
+
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 80
+
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
+
+  # Liveness and readiness probes
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 80
+    initialDelaySeconds: 30
+    periodSeconds: 10
+
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 80
+    initialDelaySeconds: 10
+    periodSeconds: 5
+
+# Backend configuration (FastAPI app)
+backend:
+  enabled: true
+  replicaCount: 1
+
+  image:
+    repository: todo-chatbot-backend
+    tag: latest
+
+  service:
+    type: ClusterIP
+    port: 8001
+    targetPort: 8001
+
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+  # Health check endpoint
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8001
+    initialDelaySeconds: 30
+    periodSeconds: 10
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 8001
+    initialDelaySeconds: 10
+    periodSeconds: 5
+
+  # Environment variables (non-sensitive)
+  env:
+    API_HOST: "0.0.0.0"
+    API_PORT: "8001"
+    MCP_SERVER_PORT: "8080"
+    RATE_LIMIT_REQUESTS: "30"
+    RATE_LIMIT_WINDOW: "60"
+    LOG_LEVEL: "INFO"
+    ENVIRONMENT: "production"
+    AGENT_TEMPERATURE: "0.7"
+    AGENT_MAX_TOKENS: "500"
+
+  # Secrets (sensitive data)
+  # These should be provided via --set flags or external secret management
+  secrets:
+    # OpenRouter API key (if using OpenRouter)
+    openRouterApiKey: ""
+    # Or OpenAI API key (fallback)
+    openaiApiKey: ""
+    # Better Auth secret for JWT validation
+    betterAuthSecret: ""
+    # Neon PostgreSQL connection string
+    databaseUrl: "postgresql+asyncpg://neondb_owner:npg_jCi7XldZ9Dnf@ep-falling-frost-a40mkwy9-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require"
+    # Internal service token for MCP server
+    internalServiceToken: ""
+    # Phase 2 API URL (if needed)
+    phase2ApiUrl: "http://localhost:8000"
+    # OpenRouter base URL
+
+    baseUrl: "https://openrouter.ai/api/v1"
+    # Model name (default: Mistral Devstral free tier)
+    modelName: "mistralai/devstral-2512:free"
+
+# PostgreSQL configuration
+# NOTE: Using external Neon PostgreSQL (serverless)
+# No PostgreSQL pod will be deployed in the cluster
+postgres:
+  enabled: false
+  # Connection string should be provided via backend.secrets.databaseUrl
+  # Example: postgresql+asyncpg://user:password@ep-xxx.neon.tech/dbname
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+
+  # Hostname for accessing the application
+  host: "todo.local"
+
+  # Path-based routing
+  paths:
+    # Frontend (default route)
+    - path: /
+      pathType: Prefix
+      service: frontend
+      port: 80
+    # Backend API routes
+    - path: /api
+      pathType: Prefix
+      service: backend
+      port: 8001
+    - path: /health
+      pathType: Prefix
+      service: backend
+      port: 8001
+    - path: /docs
+      pathType: Prefix
+      service: backend
+      port: 8001
+
+  tls: []
+  # Uncomment for TLS/HTTPS
+  # tls:
+  #   - secretName: todo-chatbot-tls
+  #     hosts:
+  #       - todo.local
+
+# Service account configuration
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+# Pod annotations and labels
+podAnnotations: {}
+podLabels: {}
+
+# Security contexts
+podSecurityContext: {}
+securityContext: {}
+
+# Autoscaling configuration (disabled by default for Minikube)
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# Node selector, tolerations, and affinity
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Additional volumes and volume mounts
+volumes: []
+volumeMounts: []

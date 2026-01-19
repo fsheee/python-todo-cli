@@ -1,0 +1,17 @@
+{{- if .Values.frontend.enabled }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "gordon.fullname" . }}-test-connection"
+  labels:
+    {{- include "gordon.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "gordon.fullname" . }}-frontend:{{ .Values.frontend.service.port }}']
+  restartPolicy: Never
+{{- end }}

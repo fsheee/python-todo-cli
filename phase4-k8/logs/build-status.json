@@ -1,0 +1,17 @@
+{
+  "backend": {
+    "success": false,
+    "image": "todo-chatbot-backend:latest",
+    "size": "326MB",
+    "build_time": "6s",
+    "loaded_to_minikube": false
+  },
+  "frontend": {
+    "success": false,
+    "image": "todo-chatbot-frontend:latest",
+    "size": "155MB",
+    "build_time": "4s",
+    "loaded_to_minikube": false
+  },
+  "timestamp": "2026-01-04T20:05:54Z"
+}
