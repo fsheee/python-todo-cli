@@ -8,12 +8,16 @@ Task: 4.2
 
 import os
 import jwt
+import httpx
 from fastapi import HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
 
+PHASE2_API_URL = os.getenv("PHASE2_API_URL", "http://localhost:8000").rstrip("/")
+
 # Better Auth secret (from Phase 2)
-BETTER_AUTH_SECRET = os.getenv("BETTER_AUTH_SECRET")
+# Keep default aligned with Phase 2 backend for local dev.
+BETTER_AUTH_SECRET = (os.getenv("BETTER_AUTH_SECRET") or "dev-secret-key-minimum-32-characters-long").strip()
 
 # HTTP Bearer security scheme
 security = HTTPBearer()
@@ -71,6 +75,25 @@ async def verify_jwt_token(credentials: HTTPAuthorizationCredentials) -> str:
             headers={"WWW-Authenticate": "Bearer"}
         )
     except jwt.InvalidTokenError as e:
+        # If we can't verify locally, try delegating validation to Phase 2.
+        # This helps when Phase 3 is configured to proxy auth to a deployed Phase 2.
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.get(
+                    f"{PHASE2_API_URL}/api/auth/session",
+                    headers={"Authorization": f"Bearer {token}"},
+                )
+
+            if resp.status_code == 200:
+                data = resp.json()
+                user = data.get("user") or {}
+                user_id = user.get("id")
+                if user_id:
+                    logger.info("Token validated via Phase 2 /api/auth/session")
+                    return str(user_id)
+        except Exception as phase2_err:
+            logger.error(f"Phase 2 token validation failed: {phase2_err}")
+
         logger.error(f"Invalid token error: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -90,4 +113,5 @@ async def verify_jwt_token(credentials: HTTPAuthorizationCredentials) -> str:
             detail=f"Authentication failed: {str(e)}",
             headers={"WWW-Authenticate": "Bearer"}
         )
+
 

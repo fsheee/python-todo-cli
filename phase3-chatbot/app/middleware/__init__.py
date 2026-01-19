@@ -1,3 +1,4 @@
+
 """Middleware for Phase 3 chatbot."""
 from .auth import verify_jwt_token
 

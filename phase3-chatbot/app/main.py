@@ -12,9 +12,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+from pathlib import Path
 
 # Load environment variables
-load_dotenv()
+# Always load from the Phase 3 project root so running from repo root still works.
+_ENV_PATH = Path(__file__).resolve().parents[1] / ".env"
+load_dotenv(dotenv_path=_ENV_PATH)
 
 # Python 3.13 SQLAlchemy workaround
 if sys.version_info >= (3, 13):
@@ -66,9 +69,13 @@ app = FastAPI(
 )
 
 # CORS middleware
+# Get allowed origins from environment variable or use defaults
+allowed_origins_str = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,https://todo-app-chatbot.vercel.app")
+allowed_origins = [origin.strip() for origin in allowed_origins_str.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],  # Vite default ports
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -82,18 +89,14 @@ try:
 except Exception as e:
     logger.warning(f"⚠️ Rate limiting not loaded: {e}")
 
-# Include routers (with error handling for missing routes)
-try:
-    import importlib
-    auth_module = importlib.import_module('app.routes.auth')
-    auth_router = auth_module.router
-    app.include_router(auth_router)
-    logger.info("✅ Auth router loaded")
-except Exception as e:
-    logger.warning(f"⚠️ Auth router not loaded: {e}")
+# Include routers
+from app.routes.auth import router as auth_router
+app.include_router(auth_router)
+logger.info("✅ Auth router loaded")
 
 try:
-    from app.routes import chat_router
+    from app.router import process_chat_message  # Import the agent function
+    from app.routes.chat import router as chat_router
     app.include_router(chat_router)
     logger.info("✅ Chat router loaded")
 except ImportError as e:

@@ -8,6 +8,7 @@ Spec Reference: specs/agents/todo-agent.md
 Tasks: 3.1-3.15
 """
 
+
 import os
 import json
 import logging
@@ -25,17 +26,34 @@ from app.agents.prompts import (
 
 logger = logging.getLogger(__name__)
 
-# Initialize OpenAI client
-openai_route = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Initialize AI client prioritizing OpenRouter
+# We use the AsyncOpenAI client because OpenRouter provides an OpenAI-compatible API
+OPEN_ROUTER_API_KEY = (
+    os.getenv("OPEN_ROUTER_API_KEY")
+    or os.getenv("OPENROUTER_API_KEY")
+)
+BASE_URL = os.getenv("BASE_URL", "https://openrouter.ai/api/v1")
+
+if OPEN_ROUTER_API_KEY:
+    # Primary: Use OpenRouter
+    openai_client = AsyncOpenAI(
+        api_key=OPEN_ROUTER_API_KEY,
+        base_url=BASE_URL
+    )
+    logger.info(f"Using OpenRouter API for AI requests (URL: {BASE_URL})")
+else:
+    # Fallback: Use direct OpenAI
+    openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    logger.info("Using OpenAI API for AI requests (Direct)")
 
 # Agent configuration
-AGENT_MODEL = os.getenv("AGENT_MODEL", "gpt-4-turbo")
+AGENT_MODEL = os.getenv("AGENT_MODEL") or os.getenv("model_name") or "xiaomi/mimo-v2-flash:free"
 AGENT_TEMPERATURE = float(os.getenv("AGENT_TEMPERATURE", "0.7"))
 AGENT_MAX_TOKENS = int(os.getenv("AGENT_MAX_TOKENS", "500"))
 
 
 async def process_chat_message(
-    user_id: int,
+    user_id: str,
     session_id: str,
     message: str,
     history: List[Dict],
@@ -98,18 +116,18 @@ async def process_chat_message(
             {
                 "type": "function",
                 "function": {
-                    "name": "create_todo",
-                    "description": "Create a new todo item for the user",
+                    "name": "add_task",
+                    "description": "Create a new task for the user",
                     "parameters": {
                         "type": "object",
                         "properties": {
                             "user_id": {
-                                "type": "integer",
+                                "type": "string",
                                 "description": "ID of the authenticated user"
                             },
                             "title": {
                                 "type": "string",
-                                "description": "Title of the todo (required)"
+                                "description": "Title of the task (required)"
                             },
                             "description": {
                                 "type": "string",
@@ -132,8 +150,8 @@ async def process_chat_message(
             {
                 "type": "function",
                 "function": {
-                    "name": "list_todos",
-                    "description": "Retrieve user's todos with optional filters",
+                    "name": "list_tasks",
+                    "description": "Retrieve user's tasks with optional filters",
                     "parameters": {
                         "type": "object",
                         "properties": {
@@ -161,13 +179,13 @@ async def process_chat_message(
             {
                 "type": "function",
                 "function": {
-                    "name": "update_todo",
-                    "description": "Update an existing todo item",
+                    "name": "modify_task",
+                    "description": "Update an existing task",
                     "parameters": {
                         "type": "object",
                         "properties": {
                             "user_id": {"type": "integer"},
-                            "todo_id": {"type": "integer"},
+                            "task_id": {"type": "integer"},
                             "title": {"type": "string"},
                             "description": {"type": "string"},
                             "status": {
@@ -180,48 +198,45 @@ async def process_chat_message(
                             },
                             "due_date": {"type": "string"}
                         },
-                        "required": ["user_id", "todo_id"]
+                        "required": ["user_id", "task_id"]
                     }
                 }
             },
             {
                 "type": "function",
                 "function": {
-                    "name": "delete_todo",
-                    "description": "Delete a todo item (requires confirmation)",
+                    "name": "complete",
+                    "description": "Mark a task as completed",
                     "parameters": {
                         "type": "object",
                         "properties": {
                             "user_id": {"type": "integer"},
-                            "todo_id": {"type": "integer"},
+                            "task_id": {"type": "integer"},
+                            "confirm": {
+                                "type": "boolean",
+                                "description": "Must be true to confirm completion"
+                            }
+                        },
+                        "required": ["user_id", "task_id", "confirm"]
+                    }
+                }
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "delete",
+                    "description": "Delete a task (requires confirmation)",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "user_id": {"type": "integer"},
+                            "task_id": {"type": "integer"},
                             "confirm": {
                                 "type": "boolean",
                                 "description": "Must be true to confirm deletion"
                             }
                         },
-                        "required": ["user_id", "todo_id", "confirm"]
-                    }
-                }
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "search_todos",
-                    "description": "Search todos by keyword in title and description",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "user_id": {"type": "integer"},
-                            "query": {
-                                "type": "string",
-                                "description": "Search keyword or phrase"
-                            },
-                            "status": {
-                                "type": "string",
-                                "enum": ["pending", "completed", "all"]
-                            }
-                        },
-                        "required": ["user_id", "query"]
+                        "required": ["user_id", "task_id", "confirm"]
                     }
                 }
             }
@@ -254,24 +269,49 @@ async def process_chat_message(
                 search_todos
             )
 
+            # Import updated MCP tools
+            from mcp_server.tools import (
+                create_todo as add_task,
+                list_todos as list_tasks,
+                update_todo as update_task_func,
+                delete_todo as delete_task
+            )
+
+            # Create a custom complete function that updates status to completed
+            async def complete(user_id: str, task_id: int, confirm: bool = False, **kwargs):
+                """Complete a task by updating its status to completed."""
+                if not confirm:
+                    return {
+                        "success": False,
+                        "error": "Completion requires confirmation",
+                        "code": "CONFIRMATION_REQUIRED"
+                    }
+
+                # Call update_todo with status=completed
+                from mcp_server.tools.update_todo import update_todo
+                return await update_todo(user_id=user_id, todo_id=task_id, status="completed", **kwargs)
+
             tool_map = {
-                "create_todo": create_todo,
-                "list_todos": list_todos,
-                "update_todo": update_todo,
-                "delete_todo": delete_todo,
-                "search_todos": search_todos
+                "add_task": add_task,
+                "list_tasks": list_tasks,
+                "modify_task": update_task_func,
+                "complete": complete,
+                "delete": delete_task
             }
 
             # Execute each tool call
             for tool_call in assistant_message.tool_calls:
-                tool_name = tool_call.function.name
+                # Access tool call properties using the correct attributes
+                tool_name = getattr(tool_call, 'function', {}).get('name') or getattr(tool_call, 'name', '')
+
                 try:
-                    tool_args = json.loads(tool_call.function.arguments)
+                    arguments = getattr(tool_call, 'function', {}).get('arguments') or getattr(tool_call, 'arguments', '{}')
+                    tool_args = json.loads(arguments)
                 except json.JSONDecodeError as e:
                     logger.error(f"Failed to parse tool arguments for {tool_name}: {e}")
                     tool_calls_made.append({
                         "tool": tool_name,
-                        "arguments": tool_call.function.arguments,
+                        "arguments": arguments,
                         "result": {"success": False, "error": f"Invalid JSON arguments: {e}"}
                     })
                     continue

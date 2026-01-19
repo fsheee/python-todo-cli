@@ -949,7 +949,7 @@ Expected: list_todos → update_todo (using context)
    - Test: Template variety
 
 2. **Formatting**
-   - Emojis: Appropriate use
+sp.task   - Emojis: Appropriate use
    - Structure: Bullets/numbers for lists
    - Length: Keep under 150 words
    - Test: Readability

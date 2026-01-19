@@ -47,14 +47,14 @@ class FileBasedChatStorage:
         if not gitignore_path.exists():
             gitignore_path.write_text("# Ignore all user data\nusers/\n*.json\n*.md\n*.jsonl\n")
 
-    def _ensure_prompt_history_structure(self, user_id: int):
+    def _ensure_prompt_history_structure(self, user_id: str):
         """Create prompt history directory structure for a user."""
         user_path = self._get_user_path(user_id)
         prompt_history_path = user_path / "prompt-history"
         prompt_history_path.mkdir(parents=True, exist_ok=True)
 
     # Session Management
-    def create_session(self, user_id: int, session_id: str) -> Path:
+    def create_session(self, user_id: str, session_id: str) -> Path:
         """
         Create new session directory structure.
 
@@ -93,7 +93,7 @@ class FileBasedChatStorage:
     # Message Operations
     def save_message(
         self,
-        user_id: int,
+        user_id: str,
         session_id: str,
         role: str,
         content: str,
@@ -152,7 +152,7 @@ class FileBasedChatStorage:
 
     def load_chat_history(
         self,
-        user_id: int,
+        user_id: str,
         session_id: str,
         limit: int = 20
     ) -> List[Dict]:
@@ -187,9 +187,85 @@ class FileBasedChatStorage:
         logger.debug(f"Loaded {len(result)} messages from session {session_id}")
         return result
 
+    def get_message_count(self, user_id: str, session_id: str) -> int:
+        """
+        Get total number of messages in a session.
+
+        Args:
+            user_id: ID of the user
+            session_id: Session identifier
+
+        Returns:
+            Total message count
+        """
+        session_path = self._get_session_path(user_id, session_id)
+        if not session_path.exists():
+            return 0
+
+        metadata_file = session_path / "metadata.json"
+        metadata = self._read_json(metadata_file)
+
+        # Return count from metadata if available, otherwise count files
+        if "message_count" in metadata:
+            return metadata["message_count"]
+
+        messages_path = session_path / "messages"
+        if messages_path.exists():
+            return len(list(messages_path.glob("*.json")))
+
+        return 0
+
+    def get_session_messages(
+        self,
+        user_id: str,
+        session_id: str,
+        limit: int = 50,
+        offset: int = 0
+    ) -> List[Dict]:
+        """
+        Get messages for a session with pagination.
+
+        Args:
+            user_id: ID of the user
+            session_id: Session identifier
+            limit: Maximum number of messages to return
+            offset: Number of messages to skip
+
+        Returns:
+            List of message objects in chronological order
+        """
+        session_path = self._get_session_path(user_id, session_id)
+        if not session_path.exists():
+            return []
+
+        # Load from conversation.json (most efficient)
+        conv_file = session_path / "conversation.json"
+
+        messages = []
+        if conv_file.exists():
+            conversation = self._read_json(conv_file)
+            messages = conversation.get("messages", [])
+        else:
+            # Fallback to rebuilding from individual files if conversation.json missing
+            messages_path = session_path / "messages"
+            if messages_path.exists():
+                for msg_file in sorted(messages_path.glob("*.json")):
+                    try:
+                        messages.append(self._read_json(msg_file))
+                    except:
+                        continue
+
+        # Apply pagination
+        start_idx = offset
+        end_idx = offset + limit
+
+        result = messages[start_idx:end_idx]
+        logger.debug(f"Retrieved {len(result)} messages for session {session_id} (offset={offset}, limit={limit})")
+        return result
+
     def get_user_sessions(
         self,
-        user_id: int,
+        user_id: str,
         limit: int = 50
     ) -> List[Dict]:
         """
@@ -230,7 +306,7 @@ class FileBasedChatStorage:
         logger.debug(f"Found {len(result)} sessions for user {user_id}")
         return result
 
-    def delete_session(self, user_id: int, session_id: str) -> bool:
+    def delete_session(self, user_id: str, session_id: str) -> bool:
         """
         Soft delete a session by marking it as deleted.
 
@@ -257,7 +333,7 @@ class FileBasedChatStorage:
         logger.info(f"Soft deleted session {session_id} for user {user_id}")
         return True
 
-    def delete_session_permanent(self, user_id: int, session_id: str) -> bool:
+    def delete_session_permanent(self, user_id: str, session_id: str) -> bool:
         """
         Permanently delete a session (hard delete).
 
@@ -284,7 +360,7 @@ class FileBasedChatStorage:
 
     def delete_multiple_sessions(
         self,
-        user_id: int,
+        user_id: str,
         session_ids: List[str],
         permanent: bool = False
     ) -> Dict[str, bool]:
@@ -315,7 +391,7 @@ class FileBasedChatStorage:
 
     def delete_all_user_sessions(
         self,
-        user_id: int,
+        user_id: str,
         permanent: bool = False,
         confirm: bool = False
     ) -> int:
@@ -347,7 +423,7 @@ class FileBasedChatStorage:
 
     def delete_messages_in_session(
         self,
-        user_id: int,
+        user_id: str,
         session_id: str,
         message_sequences: List[int]
     ) -> int:
@@ -389,7 +465,7 @@ class FileBasedChatStorage:
 
         return deleted_count
 
-    def restore_session(self, user_id: int, session_id: str) -> bool:
+    def restore_session(self, user_id: str, session_id: str) -> bool:
         """
         Restore a soft-deleted session.
 
@@ -476,7 +552,7 @@ class FileBasedChatStorage:
         logger.info(f"Cleanup completed: {deleted_count} sessions permanently deleted")
         return deleted_count
 
-    def get_deleted_sessions(self, user_id: int, limit: int = 50) -> List[Dict]:
+    def get_deleted_sessions(self, user_id: str, limit: int = 50) -> List[Dict]:
         """
         Get all soft-deleted sessions for a user.
 
@@ -514,7 +590,7 @@ class FileBasedChatStorage:
 
         return deleted_sessions[:limit]
 
-    def export_user_data(self, user_id: int, output_path: str) -> bool:
+    def export_user_data(self, user_id: str, output_path: str) -> bool:
         """
         Export all user data to a zip file for GDPR compliance.
 
@@ -547,11 +623,11 @@ class FileBasedChatStorage:
             return False
 
     # Helper Methods
-    def _get_user_path(self, user_id: int) -> Path:
+    def _get_user_path(self, user_id: str) -> Path:
         """Get path to user directory."""
         return self.base_path / "users" / str(user_id)
 
-    def _get_session_path(self, user_id: int, session_id: str) -> Path:
+    def _get_session_path(self, user_id: str, session_id: str) -> Path:
         """Get path to session directory."""
         return self._get_user_path(user_id) / "sessions" / session_id
 
@@ -754,7 +830,7 @@ class FileBasedChatStorage:
     # Prompt History Methods
     def save_prompt(
         self,
-        user_id: int,
+        user_id: str,
         prompt: str,
         session_id: Optional[str] = None,
         metadata: Optional[Dict] = None
@@ -807,7 +883,7 @@ class FileBasedChatStorage:
 
     def get_prompt_history(
         self,
-        user_id: int,
+        user_id: str,
         limit: int = 100,
         offset: int = 0,
         start_date: Optional[str] = None,
@@ -874,7 +950,7 @@ class FileBasedChatStorage:
 
     def search_prompts(
         self,
-        user_id: int,
+        user_id: str,
         query: str,
         limit: int = 50
     ) -> List[Dict]:
@@ -900,7 +976,7 @@ class FileBasedChatStorage:
 
         return matching_prompts[:limit]
 
-    def get_prompt_statistics(self, user_id: int) -> Dict:
+    def get_prompt_statistics(self, user_id: str) -> Dict:
         """
         Get statistics about user's prompt history.
 
@@ -948,7 +1024,7 @@ class FileBasedChatStorage:
 
     def delete_prompt_history(
         self,
-        user_id: int,
+        user_id: str,
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
         session_id: Optional[str] = None,
@@ -1020,7 +1096,7 @@ class FileBasedChatStorage:
 
     def export_prompt_history(
         self,
-        user_id: int,
+        user_id: str,
         output_path: str,
         format: str = "json"
     ) -> bool:
@@ -1072,7 +1148,7 @@ class FileBasedChatStorage:
             logger.error(f"Error exporting prompt history: {e}")
             return False
 
-    def _update_prompt_index(self, user_id: int, prompt_entry: Dict):
+    def _update_prompt_index(self, user_id: str, prompt_entry: Dict):
         """Update the searchable prompt index."""
         prompt_history_path = self._get_user_path(user_id) / "prompt-history"
         index_file = prompt_history_path / "prompt-index.json"
@@ -1098,7 +1174,33 @@ class FileBasedChatStorage:
 
         self._write_json(index_file, index)
 
-    def _write_prompt_direct(self, user_id: int, prompt_entry: Dict):
+    def ensure_session_exists(self, user_id: str, session_id: str):
+        """
+        Ensure a session exists for the user, creating it if needed.
+
+        Args:
+            user_id: ID of the user
+            session_id: Session identifier
+        """
+        session_path = self._get_session_path(user_id, session_id)
+        if not session_path.exists():
+            self.create_session(user_id, session_id)
+
+    def session_exists(self, user_id: str, session_id: str) -> bool:
+        """
+        Check if a session exists for the user.
+
+        Args:
+            user_id: ID of the user
+            session_id: Session identifier
+
+        Returns:
+            True if session exists, False otherwise
+        """
+        session_path = self._get_session_path(user_id, session_id)
+        return session_path.exists() and session_path.exists()
+
+    def _write_prompt_direct(self, user_id: str, prompt_entry: Dict):
         """Write a prompt entry directly (used during rebuild)."""
         prompt_history_path = self._get_user_path(user_id) / "prompt-history"
         date_str = prompt_entry["date"]

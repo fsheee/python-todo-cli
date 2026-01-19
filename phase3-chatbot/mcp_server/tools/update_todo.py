@@ -7,19 +7,31 @@ Spec Reference: specs/api/mcp-tools.md - Tool 3: update_todo
 Task: 2.7
 """
 
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Union
+import inspect
 from mcp_server.client import get_client
 import httpx
 
 
+class _HttpClientProxy:
+    def put(self, path: str, **kwargs):
+        jwt_token = kwargs.pop("jwt_token", None)
+        client = get_client(jwt_token=jwt_token)
+        return client.client.put(path, **kwargs)
+
+
+http_client = _HttpClientProxy()
+
+
 async def update_todo(
-    user_id: int,
-    todo_id: int,
+    user_id: Union[int, str],
+    todo_id: Union[int, str],
     title: Optional[str] = None,
     description: Optional[str] = None,
     status: Optional[str] = None,
     priority: Optional[str] = None,
-    due_date: Optional[str] = None
+    due_date: Optional[str] = None,
+    jwt_token: Optional[str] = None
 ) -> Dict:
     """
     Update an existing todo item
@@ -41,14 +53,26 @@ async def update_todo(
     """
     try:
         # Input validation
-        if not user_id or user_id <= 0:
-            return {
-                "success": False,
-                "error": "Invalid user_id",
-                "code": "VALIDATION_ERROR"
-            }
+        # Phase 2 uses UUID strings, but tests may provide ints
+        if isinstance(user_id, int):
+            if user_id <= 0:
+                return {
+                    "success": False,
+                    "error": "Invalid user_id",
+                    "code": "VALIDATION_ERROR"
+                }
+            user_id_str = str(user_id)
+        else:
+            user_id_str = str(user_id).strip()
+            if not user_id_str:
+                return {
+                    "success": False,
+                    "error": "Invalid user_id",
+                    "code": "VALIDATION_ERROR"
+                }
 
-        if not todo_id or todo_id <= 0:
+        todo_id_str = str(todo_id)
+        if not todo_id_str:
             return {
                 "success": False,
                 "error": "Invalid todo_id",
@@ -56,7 +80,7 @@ async def update_todo(
             }
 
         # Build update payload with only provided fields
-        updates = {"user_id": user_id}
+        updates: Dict[str, str] = {}
         changes: List[str] = []
 
         if title is not None:
@@ -82,7 +106,7 @@ async def update_todo(
                     "error": "Description exceeds maximum length",
                     "code": "VALIDATION_ERROR"
                 }
-            updates["description"] = description.strip() if description else None
+            updates["description"] = description.strip() if description else ""
             changes.append("description")
 
         if status is not None:
@@ -92,6 +116,8 @@ async def update_todo(
                     "error": f"Invalid status: {status}",
                     "code": "VALIDATION_ERROR"
                 }
+            # Phase 2 backend might not support status field in TodoUpdate yet
+            # but we pass it anyway
             updates["status"] = status
             changes.append("status")
 
@@ -109,6 +135,8 @@ async def update_todo(
             updates["due_date"] = due_date
             changes.append("due_date")
 
+        # Note: priority and due_date are not supported by Phase 2 backend yet
+
         # Check if there are any updates
         if not changes:
             return {
@@ -118,8 +146,11 @@ async def update_todo(
             }
 
         # Call Phase 2 backend
-        client = get_client()
-        response = await client.client.put(f"/todos/{todo_id}", json=updates)
+        # Phase 2 backend uses /api/{user_id}/tasks/{task_id}
+        endpoint = f"/api/{user_id_str}/tasks/{todo_id_str}"
+        response = http_client.put(endpoint, json=updates, jwt_token=jwt_token)
+        if inspect.isawaitable(response):
+            response = await response
 
         if response.status_code == 200:
             todo = response.json()

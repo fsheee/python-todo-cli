@@ -9,8 +9,19 @@ Task: 2.6
 
 from typing import Optional, Dict, Union
 from datetime import datetime, timedelta
+import inspect
 from mcp_server.client import get_client
 import httpx
+
+
+class _HttpClientProxy:
+    def get(self, path: str, **kwargs):
+        jwt_token = kwargs.pop("jwt_token", None)
+        client = get_client(jwt_token=jwt_token)
+        return client.client.get(path, **kwargs)
+
+
+http_client = _HttpClientProxy()
 
 
 def calculate_date_range(range_type: str) -> Dict:
@@ -72,14 +83,23 @@ async def list_todos(
     """
     try:
         # Input validation
-        # Convert user_id to string (it's a UUID from JWT)
-        user_id_str = str(user_id)
-        if not user_id_str:
-            return {
-                "success": False,
-                "error": "Invalid user_id",
-                "code": "VALIDATION_ERROR"
-            }
+        # Phase 2 uses UUID strings, but tests may provide ints
+        if isinstance(user_id, int):
+            if user_id <= 0:
+                return {
+                    "success": False,
+                    "error": "Invalid user_id",
+                    "code": "VALIDATION_ERROR"
+                }
+            user_id_str = str(user_id)
+        else:
+            user_id_str = str(user_id).strip()
+            if not user_id_str:
+                return {
+                    "success": False,
+                    "error": "Invalid user_id",
+                    "code": "VALIDATION_ERROR"
+                }
 
         if status and status not in ["pending", "completed", "all"]:
             return {
@@ -118,14 +138,21 @@ async def list_todos(
             params["due_date"] = due_date
 
         # Call Phase 2 backend (using Phase 2's actual endpoint format)
-        # Pass JWT token for authentication
-        client = get_client(jwt_token=jwt_token)
-        response = await client.client.get(f"/api/{user_id_str}/tasks", params=params)
+        # Phase 2 backend uses /api/{user_id}/tasks
+        endpoint = f"/api/{user_id_str}/tasks"
+        response = http_client.get(endpoint, params=params, jwt_token=jwt_token)
+        if inspect.isawaitable(response):
+            response = await response
 
         if response.status_code == 200:
             data = response.json()
             # Phase 2 backend returns {"tasks": [...], "count": N}
-            todos = data if isinstance(data, list) else data.get("tasks", data.get("todos", []))
+            if isinstance(data, list):
+                todos = data
+            elif isinstance(data, dict):
+                todos = data.get("tasks", data.get("todos", []))
+            else:
+                todos = []
 
             return {
                 "success": True,
@@ -134,12 +161,40 @@ async def list_todos(
                 "total": data.get("total", data.get("count", len(todos))) if isinstance(data, dict) else len(todos),
                 "has_more": len(todos) == limit
             }
-        else:
+
+        # Provide actionable error codes for common failures
+        if response.status_code == 401:
             return {
                 "success": False,
-                "error": "Failed to retrieve todos",
-                "code": "BACKEND_ERROR"
+                "error": "Unauthorized from Phase 2 backend (token expired/invalid). Please log in again.",
+                "code": "AUTH_FAILED",
+                "http_status": 401,
+                "endpoint": endpoint
             }
+        if response.status_code == 403:
+            return {
+                "success": False,
+                "error": "Forbidden from Phase 2 backend (user ID mismatch).",
+                "code": "ACCESS_DENIED",
+                "http_status": 403,
+                "endpoint": endpoint
+            }
+        if response.status_code == 404:
+            return {
+                "success": False,
+                "error": "Phase 2 endpoint not found. Check PHASE2_API_URL and route prefix.",
+                "code": "ENDPOINT_NOT_FOUND",
+                "http_status": 404,
+                "endpoint": endpoint
+            }
+
+        return {
+            "success": False,
+            "error": f"Backend returned {response.status_code}: {response.text}",
+            "code": "BACKEND_ERROR",
+            "http_status": response.status_code,
+            "endpoint": endpoint
+        }
 
     except httpx.TimeoutException:
         return {

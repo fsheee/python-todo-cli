@@ -2,7 +2,7 @@
 
 ## 🎯 Overview
 
-This document specifies the AI agent behavior, system prompts, intent recognition, tool selection logic, and conversation management for the todo chatbot using OpenAI Agents SDK.
+This document specifies the AI agent behavior, system prompts, intent recognition, tool selection logic, and conversation management for the todo chatbot using OpenAI-compatible APIs (OpenRouter or OpenAI Agents SDK).
 
 ---
 
@@ -949,13 +949,13 @@ def process_message(user_message, user_id, session_id):
 
 ### Model Selection
 
-**Recommended:** GPT-4 Turbo
-- Reason: Best intent recognition accuracy
-- Cost: Higher but justified by better UX
+**Primary:** OpenRouter Models (e.g., Mistral, Xiaomi)
+- Reason: Cost effectiveness and flexibility (many free tier options)
+- Compatibility: Fully compatible with OpenAI client library
 
-**Alternative:** GPT-3.5 Turbo
-- Reason: Lower cost, acceptable accuracy
-- Trade-off: May require more explicit prompting
+**Alternative/Fallback:** GPT-4 Turbo (via OpenAI)
+- Reason: Best intent recognition accuracy
+- Cost: Higher but justified by better UX if free models fail
 
 ---
 
