@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include \"todo-app.fullname\" . }}-postgres
+  name: {{ include "todo-app.fullname" . }}-postgres
   labels:
-    {{- include \"todo-app.selectorLabels\" (dict \"component\" \"postgres\") | nindent 4 }}
+    {{- include "todo-app.selectorLabels" (dict "component" "postgres") | nindent 4 }}
 spec:
-  type: {{ .Values.postgres.service.type }}
+  type: ClusterIP
   ports:
-    - port: {{ .Values.postgres.service.port }}
+    - port: 5432
       targetPort: postgres
       protocol: TCP
       name: postgres
   selector:
-    {{- include \"todo-app.selectorLabels\" (dict \"component\" \"postgres\") | nindent 4 }}
+    {{- include "todo-app.selectorLabels" (dict "component" "postgres") | nindent 4 }}
