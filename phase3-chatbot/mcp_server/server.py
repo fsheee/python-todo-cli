@@ -58,8 +58,8 @@ def create_mcp_tools():
             "type": "object",
             "properties": {
                 "user_id": {
-                    "type": "integer",
-                    "description": "ID of the authenticated user (from JWT token)"
+                    "type": "string",
+                    "description": "ID of the authenticated user (UUID string from JWT token)"
                 },
                 "title": {
                     "type": "string",
@@ -94,8 +94,8 @@ def create_mcp_tools():
             "type": "object",
             "properties": {
                 "user_id": {
-                    "type": "integer",
-                    "description": "ID of the authenticated user (from JWT token)"
+                    "type": "string",
+                    "description": "ID of the authenticated user (UUID string from JWT token)"
                 },
                 "status": {
                     "type": "string",
@@ -131,8 +131,8 @@ def create_mcp_tools():
             "type": "object",
             "properties": {
                 "user_id": {
-                    "type": "integer",
-                    "description": "ID of the authenticated user (from JWT token)"
+                    "type": "string",
+                    "description": "ID of the authenticated user (UUID string from JWT token)"
                 },
                 "todo_id": {
                     "type": "integer",
@@ -175,8 +175,8 @@ def create_mcp_tools():
             "type": "object",
             "properties": {
                 "user_id": {
-                    "type": "integer",
-                    "description": "ID of the authenticated user (from JWT token)"
+                    "type": "string",
+                    "description": "ID of the authenticated user (UUID string from JWT token)"
                 },
                 "todo_id": {
                     "type": "integer",
@@ -200,8 +200,8 @@ def create_mcp_tools():
             "type": "object",
             "properties": {
                 "user_id": {
-                    "type": "integer",
-                    "description": "ID of the authenticated user (from JWT token)"
+                    "type": "string",
+                    "description": "ID of the authenticated user (UUID string from JWT token)"
                 },
                 "query": {
                     "type": "string",

@@ -27,7 +27,12 @@ logger = logging.getLogger(__name__)
 
 # Initialize AI client prioritizing OpenRouter
 # We use the AsyncOpenAI client because OpenRouter provides an OpenAI-compatible API
-OPEN_ROUTER_API_KEY = os.getenv("OPEN_ROTER_API_KEY") or os.getenv("OPEN_ROUTER_API_KEY")
+OPEN_ROUTER_API_KEY = (
+    os.getenv("OPEN_ROUTER_API_KEY")
+    or os.getenv("OPENROUTER_API_KEY")
+    # Legacy typo support
+    or os.getenv("OPEN_ROTER_API_KEY")
+)
 BASE_URL = os.getenv("BASE_URL", "https://openrouter.ai/api/v1")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "fake_key_for_tests")
 
@@ -259,9 +264,21 @@ async def process_chat_message(
         # Check if tool calls were made
         tool_calls_made = []
         if assistant_message.tool_calls:
-            # Import MCP server app to call tools properly through the protocol layer
-            from mcp_server.server import app as mcp_app
-            from mcp.types import CallToolRequest
+            # Prefer calling MCP tools directly.
+            # The MCP SDK has dependency constraints (pydantic v2) that are
+            # incompatible with this project’s FastAPI/sqlmodel pins.
+            from mcp_server import tools as mcp_tools
+
+            mcp_app = None
+            CallToolRequest = None
+            try:
+                # Optional: if MCP SDK is available and compatible, use protocol layer
+                from mcp_server.server import app as mcp_app  # type: ignore
+                from mcp.types import CallToolRequest  # type: ignore
+            except Exception:
+                mcp_app = None
+                CallToolRequest = None
+
 
             # Helper to resolve Numeric References to UUIDs
             def resolve_todo_id(ref: str) -> str:
@@ -331,12 +348,17 @@ async def process_chat_message(
                 }
 
                 try:
-                    # Execute via MCP Protocol layer (CallToolRequest)
-                    mcp_request = CallToolRequest(name=tool_name, arguments=mcp_args)
-                    mcp_results = await mcp_app.call_tool(mcp_request)
+                    if mcp_app is not None and CallToolRequest is not None:
+                        # Execute via MCP Protocol layer (CallToolRequest)
+                        mcp_request = CallToolRequest(name=tool_name, arguments=mcp_args)
+                        mcp_results = await mcp_app.call_tool(mcp_request)
 
-                    # MCP returns a list of content blocks, we take the result from the first one
-                    tool_result = mcp_results[0] if mcp_results else {"success": False, "error": "No result from tool"}
+                        # MCP returns a list of content blocks
+                        tool_result = mcp_results[0] if mcp_results else {"success": False, "error": "No result from tool"}
+                    else:
+                        # Direct tool invocation (used in unit tests)
+                        tool_fn = getattr(mcp_tools, tool_name)
+                        tool_result = await tool_fn(**mcp_args)
 
                     tool_calls_made.append({
                         "id": tool_call.id,
@@ -345,7 +367,7 @@ async def process_chat_message(
                         "result": tool_result
                     })
                 except Exception as e:
-                    logger.error(f"MCP tool execution failed: {e}")
+                    logger.error(f"Tool execution failed: {e}")
                     tool_calls_made.append({
                         "id": tool_call.id,
                         "tool": tool_name,

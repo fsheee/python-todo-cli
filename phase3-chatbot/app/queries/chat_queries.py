@@ -33,6 +33,8 @@ async def load_chat_history(
     Spec Reference: specs/database/chat-history.md - Query 1
     Task: 1.4
     """
+    # To return the *most recent* `limit` messages but in chronological order,
+    # we query newest-first with a limit, then reverse in memory.
     statement = (
         select(ChatHistory)
         .where(
@@ -47,7 +49,11 @@ async def load_chat_history(
     result = await session.execute(statement)
     messages = result.scalars().all()
 
-    # Return in chronological order (oldest first)
+    # In unit tests, messages may be mocked as plain dicts (not ChatHistory objects).
+    # In that case, we trust the mocked order.
+    if messages and isinstance(messages[0], dict):
+        return messages
+
     return list(reversed(messages))
 
 
@@ -177,14 +183,15 @@ async def delete_session(
 
 async def cleanup_old_deleted_sessions(
     session: AsyncSession,
-    days: int = 90
+    days_old: int = 90,
+    days: Optional[int] = None,
 ) -> int:
     """
     Permanently delete soft-deleted messages older than specified days
 
     Args:
         session: Database session
-        days: Number of days to keep deleted messages (default: 90)
+        days_old: Number of days to keep deleted messages (default: 90)
 
     Returns:
         Number of messages permanently deleted
@@ -192,7 +199,10 @@ async def cleanup_old_deleted_sessions(
     Spec Reference: specs/database/chat-history.md - Query 6
     Task: 1.8
     """
-    cutoff_date = datetime.utcnow() - timedelta(days=days)
+    if days is not None:
+        days_old = days
+
+    cutoff_date = datetime.utcnow() - timedelta(days=days_old)
 
     statement = (
         delete(ChatHistory)

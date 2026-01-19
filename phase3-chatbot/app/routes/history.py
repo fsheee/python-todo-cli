@@ -48,11 +48,26 @@ class RestoreSessionRequest(BaseModel):
 
 class SessionResponse(BaseModel):
     session_id: str
-    user_id: int
+    user_id: str
     created_at: str
     updated_at: str
     message_count: int
     status: str
+
+
+class MessageResponse(BaseModel):
+    role: str
+    content: str
+    timestamp: str
+    sequence: int
+
+
+class MessageListResponse(BaseModel):
+    messages: List[MessageResponse]
+    total: int
+    session_id: str
+    user_id: str
+    has_more: bool
 
 
 class DeleteResponse(BaseModel):
@@ -66,7 +81,8 @@ class DeleteResponse(BaseModel):
 @router.get("/sessions", response_model=List[SessionResponse])
 async def get_sessions(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-    limit: int = Query(50, ge=1, le=100),
+    limit: int = Query(
+        50, ge=1, le=100),
     include_deleted: bool = False
 ):
     """
@@ -99,6 +115,50 @@ async def get_sessions(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to retrieve sessions"
+        )
+
+
+@router.get("/messages/{session_id}", response_model=MessageListResponse)
+async def get_session_messages(
+    session_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0)
+):
+    """
+    Get messages for a specific session.
+
+    Args:
+        session_id: Session identifier
+        limit: Maximum number of messages to return (1-100)
+        offset: Number of messages to skip
+
+    Returns:
+        List of messages with pagination metadata
+    """
+    try:
+        user_id = await verify_jwt_token(credentials)
+    except HTTPException as e:
+        logger.error(f"Authentication failed: {e.detail}")
+        raise
+
+    try:
+        messages = file_storage.get_session_messages(user_id, session_id, limit, offset)
+        total = file_storage.get_message_count(user_id, session_id)
+
+        return MessageListResponse(
+            messages=messages,
+            total=total,
+            session_id=session_id,
+            user_id=user_id,
+            has_more=(offset + limit) < total
+        )
+
+    except Exception as e:
+        logger.error(f"Error retrieving messages: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve messages"
         )
 
 

@@ -7,16 +7,28 @@ Spec Reference: specs/api/mcp-tools.md - Tool 5: search_todos
 Task: 2.9
 """
 
-from typing import Optional, Dict
+from typing import Optional, Dict, Union
+import inspect
 from mcp_server.client import get_client
 import httpx
 
 
+class _HttpClientProxy:
+    def get(self, path: str, **kwargs):
+        jwt_token = kwargs.pop("jwt_token", None)
+        client = get_client(jwt_token=jwt_token)
+        return client.client.get(path, **kwargs)
+
+
+http_client = _HttpClientProxy()
+
+
 async def search_todos(
-    user_id: int,
+    user_id: Union[int, str],
     query: str,
     status: Optional[str] = "all",
-    limit: int = 20
+    limit: int = 20,
+    jwt_token: Optional[str] = None
 ) -> Dict:
     """
     Search todos by keyword
@@ -35,12 +47,23 @@ async def search_todos(
     """
     try:
         # Input validation
-        if not user_id or user_id <= 0:
-            return {
-                "success": False,
-                "error": "Invalid user_id",
-                "code": "VALIDATION_ERROR"
-            }
+        # Phase 2 uses UUID strings, but tests may provide ints
+        if isinstance(user_id, int):
+            if user_id <= 0:
+                return {
+                    "success": False,
+                    "error": "Invalid user_id",
+                    "code": "VALIDATION_ERROR"
+                }
+            user_id_str = str(user_id)
+        else:
+            user_id_str = str(user_id).strip()
+            if not user_id_str:
+                return {
+                    "success": False,
+                    "error": "Invalid user_id",
+                    "code": "VALIDATION_ERROR"
+                }
 
         if not query or len(query.strip()) == 0:
             return {
@@ -67,7 +90,6 @@ async def search_todos(
 
         # Build parameters
         params = {
-            "user_id": user_id,
             "q": clean_query,
             "limit": limit
         }
@@ -76,12 +98,19 @@ async def search_todos(
             params["status"] = status
 
         # Call Phase 2 backend search endpoint
-        client = get_client()
-        response = await client.client.get("/todos/search", params=params)
+        # Phase 2 backend uses /api/{user_id}/tasks/search
+        endpoint = f"/api/{user_id_str}/tasks/search"
+        response = http_client.get(endpoint, params=params, jwt_token=jwt_token)
+        if inspect.isawaitable(response):
+            response = await response
 
         if response.status_code == 200:
             data = response.json()
-            todos = data if isinstance(data, list) else data.get("todos", [])
+            # Phase 2 backend returns {"tasks": [...], "count": N}
+            if isinstance(data, list):
+                todos = data
+            else:
+                todos = data.get("tasks") or data.get("todos") or []
 
             return {
                 "success": True,

@@ -7,15 +7,32 @@ Spec Reference: specs/api/mcp-tools.md - Tool 4: delete_todo
 Task: 2.8
 """
 
-from typing import Dict
+from typing import Dict, Optional, Union
+import inspect
 from mcp_server.client import get_client
 import httpx
 
 
+class _HttpClientProxy:
+    def get(self, path: str, **kwargs):
+        jwt_token = kwargs.pop("jwt_token", None)
+        client = get_client(jwt_token=jwt_token)
+        return client.client.get(path, **kwargs)
+
+    def delete(self, path: str, **kwargs):
+        jwt_token = kwargs.pop("jwt_token", None)
+        client = get_client(jwt_token=jwt_token)
+        return client.client.delete(path, **kwargs)
+
+
+http_client = _HttpClientProxy()
+
+
 async def delete_todo(
-    user_id: int,
-    todo_id: int,
-    confirm: bool = False
+    user_id: Union[int, str],
+    todo_id: Union[int, str],
+    confirm: bool = False,
+    jwt_token: Optional[str] = None
 ) -> Dict:
     """
     Delete a todo item
@@ -33,14 +50,26 @@ async def delete_todo(
     """
     try:
         # Input validation
-        if not user_id or user_id <= 0:
-            return {
-                "success": False,
-                "error": "Invalid user_id",
-                "code": "VALIDATION_ERROR"
-            }
+        # Phase 2 uses UUID strings, but tests may provide ints
+        if isinstance(user_id, int):
+            if user_id <= 0:
+                return {
+                    "success": False,
+                    "error": "Invalid user_id",
+                    "code": "VALIDATION_ERROR"
+                }
+            user_id_str = str(user_id)
+        else:
+            user_id_str = str(user_id).strip()
+            if not user_id_str:
+                return {
+                    "success": False,
+                    "error": "Invalid user_id",
+                    "code": "VALIDATION_ERROR"
+                }
 
-        if not todo_id or todo_id <= 0:
+        todo_id_str = str(todo_id)
+        if not todo_id_str:
             return {
                 "success": False,
                 "error": "Invalid todo_id",
@@ -56,11 +85,11 @@ async def delete_todo(
             }
 
         # First, fetch the todo to get its details for confirmation message
-        client = get_client()
-        get_response = await client.client.get(
-            f"/todos/{todo_id}",
-            params={"user_id": user_id}
-        )
+        # Phase 2 backend uses /api/{user_id}/tasks/{task_id}
+        get_endpoint = f"/api/{user_id_str}/tasks/{todo_id_str}"
+        get_response = http_client.get(get_endpoint, jwt_token=jwt_token)
+        if inspect.isawaitable(get_response):
+            get_response = await get_response
 
         if get_response.status_code != 200:
             return {
@@ -72,10 +101,10 @@ async def delete_todo(
         todo = get_response.json()
 
         # Delete the todo
-        delete_response = await client.client.delete(
-            f"/todos/{todo_id}",
-            params={"user_id": user_id}
-        )
+        delete_endpoint = f"/api/{user_id_str}/tasks/{todo_id_str}"
+        delete_response = http_client.delete(delete_endpoint, jwt_token=jwt_token)
+        if inspect.isawaitable(delete_response):
+            delete_response = await delete_response
 
         if delete_response.status_code == 200 or delete_response.status_code == 204:
             return {

@@ -9,7 +9,18 @@ Task: 2.5
 
 from typing import Optional, Dict, Union
 import httpx
+import inspect
 from mcp_server.client import get_client
+
+
+class _HttpClientProxy:
+    def post(self, path: str, **kwargs):
+        jwt_token = kwargs.pop("jwt_token", None)
+        client = get_client(jwt_token=jwt_token)
+        return client.client.post(path, **kwargs)
+
+
+http_client = _HttpClientProxy()
 
 
 async def create_todo(
@@ -38,14 +49,23 @@ async def create_todo(
     """
     try:
         # Input validation
-        # Convert user_id to string (it's a UUID from JWT)
-        user_id_str = str(user_id)
-        if not user_id_str:
-            return {
-                "success": False,
-                "error": "Invalid user_id",
-                "code": "VALIDATION_ERROR"
-            }
+        # Phase 2 uses UUID strings, but tests may provide ints
+        if isinstance(user_id, int):
+            if user_id <= 0:
+                return {
+                    "success": False,
+                    "error": "Invalid user_id",
+                    "code": "VALIDATION_ERROR"
+                }
+            user_id_str = str(user_id)
+        else:
+            user_id_str = str(user_id).strip()
+            if not user_id_str:
+                return {
+                    "success": False,
+                    "error": "Invalid user_id",
+                    "code": "VALIDATION_ERROR"
+                }
 
         if not title or len(title.strip()) == 0:
             return {
@@ -87,9 +107,11 @@ async def create_todo(
         # Note: priority and due_date are not supported by Phase 2 backend yet
 
         # Call Phase 2 backend (using Phase 2's actual endpoint format)
-        # Pass JWT token for authentication
-        client = get_client(jwt_token=jwt_token)
-        response = await client.client.post(f"/api/{user_id_str}/tasks", json=payload)
+        # Phase 2 backend uses /api/{user_id}/tasks
+        endpoint = f"/api/{user_id_str}/tasks"
+        response = http_client.post(endpoint, json=payload, jwt_token=jwt_token)
+        if inspect.isawaitable(response):
+            response = await response
 
         if response.status_code == 201 or response.status_code == 200:
             todo = response.json()
