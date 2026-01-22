@@ -6,8 +6,17 @@
 'use client';
 
 import Link from 'next/link';
+import { useAuthStore } from '@/stores/authStore';
+import { useEffect, useState } from 'react';
 
 export default function Hero() {
+  const { isAuthenticated } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const scrollToDemo = () => {
     document.getElementById('demo-section')?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -35,11 +44,19 @@ export default function Hero() {
           </p>
 
           <div className="hero-actions">
-            <Link href="/login">
-              <button className="btn-hero-primary">
-                Get Started Free
-              </button>
-            </Link>
+            {mounted && isAuthenticated ? (
+              <Link href="/chat">
+                <button className="btn-hero-primary">
+                  Go to Chat Board
+                </button>
+              </Link>
+            ) : (
+              <Link href="/login">
+                <button className="btn-hero-primary">
+                  Get Started Free
+                </button>
+              </Link>
+            )}
 
             <button className="btn-hero-secondary" onClick={scrollToDemo}>
               Watch Demo
