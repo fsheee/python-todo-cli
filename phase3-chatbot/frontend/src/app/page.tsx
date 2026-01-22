@@ -24,23 +24,15 @@ export default function LandingPage() {
     setMounted(true);
   }, []);
 
-  // Redirect authenticated users to chat
-  useEffect(() => {
-    if (mounted && isAuthenticated) {
-      router.push('/chat');
-    }
-  }, [isAuthenticated, mounted, router]);
+  // No auto-redirect for authenticated users - allow them to see landing page
+  // They can navigate to chat via the CTA button
 
-  // Don't render landing page for authenticated users
+  // Don't render landing page until hydration complete
   if (!mounted) {
     return <div className="loading-page">Loading...</div>;
   }
 
-  if (isAuthenticated) {
-    return <div className="loading-page">Redirecting to chat...</div>;
-  }
-
-  // Show landing page to unauthenticated users
+  // Show landing page to users (authenticated or not)
   return (
     <main className="landing-page">
       <Hero />
