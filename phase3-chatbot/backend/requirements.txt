@@ -12,9 +12,10 @@ sqlalchemy[asyncio]>=2.0.25
 alembic>=1.13.1
 asyncpg>=0.29.0
 psycopg2-binary>=2.9.9
+psycopg>=3.0.0  # psycopg3 for async support with sslmode
 
 # Pydantic v2 (required for Python 3.13 compatibility)
-pydantic>=2.12.5
+pydantic[email]>=2.12.5
 pydantic-core>=2.41.5
 
 # OpenAI SDK for agent functionality (upgraded for compatibility)
@@ -29,8 +30,9 @@ httpx>=0.26.0
 # Environment variables
 python-dotenv>=1.0.0
 
-# Authentication (JWT) - Pure Python, no cryptography
+# Authentication (JWT + bcrypt)
 pyjwt>=2.8.0
+bcrypt>=4.0.0
 
 # Date/time utilities
 python-dateutil>=2.8.2

@@ -52,7 +52,7 @@ backend:
 
   image:
     repository: todo-chatbot-backend
-    tag: latest
+    tag: v6
 
   service:
     type: ClusterIP
@@ -72,15 +72,17 @@ backend:
     httpGet:
       path: /health
       port: 8002
-    initialDelaySeconds: 30
+    initialDelaySeconds: 60
     periodSeconds: 10
+    failureThreshold: 5
 
   readinessProbe:
     httpGet:
       path: /health
       port: 8002
-    initialDelaySeconds: 10
+    initialDelaySeconds: 30
     periodSeconds: 5
+    failureThreshold: 5
 
   # Environment variables (non-sensitive)
   env:
@@ -103,8 +105,8 @@ backend:
     openaiApiKey: ""
     # Better Auth secret for JWT validation
     betterAuthSecret: "OiJQEhSxSa1nM09kxyzyAwR9F0nTWCXPqeR7f4PqVhU="
-    # Neon PostgreSQL connection string (uses psycopg2-binary)
-    databaseUrl: "postgresql://neondb_owner:npg_jCi7XldZ9Dnf@ep-falling-frost-a40mkwy9-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require"
+    # Neon PostgreSQL connection string (uses asyncpg with auto-SSL)
+    databaseUrl: "postgresql+asyncpg://neondb_owner:npg_jCi7XldZ9Dnf@ep-falling-frost-a40mkwy9-pooler.us-east-1.aws.neon.tech/neondb"
     # Internal service token for MCP server
     internalServiceToken: "265ac753c8a0424eb3b7bf2f537f92d2aa604f6723055eb7330420dd2bf8aa9f"
     # Phase 2 API URL (if needed)
