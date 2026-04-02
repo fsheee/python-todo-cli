@@ -69,3 +69,4 @@ helm/**/secrets.yaml
 # Catch bare values files with .yml extension (common typo variant)
 **/values.yml
 **/secrets.yml
+**/helm/gordon/values.yaml
