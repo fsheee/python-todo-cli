@@ -59,3 +59,13 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Helm: base values.yaml are templates (OK to commit), but overrides with secrets are not
+helm/**/values-*.yaml
+helm/**/values.*.yaml
+helm/**/secrets.yaml
+*.local.yaml
+
+# Catch bare values files with .yml extension (common typo variant)
+**/values.yml
+**/secrets.yml
