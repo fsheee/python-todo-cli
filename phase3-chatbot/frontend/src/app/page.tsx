@@ -8,6 +8,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/stores/authStore';
+import LandingNav from '@/components/landing/LandingNav';
 import Hero from '@/components/landing/Hero';
 import FeatureShowcase from '@/components/landing/FeatureShowcase';
 import HowItWorks from '@/components/landing/HowItWorks';
@@ -35,6 +36,7 @@ export default function LandingPage() {
   // Show landing page to users (authenticated or not)
   return (
     <main className="landing-page">
+      <LandingNav />
       <Hero />
       <FeatureShowcase />
       <HowItWorks />
