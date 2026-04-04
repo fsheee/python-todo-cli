@@ -18,14 +18,14 @@ psycopg>=3.0.0  # psycopg3 for async support with sslmode
 pydantic[email]>=2.12.5
 pydantic-core>=2.41.5
 
-# OpenAI SDK for agent functionality (upgraded for compatibility)
-openai>=2.14.0
+# OpenAI SDK for agent functionality (pinned to avoid httpx proxy issue)
+openai>=1.86.0,<2.0.0
+
+# HTTP client (pinned to avoid proxy argument incompatibility)
+httpx>=0.26.0
 
 # MCP SDK (Official) - Required for MCP server
 mcp>=0.9.0
-
-# HTTP client
-httpx>=0.26.0
 
 # Environment variables
 python-dotenv>=1.0.0
@@ -51,5 +51,3 @@ pytest-mock>=3.12.0
 
 # Type hints
 typing-extensions>=4.15.0
-
-
