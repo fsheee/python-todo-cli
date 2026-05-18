@@ -1,0 +1,7 @@
+FROM todo-chatbot-frontend:latest
+COPY .next/standalone/ /app/
+COPY .next/static/ /app/.next/static/
+COPY .next/server/ /app/.next/server/
+COPY out/ /usr/share/nginx/html/
+COPY next.config.js /usr/share/nginx/html/
+RUN sed -i "s|localhost:8001||g" /usr/share/nginx/html/**/* 2>/dev/null || true

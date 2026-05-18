@@ -43,22 +43,31 @@ Deploy the Phase III chatbot system on a local Kubernetes cluster using Minikube
 
 ```
 phase4-k8/
-├── helm-chart/
-│   ├── Chart.yaml              # Helm chart metadata
-│   ├── values.yaml             # Default configuration values
-│   ├── charts/                 # Subcharts (if any)
-│   └── templates/
-│       ├── frontend-deployment.yaml    # Frontend deployment
-│       ├── frontend-service.yaml       # Frontend service
-│       ├── backend-deployment.yaml     # Backend deployment
-│       ├── backend-service.yaml        # Backend service
-│       ├── backend-configmap.yaml      # Backend environment variables
-│       ├── backend-secret.yaml         # Database credentials
-│       ├── postgres-statefulset.yaml   # PostgreSQL StatefulSet
-│       ├── postgres-service.yaml       # PostgreSQL service
-│       └── ingress.yaml                # Ingress configuration
+├── helm/
+│   └── gordon/                        # Helm chart (actual deployed chart)
+│       ├── Chart.yaml                 # Helm chart metadata
+│       ├── values.yaml                # Default configuration values
+│       ├── secrets.example.yaml       # Example secrets file (copy to secrets.yaml)
+│       ├── README.md                  # Chart documentation
+│       └── templates/
+│           ├── frontend-deployment.yaml    # Frontend deployment with env vars
+│           ├── frontend-service.yaml       # Frontend service
+│           ├── backend-deployment.yaml     # Backend deployment
+│           ├── backend-service.yaml        # Backend service
+│           ├── backend-configmap.yaml      # Backend environment variables
+│           ├── backend-secret.yaml         # Sensitive credentials
+│           ├── ingress.yaml                # NGINX ingress configuration
+│           ├── serviceaccount.yaml         # Service account
+│           ├── _helpers.tpl                # Template helpers
+│           └── tests/
+│               └── test-connection.yaml    # Connection test
+├── docker/                              # Dockerfile and build scripts
+│   ├── backend-phase3.Dockerfile         # Backend (Python 3.13, port 8002)
+│   ├── frontend.Dockerfile               # Frontend (Next.js, Node 20, port 80)
+│   ├── build.sh                         # Build script
+│   └── README.md
 ├── README.md                # Setup and deployment instructions
-└── CLAUDE.md               # This file
+├── CLAUDE.md               # This file
 ```
 
 ## Prerequisites
@@ -103,21 +112,62 @@ minikube addons enable metrics-server
 minikube addons list
 ```
 
-### 2. Build and Push Docker Images
+### 2. Build Docker Images
 
-Build images from Phase 3 and make them available to Minikube:
+Use the Phase 4 Dockerfiles to build images from Phase 3 source:
 
 ```bash
-# Navigate to Phase 3 directories
-cd ../phase3-chatbot/frontend
-docker build -t todo-chatbot-frontend:latest .
+# From the repo root, build backend
+docker build -f phase4-k8/docker/backend-phase3.Dockerfile \
+  -t todo-chatbot-backend:latest phase3-chatbot/backend
 
-cd ../backend
-docker build -t todo-chatbot-backend:latest .
+# Build frontend
+docker build -f phase4-k8/docker/frontend.Dockerfile \
+  -t todo-chatbot-frontend:latest phase3-chatbot/frontend
 
-# Load images into Minikube (for local development)
+# Load images into Minikube
 minikube image load todo-chatbot-frontend:latest
 minikube image load todo-chatbot-backend:latest
+```
+
+Or use the automated build script:
+```bash
+cd phase4-k8
+./docker/build.sh
+```
+
+### 3. Configure Secrets
+
+Copy the example secrets file and fill in your values:
+
+```bash
+cd phase4-k8/helm/gordon
+cp secrets.example.yaml secrets.yaml
+# Edit secrets.yaml with your API keys and database URL
+```
+
+**NEVER commit `secrets.yaml` to version control.**
+
+### 4. Install Helm Chart
+
+```bash
+# Install with secrets
+helm install todo-app ./helm/gordon -f ./helm/gordon/secrets.yaml
+
+# Or install with --set flags
+helm install todo-app ./helm/gordon \
+  --set backend.secrets.openRouterApiKey="sk-or-v1-..." \
+  --set backend.secrets.databaseUrl="postgresql+asyncpg://..."
+
+# Check installation status
+helm list
+```
+
+Upgrade or uninstall:
+
+```bash
+helm upgrade todo-app ./helm/gordon -f ./helm/gordon/secrets.yaml
+helm uninstall todo-app
 ```
 
 Alternatively, push to a registry (Docker Hub, local registry, etc.):
@@ -229,13 +279,9 @@ kubectl get svc
 # Check ingress
 kubectl get ingress
 
-# Check persistent volumes
-kubectl get pvc
-
 # View logs
-kubectl logs -f deployment/todo-app-frontend
-kubectl logs -f deployment/todo-app-backend
-kubectl logs -f statefulset/todo-app-postgres
+kubectl logs -f deployment/todo-app-todo-chatbot-frontend
+kubectl logs -f deployment/todo-app-todo-chatbot-backend
 ```
 
 ### 6. Access the Application
@@ -282,27 +328,21 @@ appVersion: "1.0.0"
 ### Key Templates
 
 #### Frontend Deployment
-- Uses React image
-- Exposes port 80
+- Uses Next.js (Node 20) image
+- Exposes port 80 with env vars (NEXT_PUBLIC_API_URL)
 - Includes resource limits and requests
 - Health checks via liveness and readiness probes
 
 #### Backend Deployment
-- Uses FastAPI image
-- Exposes port 8000
-- ConfigMap for environment variables (OpenAI API key, database URL)
-- Secret for sensitive data (database password)
+- Uses FastAPI (Python 3.13) image
+- Exposes port 8002
+- ConfigMap for environment variables
+- Secret for sensitive data (API keys, DB URL, JWT secret)
 - Health checks for `/health` endpoint
-
-#### PostgreSQL StatefulSet
-- Uses PostgreSQL 16 Alpine image
-- Includes PersistentVolumeClaim for data persistence
-- Uses stable network identity with StatefulSet
-- Includes resource limits and requests
 
 #### Ingress
 - NGINX Ingress Controller
-- Route traffic to frontend and backend services
+- Route: `/` → frontend, `/api` `/health` `/docs` `/auth` → backend
 - Host-based routing for todo.local
 
 ## Troubleshooting
@@ -331,7 +371,7 @@ minikube image load your-image:latest
 kubectl get pods -n ingress-nginx
 
 # Check Ingress resources
-kubectl describe ingress todo-app-ingress
+kubectl describe ingress todo-app-todo-chatbot
 
 # Verify DNS
 curl -v http://todo.local
@@ -339,12 +379,12 @@ curl -v http://todo.local
 
 ### Database connection issues
 ```bash
-# Check PostgreSQL pod
-kubectl logs statefulset/todo-app-postgres
+# Check PostgreSQL pod (if in-cluster DB is enabled)
+kubectl logs statefulset/todo-app-todo-chatbot-postgres
 
 # Test connection from backend pod
 kubectl exec -it <backend-pod> -- sh
-# Then: psql -h todo-app-postgres -U todo_user -d todo_db
+# Then: psql -h todo-app-todo-chatbot-postgres -U todo_user -d todo_db
 ```
 
 ## Cleanup

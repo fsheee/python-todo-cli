@@ -1,0 +1,148 @@
+"""
+MCP Tool: create_todo
+
+Creates a new todo item for the authenticated user.
+
+Spec Reference: specs/api/mcp-tools.md - Tool 1: create_todo
+Task: 2.5
+"""
+
+from typing import Optional, Dict, Union
+import httpx
+import inspect
+from mcp_server.client import get_client
+
+
+class _HttpClientProxy:
+    def post(self, path: str, **kwargs):
+        jwt_token = kwargs.pop("jwt_token", None)
+        client = get_client(jwt_token=jwt_token)
+        return client.client.post(path, **kwargs)
+
+
+http_client = _HttpClientProxy()
+
+
+async def create_todo(
+    user_id: Union[int, str],  # Accept both int and UUID string
+    title: str,
+    description: Optional[str] = None,
+    priority: Optional[str] = "medium",
+    due_date: Optional[str] = None,
+    jwt_token: Optional[str] = None
+) -> Dict:
+    """
+    Create a new todo item
+
+    Args:
+        user_id: ID of the authenticated user (from JWT token)
+        title: Title of the todo (required, max 200 chars)
+        description: Detailed description (optional, max 1000 chars)
+        priority: Priority level (optional, defaults to 'medium')
+        due_date: Due date in ISO 8601 format (optional)
+
+    Returns:
+        Dict with success status, created todo, and message
+
+    Raises:
+        None - All errors returned in response dict
+    """
+    try:
+        # Input validation
+        # Phase 2 uses UUID strings, but tests may provide ints
+        if isinstance(user_id, int):
+            if user_id <= 0:
+                return {
+                    "success": False,
+                    "error": "Invalid user_id",
+                    "code": "VALIDATION_ERROR"
+                }
+            user_id_str = str(user_id)
+        else:
+            user_id_str = str(user_id).strip()
+            if not user_id_str:
+                return {
+                    "success": False,
+                    "error": "Invalid user_id",
+                    "code": "VALIDATION_ERROR"
+                }
+
+        if not title or len(title.strip()) == 0:
+            return {
+                "success": False,
+                "error": "Title cannot be empty",
+                "code": "VALIDATION_ERROR"
+            }
+
+        if len(title) > 200:
+            return {
+                "success": False,
+                "error": "Title exceeds maximum length of 200 characters",
+                "code": "VALIDATION_ERROR"
+            }
+
+        if description and len(description) > 1000:
+            return {
+                "success": False,
+                "error": "Description exceeds maximum length of 1000 characters",
+                "code": "VALIDATION_ERROR"
+            }
+
+        if priority and priority not in ["low", "medium", "high"]:
+            return {
+                "success": False,
+                "error": f"Invalid priority: {priority}. Must be low, medium, or high",
+                "code": "VALIDATION_ERROR"
+            }
+
+        # Prepare request to Phase 3 backend
+        payload = {
+            "title": title.strip()
+        }
+
+        if description:
+            payload["description"] = description.strip()
+
+        if priority and priority in ("low", "medium", "high"):
+            payload["priority"] = priority
+
+        if due_date:
+            payload["due_date"] = due_date
+
+        # Call Phase 3 backend
+        endpoint = "/tasks"
+        response = http_client.post(endpoint, json=payload, jwt_token=jwt_token)
+        if inspect.isawaitable(response):
+            response = await response
+
+        if response.status_code in (200, 201):
+            return {
+                "success": True,
+                "todo": response.json(),
+                "message": "Todo created successfully"
+            }
+        error_data = response.json() if response.text else {}
+        return {
+            "success": False,
+            "error": error_data.get("detail", "Failed to create todo"),
+            "code": "BACKEND_ERROR"
+        }
+
+    except httpx.TimeoutException:
+        return {
+            "success": False,
+            "error": "Request timed out while creating todo",
+            "code": "TIMEOUT"
+        }
+    except httpx.ConnectError:
+        return {
+            "success": False,
+            "error": "Could not connect to backend service",
+            "code": "SERVICE_UNAVAILABLE"
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": f"Internal error: {str(e)}",
+            "code": "INTERNAL_ERROR"
+        }

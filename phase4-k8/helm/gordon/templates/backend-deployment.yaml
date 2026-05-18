@@ -2,15 +2,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "gordon.fullname" . }}-backend
+  name: {{ include "todo-chatbot.fullname" . }}-backend
   labels:
-    {{- include "gordon.labels" . | nindent 4 }}
+    {{- include "todo-chatbot.labels" . | nindent 4 }}
     app.kubernetes.io/component: backend
 spec:
   replicas: {{ .Values.backend.replicaCount }}
   selector:
     matchLabels:
-      {{- include "gordon.selectorLabels" . | nindent 6 }}
+      {{- include "todo-chatbot.selectorLabels" . | nindent 6 }}
       app.kubernetes.io/component: backend
   template:
     metadata:
@@ -19,7 +19,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "gordon.selectorLabels" . | nindent 8 }}
+        {{- include "todo-chatbot.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: backend
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
@@ -29,7 +29,11 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "gordon.serviceAccountName" . }}
+      serviceAccountName: {{ include "todo-chatbot.serviceAccountName" . }}
+      {{- with .Values.backendHostAliases }}
+      hostAliases:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
@@ -48,9 +52,9 @@ spec:
               protocol: TCP
           envFrom:
             - configMapRef:
-                name: {{ include "gordon.fullname" . }}-backend-config
+                name: {{ include "todo-chatbot.fullname" . }}-backend-config
             - secretRef:
-                name: {{ include "gordon.fullname" . }}-backend-secret
+                name: {{ include "todo-chatbot.fullname" . }}-backend-secret
           {{- with .Values.backend.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}

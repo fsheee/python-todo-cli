@@ -1,0 +1,183 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-7.4.4, pluggy-1.6.0 -- F:\claude-code\hackathon-todo\phase3-chatbot\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: F:\claude-code\hackathon-todo\phase3-chatbot
+configfile: pytest.ini
+plugins: anyio-4.12.0, asyncio-0.23.3, cov-4.1.0, mock-3.12.0
+asyncio: mode=Mode.AUTO
+collecting ... collected 5 items
+
+tests/unit/test_agent.py::test_process_chat_message_success FAILED       [ 20%]
+tests/unit/test_agent.py::test_process_chat_message_conversational FAILED [ 40%]
+tests/unit/test_agent.py::test_process_chat_message_error_handling PASSED [ 60%]
+tests/unit/test_agent.py::test_system_prompt_generation PASSED           [ 80%]
+tests/unit/test_agent.py::test_context_prompt_generation PASSED          [100%]
+
+================================== FAILURES ===================================
+______________________ test_process_chat_message_success ______________________
+
+sample_chat_messages = [{'content': 'Add buy milk', 'role': 'user', 'timestamp': '2025-12-25T10:00:00Z'}, {'content': "I've added 'Buy milk' ...timestamp': '2025-12-25T10:00:01Z'}, {'content': 'Show my tasks', 'role': 'user', 'timestamp': '2025-12-25T10:01:00Z'}]
+
+    @pytest.mark.asyncio
+    async def test_process_chat_message_success(sample_chat_messages):
+        """Test successful processing of a chat message with intent recognition."""
+        user_id = "123"
+        session_id = "sess_123"
+        message = "Add buy milk"
+    
+        # Mock OpenAI response
+        mock_response = MagicMock()
+        mock_choice = MagicMock()
+        mock_message = MagicMock()
+    
+        # Simulate a tool call response
+        mock_message.content = None
+        mock_tool_call = MagicMock()
+        mock_tool_call.id = "call_abc123"
+        mock_tool_call.function.name = "create_todo"
+        mock_tool_call.function.arguments = json.dumps({
+            "user_id": user_id,
+            "title": "Buy milk"
+        })
+        mock_message.tool_calls = [mock_tool_call]
+        mock_choice.message = mock_message
+        mock_response.choices = [mock_choice]
+        mock_response.usage.total_tokens = 100
+    
+        # Mock tool execution
+        mock_tool_result = {"success": True, "todo_id": 456, "title": "Buy milk"}
+    
+        # Mock final response after tool execution
+        mock_final_response = MagicMock()
+        mock_final_choice = MagicMock()
+        mock_final_message = MagicMock()
+        mock_final_message.content = "I've added 'Buy milk' to your list."
+        mock_final_choice.message = mock_final_message
+        mock_final_response.choices = [mock_final_choice]
+        mock_final_response.usage.total_tokens = 50
+    
+        with patch("app.agents.todo_agent.openai_client.chat.completions.create", side_effect=[mock_response, mock_final_response]) as mock_create, \
+             patch("mcp_server.tools.create_todo", new_callable=AsyncMock) as mock_create_todo:
+    
+            mock_create_todo.return_value = mock_tool_result
+    
+            result = await process_chat_message(
+                user_id=user_id,
+                session_id=session_id,
+                message=message,
+                history=[],
+                jwt_token="fake_token"
+            )
+    
+            # Verify
+>           assert result["content"] == "I've added 'Buy milk' to your list."
+E           assert "I'm sorry, I...se try again." == "I've added '...to your list."
+E             - I've added 'Buy milk' to your list.
+E             + I'm sorry, I encountered an error while processing your message. Please try again.
+
+tests\unit\test_agent.py:68: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    app.agents.todo_agent:todo_agent.py:367 Error processing chat message: object MagicMock can't be used in 'await' expression
+Traceback (most recent call last):
+  File "F:\claude-code\hackathon-todo\phase3-chatbot\app\agents\todo_agent.py", line 251, in process_chat_message
+    response = await openai_client.chat.completions.create(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+TypeError: object MagicMock can't be used in 'await' expression
+__________________ test_process_chat_message_conversational ___________________
+
+    @pytest.mark.asyncio
+    async def test_process_chat_message_conversational():
+        """Test processing of a simple conversational message (no tool call)."""
+        user_id = "123"
+        session_id = "sess_123"
+        message = "Hello"
+    
+        # Mock OpenAI response (direct response)
+        mock_response = MagicMock()
+        mock_choice = MagicMock()
+        mock_message = MagicMock()
+        mock_message.content = "Hello! How can I help you today?"
+        mock_message.tool_calls = None
+        mock_choice.message = mock_message
+        mock_response.choices = [mock_choice]
+        mock_response.usage.total_tokens = 50
+    
+        with patch("app.agents.todo_agent.openai_client.chat.completions.create", return_value=mock_response) as mock_create:
+            result = await process_chat_message(
+                user_id=user_id,
+                session_id=session_id,
+                message=message,
+                history=[],
+                jwt_token="fake_token"
+            )
+    
+>           assert result["content"] == "Hello! How can I help you today?"
+E           assert "I'm sorry, I...se try again." == 'Hello! How c...lp you today?'
+E             - Hello! How can I help you today?
+E             + I'm sorry, I encountered an error while processing your message. Please try again.
+
+tests\unit\test_agent.py:103: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    app.agents.todo_agent:todo_agent.py:367 Error processing chat message: object MagicMock can't be used in 'await' expression
+Traceback (most recent call last):
+  File "F:\claude-code\hackathon-todo\phase3-chatbot\app\agents\todo_agent.py", line 251, in process_chat_message
+    response = await openai_client.chat.completions.create(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+TypeError: object MagicMock can't be used in 'await' expression
+============================== warnings summary ===============================
+tests/unit/test_agent.py::test_process_chat_message_success
+  F:\claude-code\hackathon-todo\phase3-chatbot\venv\Lib\site-packages\pytest_asyncio\plugin.py:749: DeprecationWarning: The event_loop fixture provided by pytest-asyncio has been redefined in
+  F:\claude-code\hackathon-todo\phase3-chatbot\tests\conftest.py:52
+  Replacing the event_loop fixture with a custom implementation is deprecated
+  and will lead to errors in the future.
+  If you want to request an asyncio event loop with a scope other than function
+  scope, use the "scope" argument to the asyncio mark when marking the tests.
+  If you want to return different types of event loops, use the event_loop_policy
+  fixture.
+  
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+
+---------- coverage: platform win32, python 3.13.7-final-0 -----------
+Name                           Stmts   Miss  Cover   Missing
+------------------------------------------------------------
+app\__init__.py                    0      0   100%
+app\agents\__init__.py             2      0   100%
+app\agents\prompts.py             11      0   100%
+app\agents\todo_agent.py          60     30    50%   35-39, 101, 260-357
+app\database\__init__.py          52     52     0%   8-117
+app\main.py                       73     73     0%   8-140
+app\middleware\__init__.py         2      2     0%   2-4
+app\middleware\auth.py            33     33     0%   9-88
+app\middleware\rate_limit.py      72     72     0%   10-240
+app\models\__init__.py             2      2     0%   2-4
+app\models\chat_history.py        15     15     0%   3-46
+app\models\user.py                14     14     0%   6-24
+app\queries\__init__.py            2      2     0%   2-10
+app\queries\chat_queries.py       33     33     0%   6-208
+app\router.py                     53     53     0%   12-321
+app\routes\__init__.py             2      2     0%   2-4
+app\routes\auth.py                88     88     0%   8-225
+app\routes\chat.py                33     33     0%   8-128
+app\routes\history.py            171    171     0%   7-445
+app\routes\prompts.py            136    136     0%   7-355
+app\schemas\__init__.py            3      3     0%   2-5
+app\schemas\chat.py               12     12     0%   8-32
+app\schemas\history.py            13     13     0%   7-25
+app\storage\__init__.py            7      7     0%   3-22
+app\storage\file_storage.py      519    519     0%   7-1188
+------------------------------------------------------------
+TOTAL                           1408   1365     3%
+Coverage HTML written to dir htmlcov
+
+=========================== short test summary info ===========================
+FAILED tests/unit/test_agent.py::test_process_chat_message_success - assert "...
+FAILED tests/unit/test_agent.py::test_process_chat_message_conversational - a...
+=================== 2 failed, 3 passed, 1 warning in 7.28s ====================

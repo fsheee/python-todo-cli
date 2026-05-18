@@ -2,15 +2,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "gordon.fullname" . }}-frontend
+  name: {{ include "todo-chatbot.fullname" . }}-frontend
   labels:
-    {{- include "gordon.labels" . | nindent 4 }}
+    {{- include "todo-chatbot.labels" . | nindent 4 }}
     app.kubernetes.io/component: frontend
 spec:
   replicas: {{ .Values.frontend.replicaCount }}
   selector:
     matchLabels:
-      {{- include "gordon.selectorLabels" . | nindent 6 }}
+      {{- include "todo-chatbot.selectorLabels" . | nindent 6 }}
       app.kubernetes.io/component: frontend
   template:
     metadata:
@@ -19,7 +19,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "gordon.selectorLabels" . | nindent 8 }}
+        {{- include "todo-chatbot.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: frontend
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
@@ -29,7 +29,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "gordon.serviceAccountName" . }}
+      serviceAccountName: {{ include "todo-chatbot.serviceAccountName" . }}
       {{- with .Values.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
@@ -46,6 +46,13 @@ spec:
             - name: http
               containerPort: {{ .Values.frontend.service.targetPort }}
               protocol: TCP
+          {{- if .Values.frontend.env }}
+          env:
+            {{- range $key, $val := .Values.frontend.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+          {{- end }}
           {{- with .Values.frontend.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}

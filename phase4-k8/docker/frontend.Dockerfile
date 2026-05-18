@@ -26,10 +26,7 @@ COPY . .
 # Set environment variable for production build
 ENV NEXT_TELEMETRY_DISABLED 1
 ENV NODE_ENV production
-
-# Enable standalone output for Docker (inline configuration)
-RUN echo 'module.exports = { ...require("./next.config.js"), output: "standalone" }' > next.config.docker.js && \
-    mv next.config.docker.js next.config.js || true
+# API proxy uses rewrites in next.config.js — no build-time URL needed
 
 # Build the Next.js application
 RUN npm run build
@@ -41,9 +38,10 @@ WORKDIR /app
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# Create non-root user
+# Create non-root user and install curl for healthchecks
 RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+    adduser --system --uid 1001 nextjs && \
+    apk add --no-cache curl
 
 # Copy necessary files from builder
 # Note: Next.js standalone mode automatically includes public files in .next/standalone

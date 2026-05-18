@@ -11,7 +11,7 @@ import { useAuthStore } from '@/stores/authStore';
 import axios from 'axios';
 import { Mail, Lock, Eye, EyeOff, ArrowLeft, User } from 'lucide-react';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
+const API_BASE_URL = '';
 
 export default function SignupPage() {
   const [name, setName] = useState('');

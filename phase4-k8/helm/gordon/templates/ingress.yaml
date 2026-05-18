@@ -2,9 +2,9 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "gordon.fullname" . }}
+  name: {{ include "todo-chatbot.fullname" . }}
   labels:
-    {{- include "gordon.labels" . | nindent 4 }}
+    {{- include "todo-chatbot.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -33,9 +33,9 @@ spec:
             backend:
               service:
                 {{- if eq .service "frontend" }}
-                name: {{ include "gordon.fullname" $ }}-frontend
+                name: {{ include "todo-chatbot.fullname" $ }}-frontend
                 {{- else if eq .service "backend" }}
-                name: {{ include "gordon.fullname" $ }}-backend
+                name: {{ include "todo-chatbot.fullname" $ }}-backend
                 {{- end }}
                 port:
                   number: {{ .port }}

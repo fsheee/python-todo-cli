@@ -116,6 +116,13 @@ try:
 except ImportError as e:
     logger.warning(f"⚠️ Prompts router not loaded: {e}")
 
+try:
+    from app.routes.tasks import router as tasks_router
+    app.include_router(tasks_router)
+    logger.info("✅ Tasks router loaded")
+except ImportError as e:
+    logger.warning(f"⚠️ Tasks router not loaded: {e}")
+
 
 @app.get("/")
 async def root():

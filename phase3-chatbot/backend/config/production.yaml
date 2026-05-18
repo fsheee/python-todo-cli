@@ -1,0 +1,72 @@
+# Production Configuration
+# This file contains production-specific settings
+
+server:
+  host: "0.0.0.0"
+  port: 8001
+  workers: 4
+  reload: false
+  log_level: "info"
+
+database:
+  pool_size: 20
+  max_overflow: 10
+  pool_timeout: 30
+  echo: false
+
+openai:
+  model: "gpt-4-turbo-preview"
+  temperature: 0.7
+  max_tokens: 500
+  timeout: 30
+
+cors:
+  allow_credentials: true
+  max_age: 3600
+  methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+  headers:
+    - "*"
+
+rate_limiting:
+  enabled: true
+  requests_per_minute: 30
+  burst_size: 10
+
+logging:
+  level: "INFO"
+  format: "json"
+  handlers:
+    - console
+    - file
+  file_path: "/var/log/chatbot/app.log"
+  rotation: "daily"
+  retention_days: 30
+
+monitoring:
+  sentry:
+    enabled: true
+    traces_sample_rate: 0.1
+  metrics:
+    enabled: true
+    port: 9090
+
+security:
+  https_redirect: true
+  hsts_enabled: true
+  hsts_max_age: 31536000
+  content_security_policy: "default-src 'self'"
+
+cleanup:
+  enabled: true
+  interval_days: 90
+  schedule: "0 2 * * *"  # Daily at 2 AM
+
+health_check:
+  enabled: true
+  endpoint: "/health"
+  timeout: 5

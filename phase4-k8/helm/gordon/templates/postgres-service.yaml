@@ -1,9 +1,10 @@
+{{- if .Values.postgres.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "todo-app.fullname" . }}-postgres
+  name: {{ include "todo-chatbot.fullname" . }}-postgres
   labels:
-    {{- include "todo-app.selectorLabels" (dict "component" "postgres") | nindent 4 }}
+    {{- include "todo-chatbot.selectorLabels" . | nindent 4 }}
 spec:
   type: ClusterIP
   ports:
@@ -12,4 +13,5 @@ spec:
       protocol: TCP
       name: postgres
   selector:
-    {{- include "todo-app.selectorLabels" (dict "component" "postgres") | nindent 4 }}
+    {{- include "todo-chatbot.selectorLabels" . | nindent 4 }}
+{{- end }}

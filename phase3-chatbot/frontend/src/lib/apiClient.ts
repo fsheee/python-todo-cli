@@ -8,7 +8,7 @@
 import axios, { AxiosInstance } from 'axios';
 import { useAuthStore } from '@/stores/authStore';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
+const API_BASE_URL = '';
 
 /**
  * Create axios instance with auth interceptor
@@ -69,7 +69,7 @@ export async function sendChatMessage(
   message: string,
   sessionId: string
 ): Promise<{ response: string; session_id: string; timestamp: string }> {
-  const response = await apiClient.post('/chat', {
+  const response = await apiClient.post('/api/chat', {
     message,
     session_id: sessionId,
   });

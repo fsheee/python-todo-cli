@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "gordon.fullname" . }}-backend-config
+  name: {{ include "todo-chatbot.fullname" . }}-backend-config
   labels:
-    {{- include "gordon.labels" . | nindent 4 }}
+    {{- include "todo-chatbot.labels" . | nindent 4 }}
     app.kubernetes.io/component: backend
 data:
   # API Configuration
@@ -25,6 +25,7 @@ data:
   ENVIRONMENT: {{ .Values.backend.env.ENVIRONMENT | quote }}
 
   # Agent Configuration
+  AGENT_MODEL: {{ .Values.backend.secrets.modelName | default "google/gemini-2.0-flash-001" | quote }}
   AGENT_TEMPERATURE: {{ .Values.backend.env.AGENT_TEMPERATURE | quote }}
   AGENT_MAX_TOKENS: {{ .Values.backend.env.AGENT_MAX_TOKENS | quote }}
 {{- end }}

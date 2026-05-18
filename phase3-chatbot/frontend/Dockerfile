@@ -6,7 +6,11 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci --ignore-scripts
 
+# Copy source only
 COPY . .
+
+# Remove .env.local to prevent HF Space URL from leaking
+RUN rm -f .env.local .env.production
 
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
@@ -14,7 +18,8 @@ RUN npm run build
 # ---- Runtime stage ----
 FROM nginx:stable-alpine
 
-COPY --from=builder /app/out /usr/share/nginx/html
+COPY --from=builder /app/.next/static /usr/share/nginx/html/_next/static
+COPY --from=builder /app/public /usr/share/nginx/html/ 2>/dev/null || true
 
 RUN printf 'server {\n\
     listen 80;\n\

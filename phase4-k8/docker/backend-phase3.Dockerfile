@@ -4,7 +4,7 @@
 # Usage: docker build -f phase4-k8/docker/backend-phase3.Dockerfile -t todo-chatbot-backend:latest phase3-chatbot/backend
 
 # ---- Build stage: compile dependencies ----
-FROM python:3.11-slim AS builder
+FROM python:3.13-slim AS builder
 
 WORKDIR /build
 
@@ -16,7 +16,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 # ---- Runtime stage ----
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 WORKDIR /app
 
@@ -31,6 +31,7 @@ COPY --from=builder /install /usr/local
 COPY --chown=appuser:appuser app/ /app/app/
 COPY --chown=appuser:appuser mcp_server/ /app/mcp_server/
 COPY --chown=appuser:appuser config/ /app/config/
+COPY --chown=appuser:appuser requirements.txt /app/
 
 RUN mkdir -p /app/logs /app/data && chown -R appuser:appuser /app
 

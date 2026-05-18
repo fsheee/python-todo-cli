@@ -1,0 +1,464 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-9.0.2, pluggy-1.6.0 -- C:\Python313\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: F:\claude-code\hackathon-todo\phase3-chatbot
+configfile: pytest.ini
+plugins: anyio-4.11.0, hypothesis-6.150.0, langsmith-0.4.49, asyncio-1.3.0, cov-7.0.0, mock-3.15.1
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 86 items
+
+tests/integration/test_database.py::TestChatHistoryModel::test_create_chat_history_with_all_fields FAILED [  1%]
+tests/integration/test_database.py::TestChatHistoryModel::test_create_chat_history_minimal_fields PASSED [  2%]
+tests/integration/test_database.py::TestLoadChatHistory::test_load_recent_messages PASSED [  3%]
+tests/integration/test_database.py::TestLoadChatHistory::test_load_from_empty_session PASSED [  4%]
+tests/integration/test_database.py::TestLoadChatHistory::test_user_isolation PASSED [  5%]
+tests/integration/test_database.py::TestLoadChatHistory::test_soft_deleted_messages_excluded PASSED [  6%]
+tests/integration/test_database.py::TestSaveMessage::test_save_user_message FAILED [  8%]
+tests/integration/test_database.py::TestSaveMessage::test_save_with_metadata FAILED [  9%]
+tests/integration/test_database.py::TestSaveMessage::test_timestamp_auto_generated PASSED [ 10%]
+tests/integration/test_database.py::TestGetUserSessions::test_get_sessions_summary PASSED [ 11%]
+tests/integration/test_database.py::TestDeleteSession::test_soft_delete_session PASSED [ 12%]
+tests/integration/test_database.py::TestDeleteSession::test_deleted_messages_not_loaded PASSED [ 13%]
+tests/integration/test_database.py::TestDeleteSession::test_delete_nonexistent_session PASSED [ 15%]
+tests/integration/test_database.py::TestCleanupOldSessions::test_cleanup_old_deleted_messages PASSED [ 16%]
+tests/integration/test_database.py::TestCleanupOldSessions::test_active_messages_preserved PASSED [ 17%]
+tests/integration/test_mcp_tools.py::TestCreateTodoTool::test_create_todo_success FAILED [ 18%]
+tests/integration/test_mcp_tools.py::TestCreateTodoTool::test_create_todo_empty_title PASSED [ 19%]
+tests/integration/test_mcp_tools.py::TestCreateTodoTool::test_create_todo_with_all_fields FAILED [ 20%]
+tests/integration/test_mcp_tools.py::TestListTodosTool::test_list_all_pending FAILED [ 22%]
+tests/integration/test_mcp_tools.py::TestListTodosTool::test_list_with_priority_filter FAILED [ 23%]
+tests/integration/test_mcp_tools.py::TestListTodosTool::test_list_empty_result FAILED [ 24%]
+tests/integration/test_mcp_tools.py::TestUpdateTodoTool::test_update_single_field FAILED [ 25%]
+tests/integration/test_mcp_tools.py::TestUpdateTodoTool::test_update_multiple_fields FAILED [ 26%]
+tests/integration/test_mcp_tools.py::TestUpdateTodoTool::test_update_no_fields PASSED [ 27%]
+tests/integration/test_mcp_tools.py::TestUpdateTodoTool::test_update_not_found FAILED [ 29%]
+tests/integration/test_mcp_tools.py::TestDeleteTodoTool::test_delete_without_confirmation PASSED [ 30%]
+tests/integration/test_mcp_tools.py::TestDeleteTodoTool::test_delete_with_confirmation FAILED [ 31%]
+tests/integration/test_mcp_tools.py::TestDeleteTodoTool::test_delete_not_found FAILED [ 32%]
+tests/integration/test_mcp_tools.py::TestSearchTodosTool::test_search_with_results FAILED [ 33%]
+tests/integration/test_mcp_tools.py::TestSearchTodosTool::test_search_empty_query PASSED [ 34%]
+tests/integration/test_mcp_tools.py::TestSearchTodosTool::test_search_no_results FAILED [ 36%]
+tests/integration/test_mcp_tools.py::TestMCPToolsErrorHandling::test_backend_timeout FAILED [ 37%]
+tests/integration/test_mcp_tools.py::TestMCPToolsErrorHandling::test_backend_500_error FAILED [ 38%]
+tests/test_chat_queries.py::TestLoadChatHistory::test_load_chat_history_success FAILED [ 39%]
+tests/test_chat_queries.py::TestLoadChatHistory::test_load_chat_history_empty PASSED [ 40%]
+tests/test_chat_queries.py::TestLoadChatHistory::test_load_chat_history_with_limit PASSED [ 41%]
+tests/test_chat_queries.py::TestSaveMessage::test_save_user_message PASSED [ 43%]
+tests/test_chat_queries.py::TestSaveMessage::test_save_assistant_message PASSED [ 44%]
+tests/test_chat_queries.py::TestGetUserSessions::test_get_user_sessions_success PASSED [ 45%]
+tests/test_chat_queries.py::TestGetUserSessions::test_get_user_sessions_empty PASSED [ 46%]
+tests/test_chat_queries.py::TestDeleteSession::test_delete_session_success PASSED [ 47%]
+tests/test_chat_queries.py::TestDeleteSession::test_delete_session_not_found PASSED [ 48%]
+tests/test_chat_queries.py::TestCleanupOldDeletedSessions::test_cleanup_old_sessions FAILED [ 50%]
+tests/test_chat_queries.py::TestCleanupOldDeletedSessions::test_cleanup_no_old_sessions FAILED [ 51%]
+tests/test_mcp_tools.py::TestCreateTodo::test_create_todo_success PASSED [ 52%]
+tests/test_mcp_tools.py::TestCreateTodo::test_create_todo_invalid_user_id FAILED [ 53%]
+tests/test_mcp_tools.py::TestCreateTodo::test_create_todo_empty_title PASSED [ 54%]
+tests/test_mcp_tools.py::TestCreateTodo::test_create_todo_title_too_long PASSED [ 55%]
+tests/test_mcp_tools.py::TestCreateTodo::test_create_todo_invalid_priority PASSED [ 56%]
+tests/test_mcp_tools.py::TestCreateTodo::test_create_todo_with_all_fields PASSED [ 58%]
+tests/test_mcp_tools.py::TestListTodos::test_list_todos_success PASSED   [ 59%]
+tests/test_mcp_tools.py::TestListTodos::test_list_todos_with_filters PASSED [ 60%]
+tests/test_mcp_tools.py::TestListTodos::test_list_todos_empty PASSED     [ 61%]
+tests/test_mcp_tools.py::TestUpdateTodo::test_update_todo_success FAILED [ 62%]
+tests/test_mcp_tools.py::TestUpdateTodo::test_update_todo_not_found PASSED [ 63%]
+tests/test_mcp_tools.py::TestUpdateTodo::test_update_todo_no_changes PASSED [ 65%]
+tests/test_mcp_tools.py::TestDeleteTodo::test_delete_todo_requires_confirmation PASSED [ 66%]
+tests/test_mcp_tools.py::TestDeleteTodo::test_delete_todo_not_found FAILED [ 67%]
+tests/test_mcp_tools.py::TestDeleteTodo::test_delete_todo_success FAILED [ 68%]
+tests/test_mcp_tools.py::TestSearchTodos::test_search_todos_success FAILED [ 69%]
+tests/test_mcp_tools.py::TestSearchTodos::test_search_todos_empty_query PASSED [ 70%]
+tests/test_mcp_tools.py::TestSearchTodos::test_search_todos_no_matches FAILED [ 72%]
+tests/test_rate_limiter.py::TestRateLimiter::test_is_allowed_first_request PASSED [ 73%]
+tests/test_rate_limiter.py::TestRateLimiter::test_is_allowed_under_limit PASSED [ 74%]
+tests/test_rate_limiter.py::TestRateLimiter::test_is_allowed_at_limit PASSED [ 75%]
+tests/test_rate_limiter.py::TestRateLimiter::test_is_allowed_over_limit PASSED [ 76%]
+tests/test_rate_limiter.py::TestRateLimiter::test_different_users_independent PASSED [ 77%]
+tests/test_rate_limiter.py::TestRateLimiter::test_get_retry_after_under_limit PASSED [ 79%]
+tests/test_rate_limiter.py::TestRateLimiter::test_get_retry_after_over_limit PASSED [ 80%]
+tests/test_rate_limiter.py::TestRateLimiter::test_get_remaining_under_limit PASSED [ 81%]
+tests/test_rate_limiter.py::TestRateLimiter::test_get_remaining_at_limit PASSED [ 82%]
+tests/test_rate_limiter.py::TestRateLimiter::test_get_remaining_over_limit PASSED [ 83%]
+tests/test_rate_limiter.py::TestRateLimiter::test_reset PASSED           [ 84%]
+tests/test_rate_limiter.py::TestRateLimiter::test_window_cleanup PASSED  [ 86%]
+tests/test_rate_limiter.py::TestRateLimiter::test_window_cleanup_after_timeout PASSED [ 87%]
+tests/test_rate_limiter.py::TestRateLimitMiddleware::test_exempt_paths_skip_rate_limiting PASSED [ 88%]
+tests/test_rate_limiter.py::TestRateLimitMiddleware::test_rate_limit_exempt_paths PASSED [ 89%]
+tests/test_rate_limiter.py::TestRateLimitMiddleware::test_rate_limit_headers_added PASSED [ 90%]
+tests/test_rate_limiter.py::TestRateLimiterEdgeCases::test_zero_requests_allowed PASSED [ 91%]
+tests/test_rate_limiter.py::TestRateLimiterEdgeCases::test_high_limit PASSED [ 93%]
+tests/test_rate_limiter.py::TestRateLimiterEdgeCases::test_concurrent_requests PASSED [ 94%]
+tests/unit/test_agent.py::test_process_chat_message_success FAILED       [ 95%]
+tests/unit/test_agent.py::test_process_chat_message_conversational PASSED [ 96%]
+tests/unit/test_agent.py::test_process_chat_message_error_handling PASSED [ 97%]
+tests/unit/test_agent.py::test_system_prompt_generation PASSED           [ 98%]
+tests/unit/test_agent.py::test_context_prompt_generation PASSED          [100%]
+
+================================== FAILURES ===================================
+________ TestChatHistoryModel.test_create_chat_history_with_all_fields ________
+tests\integration\test_database.py:45: in test_create_chat_history_with_all_fields
+    assert message.user_id == test_user_id
+E   AssertionError: assert '123' == 123
+E    +  where '123' = ChatHistory(user_id='123', role='user', id=1, timestamp=datetime.datetime(2026, 1, 10, 21, 0, 14, 330942), message_metadata=None, session_id='sess_test', content='Hello, world!', is_deleted=False).user_id
+___________________ TestSaveMessage.test_save_user_message ____________________
+tests\integration\test_database.py:163: in test_save_user_message
+    assert message.user_id == test_user_id
+E   AssertionError: assert '123' == 123
+E    +  where '123' = ChatHistory(user_id='123', role='user', id=1, timestamp=datetime.datetime(2026, 1, 10, 21, 0, 17, 95373), message_metadata=None, session_id='sess_test_12345', content='Test message', is_deleted=False).user_id
+___________________ TestSaveMessage.test_save_with_metadata ___________________
+tests\integration\test_database.py:181: in test_save_with_metadata
+    assert message.metadata == metadata
+E   AssertionError: assert MetaData() == {'tokens': 150, 'tool_calls': ['create_todo']}
+E    +  where MetaData() = ChatHistory(user_id='123', role='assistant', id=1, timestamp=datetime.datetime(2026, 1, 10, 21, 0, 17, 325015), message_metadata=None, session_id='sess_test_12345', content='Response text', is_deleted=False).metadata
+_________________ TestCreateTodoTool.test_create_todo_success _________________
+tests\integration\test_mcp_tools.py:36: in test_create_todo_success
+    with patch("mcp_server.tools.create_todo.http_client.post", return_value=mock_response):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\unittest\mock.py:1481: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+C:\Python313\Lib\pkgutil.py:528: in resolve_name
+    result = getattr(result, p)
+             ^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'mcp_server.tools.create_todo' has no attribute 'http_client'. Did you mean: 'get_client'?
+_____________ TestCreateTodoTool.test_create_todo_with_all_fields _____________
+tests\integration\test_mcp_tools.py:67: in test_create_todo_with_all_fields
+    with patch("mcp_server.tools.create_todo.http_client.post", return_value=mock_response):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\unittest\mock.py:1481: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+C:\Python313\Lib\pkgutil.py:528: in resolve_name
+    result = getattr(result, p)
+             ^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'mcp_server.tools.create_todo' has no attribute 'http_client'. Did you mean: 'get_client'?
+___________________ TestListTodosTool.test_list_all_pending ___________________
+tests\integration\test_mcp_tools.py:93: in test_list_all_pending
+    with patch("mcp_server.tools.list_todos.http_client.get", return_value=mock_response):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\unittest\mock.py:1481: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+C:\Python313\Lib\pkgutil.py:528: in resolve_name
+    result = getattr(result, p)
+             ^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'mcp_server.tools.list_todos' has no attribute 'http_client'. Did you mean: 'get_client'?
+______________ TestListTodosTool.test_list_with_priority_filter _______________
+tests\integration\test_mcp_tools.py:109: in test_list_with_priority_filter
+    with patch("mcp_server.tools.list_todos.http_client.get", return_value=mock_response):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\unittest\mock.py:1481: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+C:\Python313\Lib\pkgutil.py:528: in resolve_name
+    result = getattr(result, p)
+             ^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'mcp_server.tools.list_todos' has no attribute 'http_client'. Did you mean: 'get_client'?
+__________________ TestListTodosTool.test_list_empty_result ___________________
+tests\integration\test_mcp_tools.py:125: in test_list_empty_result
+    with patch("mcp_server.tools.list_todos.http_client.get", return_value=mock_response):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\unittest\mock.py:1481: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+C:\Python313\Lib\pkgutil.py:528: in resolve_name
+    result = getattr(result, p)
+             ^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'mcp_server.tools.list_todos' has no attribute 'http_client'. Did you mean: 'get_client'?
+_________________ TestUpdateTodoTool.test_update_single_field _________________
+tests\integration\test_mcp_tools.py:147: in test_update_single_field
+    with patch("mcp_server.tools.update_todo.http_client.put", return_value=mock_response):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\unittest\mock.py:1481: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+C:\Python313\Lib\pkgutil.py:528: in resolve_name
+    result = getattr(result, p)
+             ^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'mcp_server.tools.update_todo' has no attribute 'http_client'. Did you mean: 'get_client'?
+_______________ TestUpdateTodoTool.test_update_multiple_fields ________________
+tests\integration\test_mcp_tools.py:164: in test_update_multiple_fields
+    with patch("mcp_server.tools.update_todo.http_client.put", return_value=mock_response):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\unittest\mock.py:1481: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+C:\Python313\Lib\pkgutil.py:528: in resolve_name
+    result = getattr(result, p)
+             ^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'mcp_server.tools.update_todo' has no attribute 'http_client'. Did you mean: 'get_client'?
+__________________ TestUpdateTodoTool.test_update_not_found ___________________
+tests\integration\test_mcp_tools.py:184: in test_update_not_found
+    with patch("mcp_server.tools.update_todo.http_client.put", return_value=mock_response):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\unittest\mock.py:1481: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+C:\Python313\Lib\pkgutil.py:528: in resolve_name
+    result = getattr(result, p)
+             ^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'mcp_server.tools.update_todo' has no attribute 'http_client'. Did you mean: 'get_client'?
+______________ TestDeleteTodoTool.test_delete_with_confirmation _______________
+tests\integration\test_mcp_tools.py:217: in test_delete_with_confirmation
+    with patch("mcp_server.tools.delete_todo.http_client.get", return_value=mock_get_response):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\unittest\mock.py:1481: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+C:\Python313\Lib\pkgutil.py:528: in resolve_name
+    result = getattr(result, p)
+             ^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'mcp_server.tools.delete_todo' has no attribute 'http_client'. Did you mean: 'get_client'?
+__________________ TestDeleteTodoTool.test_delete_not_found ___________________
+tests\integration\test_mcp_tools.py:230: in test_delete_not_found
+    with patch("mcp_server.tools.delete_todo.http_client.get", return_value=mock_response):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\unittest\mock.py:1481: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+C:\Python313\Lib\pkgutil.py:528: in resolve_name
+    result = getattr(result, p)
+             ^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'mcp_server.tools.delete_todo' has no attribute 'http_client'. Did you mean: 'get_client'?
+________________ TestSearchTodosTool.test_search_with_results _________________
+tests\integration\test_mcp_tools.py:251: in test_search_with_results
+    with patch("mcp_server.tools.search_todos.http_client.get", return_value=mock_response):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\unittest\mock.py:1481: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+C:\Python313\Lib\pkgutil.py:528: in resolve_name
+    result = getattr(result, p)
+             ^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'mcp_server.tools.search_todos' has no attribute 'http_client'. Did you mean: 'get_client'?
+_________________ TestSearchTodosTool.test_search_no_results __________________
+tests\integration\test_mcp_tools.py:275: in test_search_no_results
+    with patch("mcp_server.tools.search_todos.http_client.get", return_value=mock_response):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\unittest\mock.py:1481: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+C:\Python313\Lib\pkgutil.py:528: in resolve_name
+    result = getattr(result, p)
+             ^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'mcp_server.tools.search_todos' has no attribute 'http_client'. Did you mean: 'get_client'?
+_______________ TestMCPToolsErrorHandling.test_backend_timeout ________________
+tests\integration\test_mcp_tools.py:289: in test_backend_timeout
+    with patch("mcp_server.tools.list_todos.http_client.get", side_effect=TimeoutError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\unittest\mock.py:1481: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+C:\Python313\Lib\pkgutil.py:528: in resolve_name
+    result = getattr(result, p)
+             ^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'mcp_server.tools.list_todos' has no attribute 'http_client'. Did you mean: 'get_client'?
+______________ TestMCPToolsErrorHandling.test_backend_500_error _______________
+tests\integration\test_mcp_tools.py:301: in test_backend_500_error
+    with patch("mcp_server.tools.create_todo.http_client.post", return_value=mock_response):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python313\Lib\unittest\mock.py:1481: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+C:\Python313\Lib\pkgutil.py:528: in resolve_name
+    result = getattr(result, p)
+             ^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'mcp_server.tools.create_todo' has no attribute 'http_client'. Did you mean: 'get_client'?
+_____________ TestLoadChatHistory.test_load_chat_history_success ______________
+tests\test_chat_queries.py:78: in test_load_chat_history_success
+    assert result[0]["role"] == "user"
+E   AssertionError: assert 'assistant' == 'user'
+E     
+E     - user
+E     + assistant
+___________ TestCleanupOldDeletedSessions.test_cleanup_old_sessions ___________
+tests\test_chat_queries.py:254: in test_cleanup_old_sessions
+    deleted_count = await cleanup_old_deleted_sessions(
+E   TypeError: cleanup_old_deleted_sessions() got an unexpected keyword argument 'days_old'
+_________ TestCleanupOldDeletedSessions.test_cleanup_no_old_sessions __________
+tests\test_chat_queries.py:272: in test_cleanup_no_old_sessions
+    deleted_count = await cleanup_old_deleted_sessions(
+E   TypeError: cleanup_old_deleted_sessions() got an unexpected keyword argument 'days_old'
+_______________ TestCreateTodo.test_create_todo_invalid_user_id _______________
+tests\test_mcp_tools.py:81: in test_create_todo_invalid_user_id
+    assert result["code"] == "VALIDATION_ERROR"
+E   AssertionError: assert 'SERVICE_UNAVAILABLE' == 'VALIDATION_ERROR'
+E     
+E     - VALIDATION_ERROR
+E     + SERVICE_UNAVAILABLE
+___________________ TestUpdateTodo.test_update_todo_success ___________________
+tests\test_mcp_tools.py:251: in test_update_todo_success
+    result = await update_todo(
+E   TypeError: update_todo() got an unexpected keyword argument 'jwt_token'
+__________________ TestDeleteTodo.test_delete_todo_not_found __________________
+tests\test_mcp_tools.py:323: in test_delete_todo_not_found
+    result = await delete_todo(
+E   TypeError: delete_todo() got an unexpected keyword argument 'jwt_token'
+___________________ TestDeleteTodo.test_delete_todo_success ___________________
+tests\test_mcp_tools.py:355: in test_delete_todo_success
+    result = await delete_todo(
+E   TypeError: delete_todo() got an unexpected keyword argument 'jwt_token'
+__________________ TestSearchTodos.test_search_todos_success __________________
+tests\test_mcp_tools.py:388: in test_search_todos_success
+    result = await search_todos(
+E   TypeError: search_todos() got an unexpected keyword argument 'jwt_token'
+________________ TestSearchTodos.test_search_todos_no_matches _________________
+tests\test_mcp_tools.py:425: in test_search_todos_no_matches
+    result = await search_todos(
+E   TypeError: search_todos() got an unexpected keyword argument 'jwt_token'
+______________________ test_process_chat_message_success ______________________
+tests\unit\test_agent.py:68: in test_process_chat_message_success
+    assert result["content"] == "I've added 'Buy milk' to your list."
+E   assert "I'm sorry, I...se try again." == "I've added '...to your list."
+E     
+E     - I've added 'Buy milk' to your list.
+E     + I'm sorry, I encountered an error while processing your message. Please try again.
+------------------------------ Captured log call ------------------------------
+ERROR    app.agents.todo_agent:todo_agent.py:408 Error processing chat message: No module named 'mcp'
+Traceback (most recent call last):
+  File "F:\claude-code\hackathon-todo\phase3-chatbot\mcp_server\server.py", line 24, in <module>
+    from mcp.server import Server
+ModuleNotFoundError: No module named 'mcp'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "F:\claude-code\hackathon-todo\phase3-chatbot\app\agents\todo_agent.py", line 262, in process_chat_message
+    from mcp_server.server import app as mcp_app
+  File "F:\claude-code\hackathon-todo\phase3-chatbot\mcp_server\server.py", line 27, in <module>
+    from mcp import Server
+ModuleNotFoundError: No module named 'mcp'
+============================== warnings summary ===============================
+C:\Users\Kashif\AppData\Roaming\Python\Python313\site-packages\sqlalchemy\sql\sqltypes.py:2061
+  C:\Users\Kashif\AppData\Roaming\Python\Python313\site-packages\sqlalchemy\sql\sqltypes.py:2061: DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.fromtimestamp(timestamp, datetime.UTC).
+    epoch = dt.datetime.utcfromtimestamp(0)
+
+C:\Users\Kashif\AppData\Roaming\Python\Python313\site-packages\pydantic\typing.py:68: 57 warnings
+  C:\Users\Kashif\AppData\Roaming\Python\Python313\site-packages\pydantic\typing.py:68: DeprecationWarning: Failing to pass a value to the 'type_params' parameter of 'typing.ForwardRef._evaluate' is deprecated, as it leads to incorrect behaviour when calling typing.ForwardRef._evaluate on a stringified annotation that references a PEP 695 type parameter. It will be disallowed in Python 3.15.
+    return cast(Any, type_)._evaluate(globalns, localns, recursive_guard=set())
+
+C:\Users\Kashif\AppData\Roaming\Python\Python313\site-packages\starlette\formparsers.py:10
+  C:\Users\Kashif\AppData\Roaming\Python\Python313\site-packages\starlette\formparsers.py:10: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+tests/integration/test_database.py::TestChatHistoryModel::test_create_chat_history_with_all_fields
+  F:\claude-code\hackathon-todo\phase3-chatbot\tests\integration\test_database.py:36: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow(),
+
+tests/integration/test_database.py: 27 warnings
+tests/test_chat_queries.py: 2 warnings
+  C:\Users\Kashif\AppData\Roaming\Python\Python313\site-packages\pydantic\fields.py:437: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    return smart_deepcopy(self.default) if self.default_factory is None else self.default_factory()
+
+tests/integration/test_database.py: 10 warnings
+  F:\claude-code\hackathon-todo\phase3-chatbot\tests\integration\test_database.py:81: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow() + timedelta(seconds=i)
+
+tests/integration/test_database.py::TestSaveMessage::test_timestamp_auto_generated
+  F:\claude-code\hackathon-todo\phase3-chatbot\tests\integration\test_database.py:186: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    before = datetime.utcnow()
+
+tests/integration/test_database.py::TestSaveMessage::test_timestamp_auto_generated
+  F:\claude-code\hackathon-todo\phase3-chatbot\tests\integration\test_database.py:188: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    after = datetime.utcnow()
+
+tests/integration/test_database.py::TestCleanupOldSessions::test_cleanup_old_deleted_messages
+  F:\claude-code\hackathon-todo\phase3-chatbot\tests\integration\test_database.py:281: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow() - timedelta(days=100)
+
+tests/integration/test_database.py::TestCleanupOldSessions::test_cleanup_old_deleted_messages
+  F:\claude-code\hackathon-todo\phase3-chatbot\tests\integration\test_database.py:290: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow() - timedelta(days=10)
+
+tests/integration/test_database.py::TestCleanupOldSessions::test_cleanup_old_deleted_messages
+tests/integration/test_database.py::TestCleanupOldSessions::test_active_messages_preserved
+  F:\claude-code\hackathon-todo\phase3-chatbot\app\queries\chat_queries.py:195: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    cutoff_date = datetime.utcnow() - timedelta(days=days)
+
+tests/integration/test_database.py::TestCleanupOldSessions::test_active_messages_preserved
+  F:\claude-code\hackathon-todo\phase3-chatbot\tests\integration\test_database.py:311: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow() - timedelta(days=100)
+
+tests/test_chat_queries.py::TestLoadChatHistory::test_load_chat_history_success
+  F:\claude-code\hackathon-todo\phase3-chatbot\tests\test_chat_queries.py:41: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "timestamp": datetime.utcnow() - timedelta(minutes=10),
+
+tests/test_chat_queries.py::TestLoadChatHistory::test_load_chat_history_success
+  F:\claude-code\hackathon-todo\phase3-chatbot\tests\test_chat_queries.py:50: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "timestamp": datetime.utcnow() - timedelta(minutes=9),
+
+tests/test_chat_queries.py::TestSaveMessage::test_save_user_message
+tests/test_chat_queries.py::TestSaveMessage::test_save_assistant_message
+  F:\claude-code\hackathon-todo\phase3-chatbot\app\queries\chat_queries.py:87: RuntimeWarning: coroutine 'AsyncMockMixin._execute_mock_call' was never awaited
+    session.add(message)
+  Enable tracemalloc to get traceback where the object was allocated.
+  See https://docs.pytest.org/en/stable/how-to/capture-warnings.html#resource-warnings for more info.
+
+tests/test_chat_queries.py::TestGetUserSessions::test_get_user_sessions_success
+  F:\claude-code\hackathon-todo\phase3-chatbot\tests\test_chat_queries.py:171: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    {"session_id": "session-1", "last_message": datetime.utcnow()}
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=============================== tests coverage ================================
+_______________ coverage: platform win32, python 3.13.7-final-0 _______________
+
+Name                           Stmts   Miss  Cover   Missing
+------------------------------------------------------------
+app\__init__.py                    0      0   100%
+app\agents\__init__.py             2      0   100%
+app\agents\prompts.py             11      0   100%
+app\agents\todo_agent.py          95     57    40%   35-39, 101, 263-348, 358-390
+app\database\__init__.py          52     52     0%   8-117
+app\main.py                       70     70     0%   8-139
+app\middleware\__init__.py         2      0   100%
+app\middleware\auth.py            33     25    24%   35-88
+app\middleware\rate_limit.py      72     26    64%   75, 155-199, 209-210, 224, 239-240
+app\models\__init__.py             2      0   100%
+app\models\chat_history.py        15      0   100%
+app\models\user.py                14     14     0%   6-24
+app\queries\__init__.py            2      0   100%
+app\queries\chat_queries.py       33      0   100%
+app\router.py                     53     53     0%   12-321
+app\routes\__init__.py             2      2     0%   2-4
+app\routes\auth.py                88     88     0%   8-225
+app\routes\chat.py                33     33     0%   8-132
+app\routes\history.py            171    171     0%   7-445
+app\routes\prompts.py            136    136     0%   7-355
+app\schemas\__init__.py            3      3     0%   2-5
+app\schemas\chat.py               12     12     0%   8-32
+app\schemas\history.py            13     13     0%   7-25
+app\storage\__init__.py            7      7     0%   3-22
+app\storage\file_storage.py      519    519     0%   7-1188
+------------------------------------------------------------
+TOTAL                           1440   1281    11%
+Coverage HTML written to dir htmlcov
+=========================== short test summary info ===========================
+FAILED tests/integration/test_database.py::TestChatHistoryModel::test_create_chat_history_with_all_fields
+FAILED tests/integration/test_database.py::TestSaveMessage::test_save_user_message
+FAILED tests/integration/test_database.py::TestSaveMessage::test_save_with_metadata
+FAILED tests/integration/test_mcp_tools.py::TestCreateTodoTool::test_create_todo_success
+FAILED tests/integration/test_mcp_tools.py::TestCreateTodoTool::test_create_todo_with_all_fields
+FAILED tests/integration/test_mcp_tools.py::TestListTodosTool::test_list_all_pending
+FAILED tests/integration/test_mcp_tools.py::TestListTodosTool::test_list_with_priority_filter
+FAILED tests/integration/test_mcp_tools.py::TestListTodosTool::test_list_empty_result
+FAILED tests/integration/test_mcp_tools.py::TestUpdateTodoTool::test_update_single_field
+FAILED tests/integration/test_mcp_tools.py::TestUpdateTodoTool::test_update_multiple_fields
+FAILED tests/integration/test_mcp_tools.py::TestUpdateTodoTool::test_update_not_found
+FAILED tests/integration/test_mcp_tools.py::TestDeleteTodoTool::test_delete_with_confirmation
+FAILED tests/integration/test_mcp_tools.py::TestDeleteTodoTool::test_delete_not_found
+FAILED tests/integration/test_mcp_tools.py::TestSearchTodosTool::test_search_with_results
+FAILED tests/integration/test_mcp_tools.py::TestSearchTodosTool::test_search_no_results
+FAILED tests/integration/test_mcp_tools.py::TestMCPToolsErrorHandling::test_backend_timeout
+FAILED tests/integration/test_mcp_tools.py::TestMCPToolsErrorHandling::test_backend_500_error
+FAILED tests/test_chat_queries.py::TestLoadChatHistory::test_load_chat_history_success
+FAILED tests/test_chat_queries.py::TestCleanupOldDeletedSessions::test_cleanup_old_sessions
+FAILED tests/test_chat_queries.py::TestCleanupOldDeletedSessions::test_cleanup_no_old_sessions
+FAILED tests/test_mcp_tools.py::TestCreateTodo::test_create_todo_invalid_user_id
+FAILED tests/test_mcp_tools.py::TestUpdateTodo::test_update_todo_success - Ty...
+FAILED tests/test_mcp_tools.py::TestDeleteTodo::test_delete_todo_not_found - ...
+FAILED tests/test_mcp_tools.py::TestDeleteTodo::test_delete_todo_success - Ty...
+FAILED tests/test_mcp_tools.py::TestSearchTodos::test_search_todos_success - ...
+FAILED tests/test_mcp_tools.py::TestSearchTodos::test_search_todos_no_matches
+FAILED tests/unit/test_agent.py::test_process_chat_message_success - assert "...
+=========== 27 failed, 59 passed, 111 warnings in 71.81s (0:01:11) ============

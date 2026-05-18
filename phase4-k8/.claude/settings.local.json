@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(f:/claude-code/hackathon-todo/**)",
+      "Bash(minikube *)",
+      "Bash(helm *)",
+      "Bash(kubectl *)"
+    ]
+  }
+}

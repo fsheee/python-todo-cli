@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field
 class ChatRequest(BaseModel):
     """Request schema for chat endpoint"""
     message: str = Field(..., min_length=1, max_length=5000, description="User's message")
-    session_id: str | None = Field(None, min_length=1, max_length=100, description="Chat session ID (optional, will be generated if missing)")
+    session_id: str = Field(default="", min_length=0, max_length=100, description="Chat session ID (optional, will be generated if missing)")
 
     class Config:
         json_schema_extra = {

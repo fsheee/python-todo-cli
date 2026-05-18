@@ -15,7 +15,8 @@ Remove all Google OAuth authentication functionality from the project. The Googl
 - Remove API endpoints:
   - `GET /api/auth/oauth/google` (lines ~300-306)
   - `GET /api/auth/oauth/google/callback` (lines ~308-316)
-- Remove Google OAuth button from UI Requirements for Sign In Page and Sign Up Page (lines ~430, ~445)
+- Remove Google OAuth button from UI Requirements f
+or Sign In Page and Sign Up Page (lines ~430, ~445)
 
 #### `phase2-web/specs/frontend/tasks.md`
 - Remove entire Phase 7: Google OAuth section (lines ~134-154)

@@ -12,6 +12,15 @@ phase4-k8/docker/
 └── README.md
 ```
 
+## Current Status
+
+✅ **Images built and deployed to Kubernetes (gordon namespace)**
+
+| Image | Tag | Status |
+|-------|-----|--------|
+| todo-chatbot-backend | v18 | ✅ Running |
+| todo-chatbot-frontend | v10 | ✅ Running |
+
 ## Quick Start
 
 ```bash
@@ -59,14 +68,50 @@ Both images use multi-stage builds, non-root users, and production-optimized lay
 ## Verify
 
 ```bash
+# Check local Docker images
 docker images | grep todo-chatbot
+
+# Check images in Minikube
 minikube image ls | grep todo-chatbot
+
+# Check running pods
+kubectl get pods -n gordon
 ```
 
 ## Deploy
 
 ```bash
+# Using existing Helm release (gordon namespace)
+kubectl get pods -n gordon
+
+# Or reinstall
 cd phase4-k8
-helm install todo-app helm/gordon -f secrets.yaml
-kubectl get pods
+helm upgrade gordon helm/gordon -n gordon
 ```
+
+## Kubernetes Deployment
+
+The app is deployed in the **gordon** namespace with:
+
+- **Backend**: Service `gordon-todo-chatbot-backend:8002`
+- **Frontend**: Service `gordon-todo-chatbot-frontend:80`
+- **Database**: External Neon PostgreSQL (serverless)
+
+### Access via Port Forward
+
+```bash
+# Backend
+kubectl port-forward -n gordon svc/gordon-todo-chatbot-backend 8002:8002 &
+
+# Frontend
+kubectl port-forward -n gordon svc/gordon-todo-chatbot-frontend 8080:80 &
+```
+
+Then access:
+- Frontend: http://localhost:8080
+- Backend API: http://localhost:8002/health
+- API Docs: http://localhost:8002/docs
+
+---
+
+**Last Updated**: 2026-05-01

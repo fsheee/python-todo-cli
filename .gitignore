@@ -70,3 +70,27 @@ helm/**/secrets.yaml
 **/values.yml
 **/secrets.yml
 **/helm/gordon/values.yaml
+
+# Temp files from claude/opencode
+tmpclaude-*/
+tmpclaude-*-cwd
+*.cwd
+
+# Test artifacts
+test-chart/
+test.db
+test_*.py
+postgres_debug.yaml
+debug_manifest*.yaml
+template_*.txt
+lint*.txt
+install_log.txt
+helm_version.txt
+help_out.txt
+error.txt
+nul
+
+# Misc
+.hypothesis/
+data/
+.n
