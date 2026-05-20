@@ -1,0 +1,36 @@
+﻿# Session Prompt: 2026-05-21 Phase 4 Deployment & Fixes
+
+## Goal
+Deploy and debug the Phase 3 Todo chatbot on a Phase 4 K8s cluster (Minikube + Helm). Fix the update command, list-all query, and backend crash bugs.
+
+## Key Constraints
+- Backend deployed in 	odo-app namespace, image pull policy Never
+- Changes rebuilt via Docker, loaded into Minikube, deployed via kubectl set image
+- No mount field — values like "Rs.5000" append to task title
+- Tasks are scoped per user_id from JWT
+
+## Issues Found & Fixed
+1. Standalone MCP server missing tool modules — copied from backend copy
+2. list_todos defaulted to status="pending" — changed to "all"
+3. Command parser missing update regex — added update patterns
+4. Fallback handler missing update intent — added update branch
+5. UnboundLocalError from inline datetime import — moved to module level
+6. PostgreSQL DataError from timezone-aware datetime — changed to utcnow()
+
+## Files Modified
+- backend/app/routes/chat.py
+- backend/app/routes/tasks.py
+- backend/app/agents/todo_agent.py
+- backend/mcp_server/tools/list_todos.py
+- backend/mcp_server/tools/update_todo.py
+- mcp_server/tools/*.py (5 files)
+
+## Docker Builds
+- Tags used: fixed3, fixed4, fixed5
+- Base: backend-phase3.Dockerfile from phase4-k8/docker/
+- Source: phase3-chatbot/backend/
+
+## Deployment
+- minikube start --driver=docker
+- Build via docker build -t ... then minikube image load
+- Image update: kubectl set image deployment/... backend=todo-chatbot-backend:fixed5
