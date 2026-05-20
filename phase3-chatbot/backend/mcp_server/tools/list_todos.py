@@ -55,7 +55,7 @@ def calculate_date_range(range_type: str) -> Dict:
 
 async def list_todos(
     user_id: Union[int, str],  # Accept both int and UUID string
-    status: Optional[str] = "pending",
+    status: Optional[str] = "all",
     priority: Optional[str] = None,
     due_date: Optional[str] = None,
     due_date_range: Optional[str] = None,

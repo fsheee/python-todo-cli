@@ -17,7 +17,7 @@ class _HttpClientProxy:
     def put(self, path: str, **kwargs):
         jwt_token = kwargs.pop("jwt_token", None)
         client = get_client(jwt_token=jwt_token)
-        return client.client.put(path, **kwargs)
+        return client.client.patch(path, **kwargs)
 
 
 http_client = _HttpClientProxy()
@@ -146,8 +146,8 @@ async def update_todo(
             }
 
         # Call Phase 2 backend
-        # Phase 2 backend uses /api/{user_id}/tasks/{task_id}
-        endpoint = f"/api/{user_id_str}/tasks/{todo_id_str}"
+        # Phase 3 backend uses /tasks/{todo_id}
+        endpoint = f"/tasks/{todo_id_str}"
         response = http_client.put(endpoint, json=updates, jwt_token=jwt_token)
         if inspect.isawaitable(response):
             response = await response

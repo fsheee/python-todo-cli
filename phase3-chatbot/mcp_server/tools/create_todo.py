@@ -95,8 +95,7 @@ async def create_todo(
                 "code": "VALIDATION_ERROR"
             }
 
-        # Prepare request to Phase 2 backend
-        # Phase 2 TaskCreate schema only accepts title and description
+        # Prepare request to Phase 3 backend
         payload = {
             "title": title.strip()
         }
@@ -104,29 +103,30 @@ async def create_todo(
         if description:
             payload["description"] = description.strip()
 
-        # Note: priority and due_date are not supported by Phase 2 backend yet
+        if priority and priority in ("low", "medium", "high"):
+            payload["priority"] = priority
 
-        # Call Phase 2 backend (using Phase 2's actual endpoint format)
-        # Phase 2 backend uses /api/{user_id}/tasks
-        endpoint = f"/api/{user_id_str}/tasks"
+        if due_date:
+            payload["due_date"] = due_date
+
+        # Call Phase 3 backend
+        endpoint = "/tasks"
         response = http_client.post(endpoint, json=payload, jwt_token=jwt_token)
         if inspect.isawaitable(response):
             response = await response
 
-        if response.status_code == 201 or response.status_code == 200:
-            todo = response.json()
+        if response.status_code in (200, 201):
             return {
                 "success": True,
-                "todo": todo,
+                "todo": response.json(),
                 "message": "Todo created successfully"
             }
-        else:
-            error_data = response.json() if response.text else {}
-            return {
-                "success": False,
-                "error": error_data.get("detail", "Failed to create todo"),
-                "code": "BACKEND_ERROR"
-            }
+        error_data = response.json() if response.text else {}
+        return {
+            "success": False,
+            "error": error_data.get("detail", "Failed to create todo"),
+            "code": "BACKEND_ERROR"
+        }
 
     except httpx.TimeoutException:
         return {

@@ -56,7 +56,7 @@ AGENT_TEMPERATURE = float(os.getenv("AGENT_TEMPERATURE", "0.7"))
 AGENT_MAX_TOKENS = int(os.getenv("AGENT_MAX_TOKENS", "500"))
 
 
-async def get_fallback_response(message: str, user_id: str) -> Dict:
+async def get_fallback_response(message: str, user_id: str, jwt_token: str = "") -> Dict:
     """Execute actual todo operations when AI API fails"""
     # Try to import MCP tools, but don't fail if they don't exist
     try:
@@ -78,14 +78,21 @@ async def get_fallback_response(message: str, user_id: str) -> Dict:
                 if any(k in message_lower for k in ["task", "todo", "item"]):
                     words = message.split()
                     title = " ".join(words[1:]) if len(words) > 1 else "New task"
-                    result = await create_todo(user_id=user_id, title=title)
+                    result = await create_todo(user_id=user_id, title=title, jwt_token=jwt_token)
                     return {
                         "content": f"✅ Task '{title}' added!",
                         "metadata": {"fallback": True, "operation": "create_todo", "result": result}
                     }
+                words = message.split()
+                title = " ".join(words[1:]) if len(words) > 1 else "New task"
+                result = await create_todo(user_id=user_id, title=title, jwt_token=jwt_token)
+                return {
+                    "content": f"✅ Task '{title}' added!",
+                    "metadata": {"fallback": True, "operation": "create_todo", "result": result}
+                }
             # LIST TASKS
             elif any(k in message_lower for k in ["show", "list", "view", "display"]):
-                result = await list_todos(user_id=user_id)
+                result = await list_todos(user_id=user_id, status="all", jwt_token=jwt_token)
                 tasks = result.get("todos", []) if isinstance(result, dict) else []
                 if tasks:
                     task_list = "\n".join([f"{i+1}. {t.get('title','Untitled')} ({t.get('status','pending')})" for i,t in enumerate(tasks)])
@@ -109,11 +116,21 @@ async def get_fallback_response(message: str, user_id: str) -> Dict:
                         ),
                         "metadata": {"fallback": True, "operation": "update_todo", "result": {"success": False, "error": "Missing task identifier", "code": "INVALID_TASK_ID"}},
                     }
-                result = await update_todo(user_id=user_id, todo_id=task_id, status="completed")
+                result = await update_todo(user_id=user_id, todo_id=task_id, status="completed", jwt_token=jwt_token)
                 return {
                     "content": f"✅ Task {task_id} marked as complete!",
                     "metadata": {"fallback": True, "operation": "update_todo", "result": result}
                 }
+            # UPDATE TASK
+            elif any(k in message_lower for k in ["update", "change", "modify", "edit", "set"]):
+                words = message.split()
+                task_id = next((w for w in words if w.isdigit() or ('-' in w and len(w) > 20)), None)
+                if not task_id:
+                    return {
+                        "content": "I see you want to update a task. Please specify the task ID and what to change, e.g., **update <id> set priority high**.",
+                        "metadata": {"fallback": True, "operation": "update_todo", "result": {"success": False, "error": "Missing task identifier", "code": "INVALID_TASK_ID"}},
+                    }
+                pass  # Let LLM handle field extraction
             # DELETE TASK
             elif any(k in message_lower for k in ["delete", "remove", "clear"]):
                 words = message.split()
@@ -126,7 +143,7 @@ async def get_fallback_response(message: str, user_id: str) -> Dict:
                         ),
                         "metadata": {"fallback": True, "operation": "delete_todo", "result": {"success": False, "error": "Missing task identifier", "code": "INVALID_TASK_ID"}},
                     }
-                result = await delete_todo(user_id=user_id, todo_id=task_id)
+                result = await delete_todo(user_id=user_id, todo_id=task_id, jwt_token=jwt_token)
                 return {
                     "content": f"🗑️ Task {task_id} deleted!",
                     "metadata": {"fallback": True, "operation": "delete_todo", "result": result}
@@ -138,7 +155,7 @@ async def get_fallback_response(message: str, user_id: str) -> Dict:
     # Default fallback when intent not recognized
     # Always return something useful - never fail!
     return {
-        "content": "I understand your message! I'm your todo assistant. You can:\n📝 Add tasks: 'add buy milk'\n✅ Complete tasks: 'complete 1'\n📋 List tasks: 'show my tasks'\n\nHow can I help you?",
+        "content": "I understand your message! I'm your todo assistant. You can:\n📝 Add tasks: 'add buy milk'\n✅ Complete tasks: 'complete 1'\n📋 List tasks: 'show my tasks'\n✏️ Update tasks: 'update <id> set priority high'\n\nHow can I help you?",
         "metadata": {"fallback": True, "unrecognized": True}
     }
 
@@ -383,7 +400,7 @@ async def process_chat_message(
         if not response:
             # All attempts failed, use fallback response
             logger.warning("All API attempts failed, using fallback response")
-            return await get_fallback_response(message, user_id)
+            return await get_fallback_response(message, user_id, jwt_token=jwt_token)
 
         # Extract response
         assistant_message = response.choices[0].message

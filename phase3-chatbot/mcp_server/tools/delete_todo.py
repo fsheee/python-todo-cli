@@ -85,8 +85,8 @@ async def delete_todo(
             }
 
         # First, fetch the todo to get its details for confirmation message
-        # Phase 2 backend uses /api/{user_id}/tasks/{task_id}
-        get_endpoint = f"/api/{user_id_str}/tasks/{todo_id_str}"
+        # Phase 3 backend uses /tasks/{todo_id}
+        get_endpoint = f"/tasks/{todo_id_str}"
         get_response = http_client.get(get_endpoint, jwt_token=jwt_token)
         if inspect.isawaitable(get_response):
             get_response = await get_response
@@ -101,7 +101,7 @@ async def delete_todo(
         todo = get_response.json()
 
         # Delete the todo
-        delete_endpoint = f"/api/{user_id_str}/tasks/{todo_id_str}"
+        delete_endpoint = f"/tasks/{todo_id_str}"
         delete_response = http_client.delete(delete_endpoint, jwt_token=jwt_token)
         if inspect.isawaitable(delete_response):
             delete_response = await delete_response

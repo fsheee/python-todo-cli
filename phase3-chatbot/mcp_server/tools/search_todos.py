@@ -98,19 +98,15 @@ async def search_todos(
             params["status"] = status
 
         # Call Phase 2 backend search endpoint
-        # Phase 2 backend uses /api/{user_id}/tasks/search
-        endpoint = f"/api/{user_id_str}/tasks/search"
+        # Phase 3 backend uses /tasks with query params
+        endpoint = "/tasks"
         response = http_client.get(endpoint, params=params, jwt_token=jwt_token)
         if inspect.isawaitable(response):
             response = await response
 
         if response.status_code == 200:
             data = response.json()
-            # Phase 2 backend returns {"tasks": [...], "count": N}
-            if isinstance(data, list):
-                todos = data
-            else:
-                todos = data.get("tasks") or data.get("todos") or []
+            todos = data.get("tasks", [])
 
             return {
                 "success": True,

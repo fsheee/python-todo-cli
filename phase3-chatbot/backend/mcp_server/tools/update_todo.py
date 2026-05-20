@@ -167,10 +167,16 @@ async def update_todo(
                 "code": "NOT_FOUND"
             }
         else:
+            detail = ""
+            try:
+                detail = response.json().get("detail", response.text[:200])
+            except Exception:
+                detail = response.text[:200]
             return {
                 "success": False,
-                "error": "Failed to update todo",
-                "code": "BACKEND_ERROR"
+                "error": f"Failed to update todo: {detail}",
+                "code": "BACKEND_ERROR",
+                "http_status": response.status_code,
             }
 
     except httpx.TimeoutException:

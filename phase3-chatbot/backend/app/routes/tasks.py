@@ -196,10 +196,9 @@ async def update_task(
         if task_data.priority is not None:
             task.priority = task_data.priority
         if task_data.due_date is not None:
-            from datetime import datetime
             task.due_date = datetime.fromisoformat(task_data.due_date.replace("Z", "+00:00"))
 
-        task.updated_at = datetime.now(timezone.utc)
+        task.updated_at = datetime.utcnow()
 
         await session.commit()
         await session.refresh(task)

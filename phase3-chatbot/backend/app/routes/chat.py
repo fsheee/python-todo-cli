@@ -87,7 +87,7 @@ def _parse_command(message: str):
 
     # --- LIST tasks ---------------------------------------------------------
     if re.match(
-        r'^(?:show|list|view|display|get|see)(?:\s+(?:my\s+|all\s+)?(?:tasks?|todos?|items?|list))?$',
+        r'^(?:show|list|view|display|get|see)\s*(?:of\s+)?(?:my\s+|all\s+)?(?:tasks?|todos?|items?|list|task\s+lists?)?$',
         text,
         re.IGNORECASE,
     ):
@@ -101,6 +101,8 @@ def _parse_command(message: str):
     if text.lower() in {
         "tasks", "todos", "my tasks", "my todos",
         "all tasks", "all todos", "task list", "todo list",
+        "list of task", "list of tasks", "list of todos",
+        "show list of task", "show list of tasks",
     }:
         return ("list", {})
 
@@ -131,6 +133,32 @@ def _parse_command(message: str):
     )
     if m:
         return ("delete", {"todo_id": m.group(1).lstrip('#')})
+
+    # --- UPDATE task --------------------------------------------------------
+    # Pattern: "update <id> [with|set] [<field>] [to|as|:] [<value>]"
+    # Pattern: "update ID: `<id>` with <value>"
+    m = re.match(
+        r'^update\s+'
+        r'(?:task\s+|id\s*:?\s*)?'  # optional "task" or "ID:" prefix
+        r'`?([0-9a-fA-F-]{8,36})`?\s*'  # todo_id (with optional backticks)
+        r'(?:with|set)\s+'
+        r'(?:'
+        r'([a-zA-Z]\w*)\s+(?:to|as|[:=]\s*)?\s*(.+)'  # field + value
+        r'|'
+        r'(.+)'  # value only (no field)
+        r')',
+        text,
+        re.IGNORECASE,
+    )
+    if m:
+        raw_id = m.group(1).strip('`').strip()
+        field = (m.group(2) or "").lower().strip()
+        value = (m.group(3) or m.group(4) or "").strip()
+        return ("update", {
+            "todo_id": raw_id,
+            "field": field,  # empty string when no field specified
+            "value": value,
+        })
 
     return (None, None)
 
@@ -259,6 +287,131 @@ async def _execute_command(
         return {
             "content": f"❌ Could not complete task `{todo_id}`: {err}.{hint}",
             "metadata": {"command": "complete", "tool_result": result},
+        }
+
+    # ---- UPDATE ------------------------------------------------------------
+    elif command == "update":
+        todo_id = args["todo_id"]
+        field = args["field"]
+        value = args["value"]
+
+        if not _looks_like_task_id(todo_id):
+            return {
+                "content": (
+                    "❌ I couldn't identify that task ID. "
+                    "Please use **show my tasks** and try again with the exact task ID."
+                ),
+                "metadata": {
+                    "command": "update",
+                    "tool_result": {
+                        "success": False,
+                        "error": "Invalid task identifier",
+                        "code": "INVALID_TASK_ID",
+                    },
+                },
+            }
+
+        # Map user-friendly field names to API fields
+        FIELD_MAP = {
+            "title": "title",
+            "name": "title",
+            "description": "description",
+            "desc": "description",
+            "status": "status",
+            "state": "status",
+            "priority": "priority",
+            "prio": "priority",
+            "due": "due_date",
+            "duedate": "due_date",
+            "due_date": "due_date",
+        }
+
+        # When no field specified, or field is not recognized,
+        # append value to the current title
+        if not field:
+            api_field = "title_append"
+        else:
+            api_field = FIELD_MAP.get(field)
+
+        if api_field is None:
+            # If the "field" word isn't in our map, treat the whole thing
+            # as a value-only update (append to title)
+            fetch_result = await list_todos(user_id=user_id, status="all", jwt_token=jwt_token)
+            current_title = todo_id
+            if fetch_result.get("success"):
+                for t in fetch_result.get("todos", []):
+                    if str(t.get("id", "")) == todo_id:
+                        current_title = t.get("title", todo_id)
+                        break
+            api_field = "title"
+            value = f"{current_title} {field} {value}"
+
+        if api_field == "title_append":
+            fetch_result = await list_todos(user_id=user_id, status="all", jwt_token=jwt_token)
+            current_title = todo_id
+            if fetch_result.get("success"):
+                for t in fetch_result.get("todos", []):
+                    if str(t.get("id", "")) == todo_id:
+                        current_title = t.get("title", todo_id)
+                        break
+            api_field = "title"
+            value = f"{current_title} {value}"
+
+            # Validate status values
+            if api_field == "status" and value.lower() not in ("pending", "completed", "done", "active"):
+                return {
+                    "content": f"❌ Invalid status: **{value}**. Use `pending` or `completed`.",
+                    "metadata": {
+                        "command": "update",
+                        "tool_result": {
+                            "success": False,
+                            "error": f"Invalid status: {value}",
+                            "code": "VALIDATION_ERROR",
+                        },
+                    },
+                }
+
+            if api_field == "status" and value.lower() in ("done",):
+                value = "completed"
+
+            if api_field == "priority" and value.lower() not in ("low", "medium", "high"):
+                return {
+                    "content": f"❌ Invalid priority: **{value}**. Use `low`, `medium`, or `high`.",
+                    "metadata": {
+                        "command": "update",
+                        "tool_result": {
+                            "success": False,
+                            "error": f"Invalid priority: {value}",
+                            "code": "VALIDATION_ERROR",
+                        },
+                    },
+                }
+
+        # Build update payload
+        update_payload = {api_field: value}
+
+        result = await update_todo(
+            user_id=user_id,
+            todo_id=todo_id,
+            jwt_token=jwt_token,
+            **update_payload,
+        )
+
+        if result.get("success"):
+            return {
+                "content": f"✅ Task `{todo_id}` updated — **{field}** set to **{value}**.",
+                "metadata": {"command": "update", "tool_result": result},
+            }
+
+        err = result.get("error", "Unknown error")
+        hint = (
+            " Tip: use **show my tasks** to get the full task ID."
+            if todo_id.isdigit()
+            else ""
+        )
+        return {
+            "content": f"❌ Could not update task `{todo_id}`: {err}.{hint}",
+            "metadata": {"command": "update", "tool_result": result},
         }
 
     # ---- DELETE ------------------------------------------------------------

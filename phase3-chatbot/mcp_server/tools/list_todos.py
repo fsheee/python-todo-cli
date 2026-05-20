@@ -55,7 +55,7 @@ def calculate_date_range(range_type: str) -> Dict:
 
 async def list_todos(
     user_id: Union[int, str],  # Accept both int and UUID string
-    status: Optional[str] = "pending",
+    status: Optional[str] = "all",
     priority: Optional[str] = None,
     due_date: Optional[str] = None,
     due_date_range: Optional[str] = None,
@@ -138,27 +138,22 @@ async def list_todos(
             params["due_date"] = due_date
 
         # Call Phase 2 backend (using Phase 2's actual endpoint format)
-        # Phase 2 backend uses /api/{user_id}/tasks
-        endpoint = f"/api/{user_id_str}/tasks"
+        # Phase 3 backend uses /tasks with query params (JWT auth)
+        endpoint = "/tasks"
         response = http_client.get(endpoint, params=params, jwt_token=jwt_token)
         if inspect.isawaitable(response):
             response = await response
 
         if response.status_code == 200:
             data = response.json()
-            # Phase 2 backend returns {"tasks": [...], "count": N}
-            if isinstance(data, list):
-                todos = data
-            elif isinstance(data, dict):
-                todos = data.get("tasks", data.get("todos", []))
-            else:
-                todos = []
+            # Phase 3 backend returns {"tasks": [...], "total": N, "page": 1, "page_size": 50}
+            todos = data.get("tasks", [])
 
             return {
                 "success": True,
                 "todos": todos,
                 "count": len(todos),
-                "total": data.get("total", data.get("count", len(todos))) if isinstance(data, dict) else len(todos),
+                "total": data.get("total", len(todos)),
                 "has_more": len(todos) == limit
             }
 
@@ -166,7 +161,7 @@ async def list_todos(
         if response.status_code == 401:
             return {
                 "success": False,
-                "error": "Unauthorized from Phase 2 backend (token expired/invalid). Please log in again.",
+                "error": "Unauthorized (token expired/invalid). Please log in again.",
                 "code": "AUTH_FAILED",
                 "http_status": 401,
                 "endpoint": endpoint
@@ -174,7 +169,7 @@ async def list_todos(
         if response.status_code == 403:
             return {
                 "success": False,
-                "error": "Forbidden from Phase 2 backend (user ID mismatch).",
+                "error": "Forbidden (user ID mismatch).",
                 "code": "ACCESS_DENIED",
                 "http_status": 403,
                 "endpoint": endpoint
@@ -182,7 +177,7 @@ async def list_todos(
         if response.status_code == 404:
             return {
                 "success": False,
-                "error": "Phase 2 endpoint not found. Check PHASE2_API_URL and route prefix.",
+                "error": "Endpoint not found.",
                 "code": "ENDPOINT_NOT_FOUND",
                 "http_status": 404,
                 "endpoint": endpoint
