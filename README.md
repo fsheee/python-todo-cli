@@ -1,10 +1,10 @@
 # Hackathon Todo - Multi-Phase Full-Stack Application
 
-A comprehensive todo management system evolved through three phases: from a simple CLI app to a full-stack web application with AI-powered conversational interface.
+A comprehensive todo management system evolved through four phases: from a simple CLI app to a full-stack web application with AI-powered conversational interface, deployed on Kubernetes.
 
 ## 🏆 Project Overview
 
-This project demonstrates spec-driven development using Claude Code and Spec-Kit Plus, implementing a complete todo management system across three distinct phases.
+This project demonstrates spec-driven development using Claude Code and Spec-Kit Plus, implementing a complete todo management system across four distinct phases.
 
 ### Phase 1: Console Application
 A command-line todo application with in-memory storage, featuring basic CRUD operations.
@@ -14,6 +14,9 @@ A secure, modern, multi-user web application with authentication, RESTful API, a
 
 ### Phase 3: AI Chatbot
 An AI-powered conversational interface for natural language todo management using OpenAI Agents SDK and MCP tools.
+
+### Phase 4: Kubernetes Deployment
+Local Kubernetes deployment of the Phase 3 chatbot system using Minikube and Helm, with NGINX ingress, PostgreSQL, and containerized services.
 
 ---
 
@@ -47,8 +50,19 @@ hackathon-todo/
 │   ├── frontend/            # Next.js chat interface
 │   └── specs/               # Agent and tool specs
 │
-└── .claude/                 # Shared skills and agents
-    └── skills/              # Reusable skill definitions
+├── phase4-k8/               # Kubernetes deployment
+│   ├── helm/gordon/         # Helm chart
+│   │   └── templates/       # K8s manifests
+│   ├── docker/              # Dockerfiles for build
+│   └── history/             # PHR, ADR, prompt records
+│
+├── .claude/                 # Shared skills and agents
+│   └── skills/              # Reusable skill definitions
+│
+└── history/                 # Project-wide documentation records
+    ├── phr/                 # Problem-Hypothesis-Review docs
+    ├── adr/                 # Architecture Decision Records
+    └── prompts/             # Session prompt history
 ```
 
 ---
@@ -95,6 +109,21 @@ npm install
 npm run dev
 ```
 
+### Phase 4: Kubernetes (Local)
+
+```bash
+cd phase4-k8
+
+# Build Docker images
+./docker/build.sh
+
+# Deploy with Helm
+helm install todo-app ./helm/gordon -f ./helm/gordon/secrets.yaml
+
+# Check deployment
+kubectl get pods
+```
+
 ---
 
 ## 💻 Technology Stack
@@ -119,6 +148,14 @@ npm run dev
 - **Backend:** FastAPI with rate limiting
 - **Storage:** File-based chat history + PostgreSQL
 
+### Phase 4 (Kubernetes)
+- **Orchestration:** Minikube (local K8s cluster)
+- **Packaging:** Helm charts
+- **Ingress:** NGINX Ingress Controller
+- **Database:** PostgreSQL 16 (containerized)
+- **Containerization:** Docker (multi-stage builds)
+- **Images:** Python 3.13 (backend), Node 20 (frontend)
+
 ---
 
 ## ✨ Key Features
@@ -140,6 +177,14 @@ npm run dev
 - 🔒 JWT-based authorization
 - 🗄️ PostgreSQL database persistence
 - 🚀 Production deployment on Vercel
+
+### Phase 4 Features
+- ☸️ Local Kubernetes cluster (Minikube)
+- 📦 Helm chart deployment
+- 🌐 NGINX ingress with host-based routing
+- 🐳 Containerized services (Docker)
+- 🗄️ PostgreSQL 16 in-cluster database
+- 🔄 Rolling updates and health checks
 
 ### Phase 3 Features
 - 🤖 Natural language todo management
@@ -353,6 +398,33 @@ npm run build
 npm start
 ```
 
+### Phase 4: Kubernetes Deployment
+
+**Prerequisites:**
+- Minikube, Helm, Docker, kubectl
+
+**Deploy:**
+```bash
+# Start Minikube
+minikube start --driver=docker --memory=4096 --cpus=2
+minikube addons enable ingress
+
+# Build images and deploy
+cd phase4-k8
+./docker/build.sh
+helm install todo-app ./helm/gordon -f ./helm/gordon/secrets.yaml
+
+# Access the app
+kubectl get ingress
+# Add <minikube-ip> todo.local to your hosts file
+```
+
+**Cleanup:**
+```bash
+helm uninstall todo-app
+minikube stop
+```
+
 ---
 
 ## 🔧 Development Workflow
@@ -378,9 +450,12 @@ This project follows a **spec-driven development** approach:
 - [Phase 1 README](./phase1-console/README.md)
 - [Phase 2 README](./phase2-web/README.md)
 - [Phase 3 README](./phase3-chatbot/README.md)
+- [Phase 4 README](./phase4-k8/README.md)
 - [Phase 2 Backend Docs](./phase2-web/backend/README.md)
 - [Phase 2 Frontend Docs](./phase2-web/frontend/README.md)
-- [Architecture Decision Records](./phase2-web/adr/)
+- [Phase 4 Helm Chart Docs](./phase4-k8/helm/gordon/README.md)
+- [Architecture Decision Records](./history/adr/)
+- [Problem-Hypothesis-Review Records](./history/phr/)
 - [Shared Skills](./claude/skills/)
 
 ---
@@ -411,6 +486,8 @@ This project demonstrates:
 - **AI Agent Development** with OpenAI Agents SDK
 - **MCP Tool Creation** for LLM integration
 - **Full-Stack Deployment** on Vercel
+- **Kubernetes Deployment** with Minikube and Helm
+- **Containerization** with Docker multi-stage builds
 - **Database Design** with PostgreSQL
 - **Authentication** with JWT tokens
 
